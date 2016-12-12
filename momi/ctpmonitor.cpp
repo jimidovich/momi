@@ -77,7 +77,6 @@ CtpMonitor::CtpMonitor(QWidget *parent)
 
 CtpMonitor::~CtpMonitor()
 {
-
 }
 
 Ui::CtpMonitorClass CtpMonitor::getui()
@@ -126,7 +125,7 @@ void CtpMonitor::recCmdLine()
 
 void CtpMonitor::printTraderMsg(QString msg, QColor clr)
 {
-    msg = QString("[" + getCurrentTimeMsec() + "]") + msg;
+    msg = QString("[" + getCurrentTimeMsec() + "] ") + msg;
 
     //QColor clr(255,0,0);
     //auto clr = Qt::yellow;

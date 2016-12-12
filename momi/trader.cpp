@@ -61,7 +61,7 @@ int Trader::login()
     strcpy(loginField->UserID, USER_ID.c_str());
     strcpy(loginField->Password, PASSWORD.c_str());
     int ret = tdapi->ReqUserLogin(loginField, ++nRequestID);
-    showApiReturn(ret, "ReqLogin:", "ReqLogin Failed: ");
+    showApiReturn(ret, "--> ReqLogin:", "ReqLogin Failed: ");
     return ret;
 }
 
@@ -73,7 +73,7 @@ int Trader::logout()
     strcpy(logoutField->BrokerID, BROKER_ID.c_str());
     strcpy(logoutField->UserID, USER_ID.c_str());
     int ret = tdapi->ReqUserLogout(logoutField, ++nRequestID);
-    showApiReturn(ret, "ReqLogout:", "ReqLogout Failed: ");
+    showApiReturn(ret, "--> ReqLogout:", "ReqLogout Failed: ");
     return ret;
 }
 
@@ -224,7 +224,7 @@ void Trader::OnRspOrderAction(CThostFtdcInputOrderActionField *pInputOrderAction
 void Trader::OnRspQryOrder(CThostFtdcOrderField *pOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
     if (!isErrorRspInfo(pRspInfo, "RspQryOrder: ")) {
-        if (pOrder != nullptr && pOrder->BrokerID != "") {
+        if (pOrder != nullptr) {
             QString msg;
             msg.append("OrderRef=").append(pOrder->OrderRef);
             msg.append(" ").append(pOrder->InstrumentID);
@@ -258,7 +258,7 @@ void Trader::OnRspQryOrder(CThostFtdcOrderField *pOrder, CThostFtdcRspInfoField 
 void Trader::OnRspQryTrade(CThostFtdcTradeField *pTrade, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
     if (!isErrorRspInfo(pRspInfo, "RspQryTrade: ")) {
-        if (pTrade != nullptr && pTrade->BrokerID != "") {
+        if (pTrade != nullptr) {
             QString msg;
             msg.append(pTrade->InstrumentID);
             msg.append(" Offset=").append(pTrade->OffsetFlag);
@@ -270,10 +270,7 @@ void Trader::OnRspQryTrade(CThostFtdcTradeField *pTrade, CThostFtdcRspInfoField 
         }
         if (bIsLast) {
             logger(info, "Qry Trade Finished.");
-            if (pTrade->BrokerID != "")
-                emit sendToTraderMonitor("Qry Trade Finished.");
-            else
-                emit sendToTraderMonitor("No trade.");
+            emit sendToTraderMonitor("Qry Trade Finished.");
         }
     }
 }
@@ -281,7 +278,7 @@ void Trader::OnRspQryTrade(CThostFtdcTradeField *pTrade, CThostFtdcRspInfoField 
 void Trader::OnRspQryInvestorPosition(CThostFtdcInvestorPositionField *pInvestorPosition, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
     if (!isErrorRspInfo(pRspInfo, "RspQryPosition: ")) {
-        if (pInvestorPosition != nullptr && pInvestorPosition->BrokerID != "") {
+        if (pInvestorPosition != nullptr) {
             QString msg;
             msg.append(pInvestorPosition->InstrumentID);
             msg.append(" Direction=").append(pInvestorPosition->PosiDirection);
@@ -298,10 +295,7 @@ void Trader::OnRspQryInvestorPosition(CThostFtdcInvestorPositionField *pInvestor
         }
         if (bIsLast) {
             logger(info, "Qry InvestorPosition Finished");
-            if (pInvestorPosition->BrokerID != "")
-                emit sendToTraderMonitor("Qry InvestorPosition Finished.");
-            else
-                emit sendToTraderMonitor("No Position.");
+            emit sendToTraderMonitor("Qry InvestorPosition Finished.");
 
             // Send isLast signal event
             auto fcpy = new CThostFtdcInvestorPositionField;
@@ -315,7 +309,7 @@ void Trader::OnRspQryInvestorPosition(CThostFtdcInvestorPositionField *pInvestor
 void Trader::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDetailField *pInvestorPositionDetail, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
     if (!isErrorRspInfo(pRspInfo, "RspQryPositionDetail: ")) {
-        if (pInvestorPositionDetail != nullptr && pInvestorPositionDetail->BrokerID != "") {
+        if (pInvestorPositionDetail != nullptr) {
             QString msg;
             msg.append(pInvestorPositionDetail->InstrumentID);
             msg.append(" Direction=").append(pInvestorPositionDetail->Direction);
@@ -332,10 +326,7 @@ void Trader::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDetailFiel
         }
         if (bIsLast) {
             logger(info, "Qry InvestorPositionDetail Finished");
-            if (pInvestorPositionDetail->BrokerID != "")
-                emit sendToTraderMonitor("Qry InvestorPositionDetail Finished.");
-            else
-                emit sendToTraderMonitor("No Position.");
+            emit sendToTraderMonitor("Qry InvestorPositionDetail Finished.");
 
             // Send isLast signal event
             auto fcpy = new CThostFtdcInvestorPositionDetailField;
@@ -410,7 +401,7 @@ void Trader::OnRspQryDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarke
 
 void Trader::OnRtnOrder(CThostFtdcOrderField *pOrder)
 {
-    if (pOrder != nullptr && pOrder->BrokerID != "") {
+    if (pOrder != nullptr) {
         QString msg;
         msg += QString("OnRtnOrder: OrderRef=%1, %2, StatusMsg=%3").arg(pOrder->OrderRef, pOrder->InstrumentID, QString::fromLocal8Bit(pOrder->StatusMsg));
         //msg.append(" ExchangeID=").append(pOrder->ExchangeID);
@@ -437,7 +428,7 @@ void Trader::OnRtnOrder(CThostFtdcOrderField *pOrder)
 
 void Trader::OnRtnTrade(CThostFtdcTradeField *pTrade)
 {
-    if (pTrade != nullptr && pTrade->BrokerID != "") {
+    if (pTrade != nullptr) {
         QString msg;
         msg += QString("OnRtnTrade: OrderRef=%1, %2").arg(pTrade->OrderRef, pTrade->InstrumentID);
         //msg.append("\nExchangeID=").append(pTrade->ExchangeID);

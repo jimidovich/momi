@@ -159,22 +159,22 @@ void MdSpi::showApiReturn(int ret, QString outputIfSuccess, QString outputIfErro
         switch (ret) {
         case 0:
             //msg = outputIfSuccess.append("0: Sent successfully ").append(QString("ReqID=%1").arg(QString::number(nRequestID)));
-            msg = outputIfSuccess.append("|Api return 0: Sent successfully. ");
+            msg = outputIfSuccess.append(" | Api return 0: Sent successfully. ");
             logger(info, msg.toStdString().c_str());
             emit sendToTraderMonitor(msg);
             break;
         case -1:
-            msg = outputIfError.append("|Api return 1: Failed, network problem. ");
+            msg = outputIfError.append(" | Api return 1: Failed, network problem. ");
             logger(err, msg.toStdString().c_str());
             emit sendToTraderMonitor(msg);
             break;
         case -2:
-            msg = outputIfError.append("|Api return 2: waiting request queue pass limit. ");
+            msg = outputIfError.append(" | Api return 2: waiting request queue pass limit. ");
             logger(err, msg.toStdString().c_str());
             emit sendToTraderMonitor(msg);
             break;
         case -3:
-            msg = outputIfError.append("|Api return 3: request/sec pass limit. ");
+            msg = outputIfError.append(" | Api return 3: request/sec pass limit. ");
             logger(err, msg.toStdString().c_str());
             emit sendToTraderMonitor(msg);
             break;

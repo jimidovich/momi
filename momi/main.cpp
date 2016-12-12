@@ -35,11 +35,17 @@ int main(int argc, char *argv[])
     console->info("Enter Program");
     file_logger->info("Enter Program");
 
+    bool gui = argc == 1;  // shorthand gui option
+    QApplication a(argc, argv);
+    CtpMonitor *w = nullptr;
+    if (gui) {
+        w = new CtpMonitor;
+        w->show();
+    }
+
     KdbConnector kdbConnector("kdbconn");
     Dispatcher dispatcher;
     dispatcher.setKdbConnector(&kdbConnector);
-
-    QApplication a(argc, argv);
 
     //Trader trader;
     Trader trader("tcp://180.168.146.187:10000", "9999", "063669", "1qaz2wsx");
@@ -83,24 +89,26 @@ int main(int argc, char *argv[])
 
     //if (std::string(argv[1]) == "--nogui")
     if (argc == 1) {
-        CtpMonitor w;
-        QObject::connect(&pf, &Portfolio::sendToPosMonitor, &w, &CtpMonitor::printPosMsg);
-        QObject::connect(&pf, &Portfolio::sendToAccMonitor, &w, &CtpMonitor::printAccMsg);
-        QObject::connect(&trader, &Trader::sendToTraderMonitor, &w, &CtpMonitor::printTraderMsg);
-        QObject::connect(&mdspi, &MdSpi::sendToTraderMonitor, &w, &CtpMonitor::printTraderMsg);
-        QObject::connect(&oms, &OMS::sendToTraderMonitor, &w, &CtpMonitor::printTraderMsg);
-        QObject::connect(&mdspi, &MdSpi::sendToMdMonitor, &w, &CtpMonitor::printMdSpiMsg);
-
-        QObject::connect(&w, &CtpMonitor::sendCmdLineToTrader, &trader, &Trader::execCmdLine);
-        QObject::connect(&w, &CtpMonitor::sendCmdLineToMdspi, &mdspi, &MdSpi::execCmdLine);
-        QObject::connect(&w, &CtpMonitor::sendCmdLineToOms, &oms, &OMS::execCmdLine);
+//        CtpMonitor w;
+        QObject::connect(&trader, &Trader::sendToTraderMonitor, w, &CtpMonitor::printTraderMsg);
+        QObject::connect(w, &CtpMonitor::sendCmdLineToTrader, &trader, &Trader::execCmdLine);
+        QObject::connect(&mdspi, &MdSpi::sendToTraderMonitor, w, &CtpMonitor::printTraderMsg);
+        QObject::connect(&mdspi, &MdSpi::sendToMdMonitor, w, &CtpMonitor::printMdSpiMsg);
+        QObject::connect(w, &CtpMonitor::sendCmdLineToMdspi, &mdspi, &MdSpi::execCmdLine);
+        QObject::connect(&pf, &Portfolio::sendToPosMonitor, w, &CtpMonitor::printPosMsg);
+        QObject::connect(&pf, &Portfolio::sendToAccMonitor, w, &CtpMonitor::printAccMsg);
+        QObject::connect(&oms, &OMS::sendToTraderMonitor, w, &CtpMonitor::printTraderMsg);
+        QObject::connect(w, &CtpMonitor::sendCmdLineToOms, &oms, &OMS::execCmdLine);
         //mythread.kdbConnector.setTradingDay(trader.getTradingDay().c_str());
 
-        w.getui().posTableView->setModel(&pf);
-        pf.setPosTableView(w.getui().posTableView);
+        w->getui().posTableView->setModel(&pf);
+        pf.setPosTableView(w->getui().posTableView);
 
-        w.show();
-        return a.exec();
+//        w->show();
+        auto ret = a.exec();
+        thread.exit();
+        delete w;
+        return ret;
     } else {
         return a.exec();
     }

@@ -125,10 +125,11 @@ void KdbConnector::insertContractInfo(CThostFtdcInstrumentField *info)
         LifePhase, IsTrading, PositionType, PositionDateType, LongMarginRatio, ShortMarginRatio, MMSA);
 
     //self-maintained table
-    k(-handle, "insert", ks("ContractsInfo"), data, (K)0);
+    //k(-handle, "insert", ks("ContractsInfo"), data, (K)0);
+    k(-handle, (S)"insert", ks((S)"ContractsInfo"), data, (K)0);
 
     //kdb+tick
-    k(-handle, ".u.upd", ks((S)cinfoName), data, (K)0);
+    k(-handle, (S)".u.upd", ks((S)cinfoName), data, (K)0);
 
     //qDebug() << info->InstrumentID;
     mutex.unlock();
@@ -139,12 +140,12 @@ void KdbConnector::insertFeed(CThostFtdcDepthMarketDataField * feed)
     QElapsedTimer t;
     t.start();
     mutex.lock();
-    K data, tspan, Contract, Exchange, Date, Time, Last, Bid1, BidSize1, \
-        Ask1, AskSize1, Volume, Turnover, OpenInterest, AvgPrice, Open, High, Low, \
-        UpperLimit, LowerLimit, PreSettlement, PreClose, PreOpenInterest, Close, Settlement;
-    tspan = k(handle, ".z.N", (K)0);
+    K data, Contract, Date, Time, Last, Bid1, BidSize1, \
+        Ask1, AskSize1, Volume, Turnover, OpenInterest, AvgPrice, Open, High, Low;
+        //UpperLimit, LowerLimit, PreSettlement, PreClose, PreOpenInterest, Close, Settlement;
+    //K tspan = k(handle, (S)".z.N", (K)0);
     Contract = ks(feed->InstrumentID);
-    Exchange = ks(feed->ExchangeID);
+    //K Exchange = ks(feed->ExchangeID);
     Date = date2qDate(feed->TradingDay);
     Time = qMakeTime(feed->UpdateTime, feed->UpdateMillisec);
     Last = kf(feed->LastPrice);
@@ -169,7 +170,7 @@ void KdbConnector::insertFeed(CThostFtdcDepthMarketDataField * feed)
 
     data = knk(15, Contract, Date, Time, Last, Bid1, BidSize1, Ask1, AskSize1,
         Volume, Turnover, OpenInterest, AvgPrice, Open, High, Low);
-    k(-handle, ".u.upd", ks((S)tableName), data, (K)0);
+    k(-handle, (S)".u.upd", ks((S)tableName), data, (K)0);
     //k(handle, "", (K)0); // flush
     //qDebug() << ++countTick << QTime::currentTime();
     //QApplication::processEvents();
@@ -190,7 +191,7 @@ void KdbConnector::insertAccount(const Account &acc)
     margin = kf(acc.margin);
 
     data = knk(7, id, balance, pnl, rPnL, unrPnL, available, margin);
-    k(-handle, ".u.upd", ks("account"), data, (K)0);
+    k(-handle, (S)".u.upd", ks((S)"account"), data, (K)0);
 }
 
 std::string KdbConnector::qStatementToCreateTable(const char *tbName)
@@ -224,7 +225,7 @@ K KdbConnector::qMakeTime(char *time, int millisec)
 
 K KdbConnector::qDataList(K tspan, K time)
 {
-    return knk(5, tspan, ks("rb"), kd(0), time, kf(2055.3));
+    return knk(5, tspan, ks((S)"rb"), kd(0), time, kf(2055.3));
 }
 
 K KdbConnector::date2qDate(char *date)
@@ -270,7 +271,7 @@ TickSubscriber::TickSubscriber(std::string consoleName)
 
 void TickSubscriber::subscribe()
 {
-    K r = k(handle, ".u.sub[`market;`]", (K)0);
+    K r = k(handle, (S)".u.sub[`market;`]", (K)0);
     //if (!r)
         //qDebug() << "Network error";
         //logger(warn, "Network error");
@@ -278,7 +279,7 @@ void TickSubscriber::subscribe()
         //qDebug() << "Subscribed";
         //logger(warn, "Subscribed");
 
-    K tb, colname, coldata;
+    K tb, coldata;
     while (1)
     {
         r = k(handle, (S)0);
@@ -288,7 +289,7 @@ void TickSubscriber::subscribe()
             {
                 qDebug() << QThread::currentThreadId() << "*****************" << kK(r)[1]->s;
                 tb = kK(r)[2]->k;
-                colname = kK(tb)[0];
+                // K colname = kK(tb)[0];
                 coldata = kK(tb)[1];
                 qDebug() << kS(kK(coldata)[1])[0] << kF(kK(coldata)[4])[0] << kI(kK(coldata)[3])[0] << "-----" << ++countTick;
             }
