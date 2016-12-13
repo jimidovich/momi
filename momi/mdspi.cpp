@@ -81,14 +81,17 @@ void MdSpi::OnFrontDisconnected(int nReason)
         break;
     }
     logger(err, msg.toLocal8Bit());
-    emit sendToTraderMonitor(msg);
+    emit sendToTraderMonitor(msg, Qt::red);
 }
 
 void MdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
     if (!isErrorRspInfo(pRspInfo, "Md RspUserLogin: Failed. ")) {
-        logger(info, "Md Login Successful. TradingDay={}", mdapi->GetTradingDay());
-        logger(info, "Subscribe market data:");
+        QString msg = QString("Md Login Successful. TradingDay=%1").arg(pRspUserLogin->TradingDay);
+//        logger(info, "Md Login Successful. TradingDay={}", mdapi->GetTradingDay());
+        logger(info, msg.toStdString().c_str());
+        emit sendToTraderMonitor(msg, Qt::green);
+//        logger(info, "Subscribe market data:");
         std::string instruments = { "au1612 ag1612 au1706 ag1706 cu1612 IF1611 i1701" };
         subscribeMd(instruments);
     }
@@ -97,7 +100,7 @@ void MdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtd
 void MdSpi::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
     if (!isErrorRspInfo(pRspInfo, "Md RspUserLogout: Failed. "))
-        logger(info, "Logout Successful");
+        logger(info, "Md Logout Successful");
 }
 
 void MdSpi::OnRspSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
@@ -148,7 +151,7 @@ void MdSpi::subscribeMd(std::string instruments)
             strcpy(namelist[i], argv.at(i).toStdString().c_str());
         }
         int ret = mdapi->SubscribeMarketData(namelist, n);
-        showApiReturn(ret, ("--> Subscribe: " + instruments).c_str(), "SubscribeMarketData Failed");
+        showApiReturn(ret, ("--> Md Subscribe: " + instruments).c_str(), "SubscribeMarketData Failed");
     }
 }
 
@@ -161,22 +164,22 @@ void MdSpi::showApiReturn(int ret, QString outputIfSuccess, QString outputIfErro
             //msg = outputIfSuccess.append("0: Sent successfully ").append(QString("ReqID=%1").arg(QString::number(nRequestID)));
             msg = outputIfSuccess.append(" | Api return 0: Sent successfully. ");
             logger(info, msg.toStdString().c_str());
-            emit sendToTraderMonitor(msg);
+            emit sendToTraderMonitor(msg, Qt::darkGreen);
             break;
         case -1:
             msg = outputIfError.append(" | Api return 1: Failed, network problem. ");
             logger(err, msg.toStdString().c_str());
-            emit sendToTraderMonitor(msg);
+            emit sendToTraderMonitor(msg, Qt::red);
             break;
         case -2:
             msg = outputIfError.append(" | Api return 2: waiting request queue pass limit. ");
             logger(err, msg.toStdString().c_str());
-            emit sendToTraderMonitor(msg);
+            emit sendToTraderMonitor(msg, Qt::red);
             break;
         case -3:
             msg = outputIfError.append(" | Api return 3: request/sec pass limit. ");
             logger(err, msg.toStdString().c_str());
-            emit sendToTraderMonitor(msg);
+            emit sendToTraderMonitor(msg, Qt::red);
             break;
         default:
             break;
@@ -190,7 +193,7 @@ bool MdSpi::isErrorRspInfo(CThostFtdcRspInfoField *pRspInfo, const char *msg)
     if (isError) {
         QString errMsg = QString(msg).append("ErrorID=").append(QString::number(pRspInfo->ErrorID)).append(" ErrorMsg=").append(QString::fromLocal8Bit(pRspInfo->ErrorMsg));
         logger(err, "{}ErrorID={}, ErrorMsg={}", msg, pRspInfo->ErrorID, pRspInfo->ErrorMsg);
-        emit sendToTraderMonitor(errMsg);
+        emit sendToTraderMonitor(errMsg, Qt::red);
     }
     return isError;
 }

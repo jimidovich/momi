@@ -337,8 +337,8 @@ void Portfolio::updatePosOnTrade(AggPosList &al, PosList &pl, CThostFtdcTradeFie
                 p.direction != mymap::direction_char.at(tdcpy->Direction) &&
                 p.pos > 0 &&
                 (td->OffsetFlag == THOST_FTDC_OF_Close ||
-                    td->OffsetFlag == THOST_FTDC_OF_CloseToday && p.positionDate == 'T' ||
-                    td->OffsetFlag == THOST_FTDC_OF_CloseYesterday && p.positionDate == 'H'))
+                    (td->OffsetFlag == THOST_FTDC_OF_CloseToday && p.positionDate == 'T') ||
+                    (td->OffsetFlag == THOST_FTDC_OF_CloseYesterday && p.positionDate == 'H')))
             {
                 auto deltaPos = min(p.pos, tdcpy->Volume);
                 if (deltaPos != 0)

@@ -82,7 +82,7 @@ void Trader::OnFrontConnected()
     /*chrono::seconds sleepDuration(1);
     this_thread::sleep_for(sleepDuration);*/
     logger(info, "Trader Front Connected.");
-    emit sendToTraderMonitor("Trader Front Connected.", Qt::green);
+    emit sendToTraderMonitor("Trader Front Connected.", Qt::darkGreen);
     this->login();
 }
 
@@ -110,7 +110,7 @@ void Trader::OnFrontDisconnected(int nReason)
         break;
     }
     logger(err, msg.toLocal8Bit());
-    emit sendToTraderMonitor(msg);
+    emit sendToTraderMonitor(msg, Qt::red);
 }
 
 void Trader::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
@@ -137,7 +137,7 @@ void Trader::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFt
         msg.append("\n....DCE  Time   = ").append(pRspUserLogin->DCETime);
         msg.append("\n....CZCE Time   = ").append(pRspUserLogin->CZCETime);
         msg.append("\n....FFEX Time   = ").append(pRspUserLogin->FFEXTime);
-        emit sendToTraderMonitor(msg);
+        emit sendToTraderMonitor(msg, Qt::green);
         logger(info, msg.toStdString().c_str());
 
         // TODO: move workflow to portfolio's Timer.
@@ -151,7 +151,7 @@ void Trader::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcR
 {
     if (!isErrorRspInfo(pRspInfo, "Trader Logout Failed: ")) {
         logger(info, "Trader Logout Success");
-        emit sendToTraderMonitor("Trader Logout Success");
+        emit sendToTraderMonitor("Trader Logout Success", Qt::darkCyan);
     }
 }
 
@@ -794,7 +794,7 @@ bool Trader::isErrorRspInfo(CThostFtdcRspInfoField *pRspInfo, const char *msg)
         QString errMsg = QString(msg).append("ErrorID=").append(QString::number(pRspInfo->ErrorID)).append(", ErrorMsg=").append(QString::fromLocal8Bit(pRspInfo->ErrorMsg));
 //        logger(err, "{}ErrorID={}, ErrorMsg={}", msg, pRspInfo->ErrorID, pRspInfo->ErrorMsg);
         logger(err, errMsg.toStdString().c_str());
-        emit sendToTraderMonitor(errMsg);
+        emit sendToTraderMonitor(errMsg, Qt::red);
     }
     return isError;
 }
@@ -809,22 +809,22 @@ void Trader::showApiReturn(int ret, QString outputIfSuccess, QString outputIfErr
             //msg = outputIfSuccess.append("0: Sent successfully ").append(QString("ReqID=%1").arg(QString::number(nRequestID)));
             msg = outputIfSuccess.append(" | Api return 0: Sent successfully. ").append(QString("ReqID=%1").arg(nRequestID));
             logger(info, msg.toStdString().c_str());
-            emit sendToTraderMonitor(msg);
+            emit sendToTraderMonitor(msg, Qt::darkGreen);
             break;
         case -1:
             msg = outputIfError.append(" | Api return -1: Failed, network problem, ").append(QString("ReqID=%1").arg(nRequestID));
             logger(err, msg.toStdString().c_str());
-            emit sendToTraderMonitor(msg);
+            emit sendToTraderMonitor(msg, Qt::red);
             break;
         case -2:
             msg = outputIfError.append(" | Api return -2: waiting request queue pass limit. ").append(QString("ReqID=%1").arg(nRequestID));
             logger(err, msg.toStdString().c_str());
-            emit sendToTraderMonitor(msg);
+            emit sendToTraderMonitor(msg, Qt::red);
             break;
         case -3:
             msg = outputIfError.append(" | Api return -3: request/sec pass limit. ").append(QString("ReqID=%1").arg(nRequestID));
             logger(err, msg.toStdString().c_str());
-            emit sendToTraderMonitor(msg);
+            emit sendToTraderMonitor(msg, Qt::red);
             break;
         default:
             break;
