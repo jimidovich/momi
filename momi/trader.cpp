@@ -54,26 +54,26 @@ void Trader::reqConnect()
 
 int Trader::login()
 {
-    logger(info, "Trader Login...");
-    emit sendToTraderMonitor("Trader Login...");
+//    logger(info, "--> Trader ReqLogin...");
+//    emit sendToTraderMonitor("--> Trader Req Login...");
     auto loginField = new CThostFtdcReqUserLoginField();
     strcpy(loginField->BrokerID, BROKER_ID.c_str());
     strcpy(loginField->UserID, USER_ID.c_str());
     strcpy(loginField->Password, PASSWORD.c_str());
     int ret = tdapi->ReqUserLogin(loginField, ++nRequestID);
-    showApiReturn(ret, "--> ReqLogin:", "ReqLogin Failed: ");
+    showApiReturn(ret, "--> Trader ReqLogin:", "Trader ReqLogin Failed: ");
     return ret;
 }
 
 int Trader::logout()
 {
-    logger(info, "Trader Logout...");
-    emit sendToTraderMonitor("Trader Logout...");
+//    logger(info, "Trader Req Logout...");
+//    emit sendToTraderMonitor("--> Trader Req Logout...");
     auto logoutField = new CThostFtdcUserLogoutField();
     strcpy(logoutField->BrokerID, BROKER_ID.c_str());
     strcpy(logoutField->UserID, USER_ID.c_str());
     int ret = tdapi->ReqUserLogout(logoutField, ++nRequestID);
-    showApiReturn(ret, "--> ReqLogout:", "ReqLogout Failed: ");
+    showApiReturn(ret, "--> Trader ReqLogout:", "Trader ReqLogout Failed: ");
     return ret;
 }
 

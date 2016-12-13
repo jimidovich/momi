@@ -130,8 +130,7 @@ void CtpMonitor::printTraderMsg(QString msg, QColor clr)
     //QColor clr(255,0,0);
     //auto clr = Qt::yellow;
     stringToHtmlFilter(msg);
-    stringToHtml(msg,clr);
-    ui.traderOutput->append("");
+    stringToHtml(msg, clr);
     ui.traderOutput->insertHtml(msg);
     ui.traderOutput->append("");
     ui.traderOutput->moveCursor(QTextCursor::End);
