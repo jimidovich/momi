@@ -246,10 +246,11 @@ void OMS::orderInsertWithOffsetFlag(std::string &sym, EnumOpenClose o_c, EnumDir
         if (pf->aggPosList.contains(aggID_H))
             pos_H = pf->aggPosList[aggID_H].pos;
 
-        QString aggID_T = QString("%1-%2-%3").arg(sym.c_str()).arg(mymap::direction_char.at(posDirection)).arg('T');
-        int pos_T{ 0 };
-        if (pf->aggPosList.contains(aggID_T))
-            pos_T = pf->aggPosList[aggID_T].pos;
+        // Commented the following coz pos_T not used.
+        //QString aggID_T = QString("%1-%2-%3").arg(sym.c_str()).arg(mymap::direction_char.at(posDirection)).arg('T');
+        //int pos_T{ 0 };
+        //if (pf->aggPosList.contains(aggID_T))
+        //    pos_T = pf->aggPosList[aggID_T].pos;
 
         // simple logic case. yesterday pos close first.
         // also notice that pos_H + pos_T >= volume, where in this close case gap < 0

@@ -48,7 +48,9 @@ void MdSpi::reqConnect()
 
 void MdSpi::OnFrontConnected()
 {
-    logger(info, "MdSpi Front Connected. Req Login...");
+    logger(info, "Md Front Connected.");
+    emit sendToTraderMonitor("Md Front Connected.", Qt::darkGreen);
+
     auto loginField = new CThostFtdcReqUserLoginField();
     strcpy(loginField->BrokerID, BROKER_ID.c_str());
     strcpy(loginField->UserID, USER_ID.c_str());
@@ -130,8 +132,9 @@ void MdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDat
     msg.append(pDepthMarketData->InstrumentID).append("\t");
     msg.append("LastPrice=").append(QString::number(pDepthMarketData->LastPrice)).append("\t");
     msg.append("Turnover=").append(QString::number(pDepthMarketData->Turnover / 1e8)).append("\t");
-    msg.append(pDepthMarketData->UpdateTime).append(" ");
-    msg.append(QString::number(pDepthMarketData->UpdateMillisec)).append("ms");
+    msg.append(pDepthMarketData->UpdateTime).append(".");
+//    msg.append(QString::number(pDepthMarketData->UpdateMillisec));
+    msg.append(QString("%1").arg(pDepthMarketData->UpdateMillisec, 3, 10, QChar('0')));
     emit sendToMdMonitor(msg);
     auto fcpy = new CThostFtdcDepthMarketDataField;
     memcpy(fcpy, pDepthMarketData, sizeof(CThostFtdcDepthMarketDataField));
@@ -162,22 +165,22 @@ void MdSpi::showApiReturn(int ret, QString outputIfSuccess, QString outputIfErro
         switch (ret) {
         case 0:
             //msg = outputIfSuccess.append("0: Sent successfully ").append(QString("ReqID=%1").arg(QString::number(nRequestID)));
-            msg = outputIfSuccess.append(" | Api return 0: Sent successfully. ");
+            msg = outputIfSuccess.append(QString(" <Sent successfully>"));
             logger(info, msg.toStdString().c_str());
             emit sendToTraderMonitor(msg, Qt::darkGreen);
             break;
         case -1:
-            msg = outputIfError.append(" | Api return 1: Failed, network problem. ");
+            msg = outputIfSuccess.append(QString(" <Failed, network problem>"));
             logger(err, msg.toStdString().c_str());
             emit sendToTraderMonitor(msg, Qt::red);
             break;
         case -2:
-            msg = outputIfError.append(" | Api return 2: waiting request queue pass limit. ");
+            msg = outputIfSuccess.append(QString(" <Failed, number of unhandled request queues passes limit>"));
             logger(err, msg.toStdString().c_str());
             emit sendToTraderMonitor(msg, Qt::red);
             break;
         case -3:
-            msg = outputIfError.append(" | Api return 3: request/sec pass limit. ");
+            msg = outputIfSuccess.append(QString(" <Failed, requests per sec pass limit>"));
             logger(err, msg.toStdString().c_str());
             emit sendToTraderMonitor(msg, Qt::red);
             break;

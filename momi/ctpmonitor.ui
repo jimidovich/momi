@@ -1211,6 +1211,9 @@ QProgressBar::chunk {
     background-color: #05B8CC;
 }</string>
   </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <property name="sizePolicy">
     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -2726,6 +2729,12 @@ QProgressBar::chunk {
       <family>WenQuanYi Micro Hei Mono</family>
       <pointsize>10</pointsize>
      </font>
+    </property>
+    <property name="locale">
+     <locale language="English" country="UnitedStates"/>
+    </property>
+    <property name="lineWrapMode">
+     <enum>QTextEdit::NoWrap</enum>
     </property>
    </widget>
    <widget class="QPlainTextEdit" name="posOutput">

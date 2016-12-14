@@ -70,7 +70,7 @@ QVariant Portfolio::headerData(int section, Qt::Orientation orientation, int rol
             switch (section)
             {
             case 0: return QString("Instrument");
-            case 1: return QString("Instrument");
+            case 1: return QString("Price");
             case 2: return QString("Net Pos");
             case 3: return QString("Net PnL");
             }
@@ -263,7 +263,7 @@ void Portfolio::printNetPos()
         msg.append(sym).append("\t").append(QString::number(pos.netPos)).append("\t");
         msg.append(QString::number(pos.avgCostPrice)).append("\t").append(QString::number(pos.positionProfit));
         msg.append("\t").append(QString("%1").arg(pos.netPnl));
-        msg.append("\t").append(getTimeMsec(time, millisec)).append("ms").append("\n");
+        msg.append("\t").append(getTimeMsec(time, millisec)).append("\n");
 
     }
     emit sendToPosMonitor(msg);
@@ -279,7 +279,7 @@ void Portfolio::printAcc()
     msg.append("\t").append(QString("%1").arg(acc.positionProfit));
     msg.append("\t").append(QString("%1").arg(acc.margin));
     msg.append("\t").append(QString("%1").arg(acc.commission));
-    msg.append("\t").append(getTimeMsec(time, millisec)).append("ms");
+    msg.append("\t").append(getTimeMsec(time, millisec));
     emit sendToAccMonitor(msg);
 }
 

@@ -63,7 +63,7 @@ int Trader::login()
     strcpy(loginField->UserID, USER_ID.c_str());
     strcpy(loginField->Password, PASSWORD.c_str());
     int ret = tdapi->ReqUserLogin(loginField, ++nRequestID);
-    showApiReturn(ret, "--> Trader ReqLogin:", "Trader ReqLogin Failed: ");
+    showApiReturn(ret, "--> Trader ReqLogin", "Trader ReqLogin Failed: ");
     return ret;
 }
 
@@ -924,8 +924,9 @@ void Trader::execCmdLine(QString cmdLine)
         }
         else if (argv.at(0) == "showstlinfo") {
             QTextEdit *text = new QTextEdit;
-            text->resize(1200, 750);
+            text->resize(1250, 750);
             text->setAttribute(Qt::WA_DeleteOnClose);
+            text->setFont(QFont("Noto Sans Mono CJK SC", 9));
             text->append(QString::fromLocal8Bit(strSettlementInfo.c_str()));
             text->show();
         }
