@@ -26,6 +26,10 @@ signals:
 	void printToTraderCommandHist();
 	void recCmdLine();
 
+private slots:
+
+    void on_stlinfoButton_clicked();
+
 private:
 	Ui::CtpMonitorClass ui;
 };

@@ -1447,10 +1447,10 @@ QProgressBar::chunk {
    <widget class="QFrame" name="frame_Command">
     <property name="geometry">
      <rect>
-      <x>12</x>
+      <x>10</x>
       <y>210</y>
-      <width>339</width>
-      <height>241</height>
+      <width>363</width>
+      <height>284</height>
      </rect>
     </property>
     <property name="baseSize">
@@ -1472,7 +1472,252 @@ QProgressBar::chunk {
      <property name="rightMargin">
       <number>0</number>
      </property>
-     <item row="2" column="0">
+     <item row="8" column="1">
+      <widget class="QPushButton" name="sendButton">
+       <property name="text">
+        <string>Send</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QPlainTextEdit" name="traderCommandHist">
+       <property name="palette">
+        <palette>
+         <active>
+          <colorrole role="WindowText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>239</red>
+             <green>240</green>
+             <blue>241</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Button">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>35</red>
+             <green>38</green>
+             <blue>41</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Text">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>239</red>
+             <green>240</green>
+             <blue>241</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="ButtonText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>239</red>
+             <green>240</green>
+             <blue>241</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Base">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>35</red>
+             <green>38</green>
+             <blue>41</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Window">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>35</red>
+             <green>38</green>
+             <blue>41</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Highlight">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>61</red>
+             <green>174</green>
+             <blue>233</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="HighlightedText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>239</red>
+             <green>240</green>
+             <blue>241</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </active>
+         <inactive>
+          <colorrole role="WindowText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>239</red>
+             <green>240</green>
+             <blue>241</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Button">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>35</red>
+             <green>38</green>
+             <blue>41</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Text">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>239</red>
+             <green>240</green>
+             <blue>241</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="ButtonText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>239</red>
+             <green>240</green>
+             <blue>241</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Base">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>35</red>
+             <green>38</green>
+             <blue>41</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Window">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>35</red>
+             <green>38</green>
+             <blue>41</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Highlight">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>61</red>
+             <green>174</green>
+             <blue>233</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="HighlightedText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>239</red>
+             <green>240</green>
+             <blue>241</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </inactive>
+         <disabled>
+          <colorrole role="WindowText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>69</red>
+             <green>69</green>
+             <blue>69</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Button">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>49</red>
+             <green>54</green>
+             <blue>59</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Text">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>69</red>
+             <green>69</green>
+             <blue>69</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="ButtonText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>69</red>
+             <green>69</green>
+             <blue>69</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Base">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>49</red>
+             <green>54</green>
+             <blue>59</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Window">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>49</red>
+             <green>54</green>
+             <blue>59</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Highlight">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>61</red>
+             <green>174</green>
+             <blue>233</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="HighlightedText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>239</red>
+             <green>240</green>
+             <blue>241</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </disabled>
+        </palette>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0">
       <widget class="QLineEdit" name="traderCommandLine">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -1713,270 +1958,49 @@ QProgressBar::chunk {
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QPushButton" name="clearButton">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Clear</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QPlainTextEdit" name="traderCommandHist">
-       <property name="palette">
-        <palette>
-         <active>
-          <colorrole role="WindowText">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>239</red>
-             <green>240</green>
-             <blue>241</blue>
-            </color>
-           </brush>
-          </colorrole>
-          <colorrole role="Button">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>35</red>
-             <green>38</green>
-             <blue>41</blue>
-            </color>
-           </brush>
-          </colorrole>
-          <colorrole role="Text">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>239</red>
-             <green>240</green>
-             <blue>241</blue>
-            </color>
-           </brush>
-          </colorrole>
-          <colorrole role="ButtonText">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>239</red>
-             <green>240</green>
-             <blue>241</blue>
-            </color>
-           </brush>
-          </colorrole>
-          <colorrole role="Base">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>35</red>
-             <green>38</green>
-             <blue>41</blue>
-            </color>
-           </brush>
-          </colorrole>
-          <colorrole role="Window">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>35</red>
-             <green>38</green>
-             <blue>41</blue>
-            </color>
-           </brush>
-          </colorrole>
-          <colorrole role="Highlight">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>61</red>
-             <green>174</green>
-             <blue>233</blue>
-            </color>
-           </brush>
-          </colorrole>
-          <colorrole role="HighlightedText">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>239</red>
-             <green>240</green>
-             <blue>241</blue>
-            </color>
-           </brush>
-          </colorrole>
-         </active>
-         <inactive>
-          <colorrole role="WindowText">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>239</red>
-             <green>240</green>
-             <blue>241</blue>
-            </color>
-           </brush>
-          </colorrole>
-          <colorrole role="Button">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>35</red>
-             <green>38</green>
-             <blue>41</blue>
-            </color>
-           </brush>
-          </colorrole>
-          <colorrole role="Text">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>239</red>
-             <green>240</green>
-             <blue>241</blue>
-            </color>
-           </brush>
-          </colorrole>
-          <colorrole role="ButtonText">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>239</red>
-             <green>240</green>
-             <blue>241</blue>
-            </color>
-           </brush>
-          </colorrole>
-          <colorrole role="Base">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>35</red>
-             <green>38</green>
-             <blue>41</blue>
-            </color>
-           </brush>
-          </colorrole>
-          <colorrole role="Window">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>35</red>
-             <green>38</green>
-             <blue>41</blue>
-            </color>
-           </brush>
-          </colorrole>
-          <colorrole role="Highlight">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>61</red>
-             <green>174</green>
-             <blue>233</blue>
-            </color>
-           </brush>
-          </colorrole>
-          <colorrole role="HighlightedText">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>239</red>
-             <green>240</green>
-             <blue>241</blue>
-            </color>
-           </brush>
-          </colorrole>
-         </inactive>
-         <disabled>
-          <colorrole role="WindowText">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>69</red>
-             <green>69</green>
-             <blue>69</blue>
-            </color>
-           </brush>
-          </colorrole>
-          <colorrole role="Button">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>49</red>
-             <green>54</green>
-             <blue>59</blue>
-            </color>
-           </brush>
-          </colorrole>
-          <colorrole role="Text">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>69</red>
-             <green>69</green>
-             <blue>69</blue>
-            </color>
-           </brush>
-          </colorrole>
-          <colorrole role="ButtonText">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>69</red>
-             <green>69</green>
-             <blue>69</blue>
-            </color>
-           </brush>
-          </colorrole>
-          <colorrole role="Base">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>49</red>
-             <green>54</green>
-             <blue>59</blue>
-            </color>
-           </brush>
-          </colorrole>
-          <colorrole role="Window">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>49</red>
-             <green>54</green>
-             <blue>59</blue>
-            </color>
-           </brush>
-          </colorrole>
-          <colorrole role="Highlight">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>61</red>
-             <green>174</green>
-             <blue>233</blue>
-            </color>
-           </brush>
-          </colorrole>
-          <colorrole role="HighlightedText">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>239</red>
-             <green>240</green>
-             <blue>241</blue>
-            </color>
-           </brush>
-          </colorrole>
-         </disabled>
-        </palette>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QPushButton" name="sendButton">
-       <property name="text">
-        <string>Send</string>
-       </property>
-      </widget>
+     <item row="6" column="1">
+      <layout class="QVBoxLayout" name="cmdBtnLayout">
+       <item alignment="Qt::AlignTop">
+        <widget class="QPushButton" name="stlinfoButton">
+         <property name="text">
+          <string>Stl Info</string>
+         </property>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignTop">
+        <widget class="QPushButton" name="clearButton">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Clear</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </item>
     </layout>
    </widget>
    <widget class="QPlainTextEdit" name="mdOutput">
     <property name="geometry">
      <rect>
-      <x>357</x>
+      <x>550</x>
       <y>210</y>
       <width>256</width>
       <height>192</height>
@@ -2210,6 +2234,7 @@ QProgressBar::chunk {
     </property>
     <property name="font">
      <font>
+      <family>Noto Mono</family>
       <pointsize>10</pointsize>
      </font>
     </property>
@@ -2220,8 +2245,8 @@ QProgressBar::chunk {
    <widget class="QPlainTextEdit" name="accOutput">
     <property name="geometry">
      <rect>
-      <x>250</x>
-      <y>80</y>
+      <x>280</x>
+      <y>10</y>
       <width>256</width>
       <height>192</height>
      </rect>
@@ -2464,8 +2489,8 @@ QProgressBar::chunk {
    <widget class="QTextEdit" name="traderOutput">
     <property name="geometry">
      <rect>
-      <x>357</x>
-      <y>12</y>
+      <x>550</x>
+      <y>10</y>
       <width>256</width>
       <height>192</height>
      </rect>
@@ -2698,7 +2723,7 @@ QProgressBar::chunk {
     </property>
     <property name="font">
      <font>
-      <family>新宋体</family>
+      <family>WenQuanYi Micro Hei Mono</family>
       <pointsize>10</pointsize>
      </font>
     </property>
@@ -2950,7 +2975,7 @@ QProgressBar::chunk {
    <widget class="QTableView" name="posTableView">
     <property name="geometry">
      <rect>
-      <x>660</x>
+      <x>830</x>
       <y>10</y>
       <width>256</width>
       <height>192</height>
@@ -2964,7 +2989,7 @@ QProgressBar::chunk {
      <x>0</x>
      <y>0</y>
      <width>1125</width>
-     <height>23</height>
+     <height>19</height>
     </rect>
    </property>
   </widget>
@@ -2984,10 +3009,7 @@ QProgressBar::chunk {
   <tabstop>sendButton</tabstop>
   <tabstop>traderOutput</tabstop>
   <tabstop>traderCommandHist</tabstop>
-  <tabstop>clearButton</tabstop>
  </tabstops>
- <resources>
-  <include location="ctpmonitor.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

@@ -131,7 +131,13 @@ void CtpMonitor::printTraderMsg(QString msg, QColor clr)
     //auto clr = Qt::yellow;
     stringToHtmlFilter(msg);
     stringToHtml(msg, clr);
+    ui.traderOutput->moveCursor(QTextCursor::End);
     ui.traderOutput->insertHtml(msg);
     ui.traderOutput->append("");
-    ui.traderOutput->moveCursor(QTextCursor::End);
+}
+
+void CtpMonitor::on_stlinfoButton_clicked()
+{
+    emit sendCmdLineToTrader("showstlinfo");
+    ui.stlinfoButton->clearFocus();
 }

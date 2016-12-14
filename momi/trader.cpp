@@ -4,6 +4,8 @@
 #include "qcoreapplication.h"
 #include <qdebug.h>
 #include <qthread.h>
+#include <qdialog.h>
+#include <qtextedit.h>
 #include "spdlog/spdlog.h"
 
 #include "trader.h"
@@ -179,9 +181,10 @@ void Trader::OnRspQrySettlementInfo(CThostFtdcSettlementInfoField *pSettlementIn
                 emit sendToTraderMonitor(QString("No Settlement Info Retrieved."));
                 logger(critical, "No Settlement Info Retrieved.");
             }
-            else
-                emit sendToTraderMonitor(QString::fromLocal8Bit(strSettlementInfo.c_str()));
-//                emit sendToTraderMonitor(strSettlementInfo.c_str());
+            else {
+                emit sendToTraderMonitor(QString("Settlement Info Retrieved."));
+                logger(info, "Settlement Info Retrieved.");
+            }
 
             // login workflow #2
             QThread::sleep(1);
@@ -807,22 +810,22 @@ void Trader::showApiReturn(int ret, QString outputIfSuccess, QString outputIfErr
         switch (ret) {
         case 0:
             //msg = outputIfSuccess.append("0: Sent successfully ").append(QString("ReqID=%1").arg(QString::number(nRequestID)));
-            msg = outputIfSuccess.append(" | Api return 0: Sent successfully. ").append(QString("ReqID=%1").arg(nRequestID));
+            msg = outputIfSuccess.append(QString(" <Sent successfully. ReqID=%1>").arg(nRequestID));
             logger(info, msg.toStdString().c_str());
             emit sendToTraderMonitor(msg, Qt::darkGreen);
             break;
         case -1:
-            msg = outputIfError.append(" | Api return -1: Failed, network problem, ").append(QString("ReqID=%1").arg(nRequestID));
+            msg = outputIfSuccess.append(QString(" <Failed, network problem. ReqID=%1>").arg(nRequestID));
             logger(err, msg.toStdString().c_str());
             emit sendToTraderMonitor(msg, Qt::red);
             break;
         case -2:
-            msg = outputIfError.append(" | Api return -2: waiting request queue pass limit. ").append(QString("ReqID=%1").arg(nRequestID));
+            msg = outputIfSuccess.append(QString(" <Failed, number of unhandled request queues passes limit. ReqID=%1>").arg(nRequestID));
             logger(err, msg.toStdString().c_str());
             emit sendToTraderMonitor(msg, Qt::red);
             break;
         case -3:
-            msg = outputIfError.append(" | Api return -3: request/sec pass limit. ").append(QString("ReqID=%1").arg(nRequestID));
+            msg = outputIfSuccess.append(QString(" <Failed, requests per sec pass limit.  ReqID=%1>").arg(nRequestID));
             logger(err, msg.toStdString().c_str());
             emit sendToTraderMonitor(msg, Qt::red);
             break;
@@ -918,6 +921,13 @@ void Trader::execCmdLine(QString cmdLine)
         }
         else if (argv.at(0) == "logout") {
             logout();
+        }
+        else if (argv.at(0) == "showstlinfo") {
+            QTextEdit *text = new QTextEdit;
+            text->resize(1200, 750);
+            text->setAttribute(Qt::WA_DeleteOnClose);
+            text->append(QString::fromLocal8Bit(strSettlementInfo.c_str()));
+            text->show();
         }
         else {
             emit sendToTraderMonitor("Invalid cmd.");
