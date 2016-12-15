@@ -127,18 +127,18 @@ void Trader::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFt
 
         QString msg;
         msg.append("Trader Login Successful.");
-        msg.append("\n....TradingDay  = ").append(pRspUserLogin->TradingDay);
-        msg.append("\n....LoginTime   = ").append(pRspUserLogin->LoginTime);
-        msg.append("\n....SystemName  = ").append(pRspUserLogin->SystemName);
-        msg.append("\n....UserID      = ").append(pRspUserLogin->UserID);
-        msg.append("\n....BrokerID    = ").append(pRspUserLogin->BrokerID);
-        msg.append("\n....SessionID   = ").append(QString::number(pRspUserLogin->SessionID));
-        msg.append("\n....FrontID     = ").append(QString::number(pRspUserLogin->FrontID));
-        msg.append("\n....System Time = ").append(pRspUserLogin->SystemName);
-        msg.append("\n....SHFE Time   = ").append(pRspUserLogin->SHFETime);
-        msg.append("\n....DCE  Time   = ").append(pRspUserLogin->DCETime);
-        msg.append("\n....CZCE Time   = ").append(pRspUserLogin->CZCETime);
-        msg.append("\n....FFEX Time   = ").append(pRspUserLogin->FFEXTime);
+        msg.append("\n....TradingDay = ").append(pRspUserLogin->TradingDay);
+        msg.append("\n....LoginTime  = ").append(pRspUserLogin->LoginTime);
+        msg.append("\n....SystemName = ").append(pRspUserLogin->SystemName);
+        msg.append("\n....UserID     = ").append(pRspUserLogin->UserID);
+        msg.append("\n....BrokerID   = ").append(pRspUserLogin->BrokerID);
+        msg.append("\n....SessionID  = ").append(QString::number(pRspUserLogin->SessionID));
+        msg.append("\n....FrontID    = ").append(QString::number(pRspUserLogin->FrontID));
+        msg.append("\n....INETime    = ").append(pRspUserLogin->INETime);
+        msg.append("\n....SHFE Time  = ").append(pRspUserLogin->SHFETime);
+        msg.append("\n....DCE  Time  = ").append(pRspUserLogin->DCETime);
+        msg.append("\n....CZCE Time  = ").append(pRspUserLogin->CZCETime);
+        msg.append("\n....FFEX Time  = ").append(pRspUserLogin->FFEXTime);
         emit sendToTraderMonitor(msg, Qt::green);
         logger(info, msg.toStdString().c_str());
 
@@ -159,7 +159,7 @@ void Trader::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcR
 
 void Trader::OnRspSettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField *pSettlementInfoConfirm, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
-    if (isErrorRspInfo(pRspInfo, "RspSettlementInfoConfirm: ")) {
+    if (!isErrorRspInfo(pRspInfo, "RspSettlementInfoConfirm: ")) {
         QString msg;
         msg += QString("Settlement Info Confirmed. ConfirmDate=%1 ConfirmTime=%2").arg(pSettlementInfoConfirm->ConfirmDate, pSettlementInfoConfirm->ConfirmTime);
         logger(info, msg.toStdString().c_str());
@@ -202,10 +202,11 @@ void Trader::OnRspQrySettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField 
 			msg += QString("RspQrySettlementInfoConfirm: ConfirmDate=%1 ConfirmTime=%2").arg(pSettlementInfoConfirm->ConfirmDate, pSettlementInfoConfirm->ConfirmTime);
 			logger(info, msg.toStdString().c_str());
 			emit sendToTraderMonitor(msg);
-			if (pSettlementInfoConfirm->ConfirmDate != tradingDay) {
-				ReqSettlementInfoConfirm();
-			}
-		}
+//			if (pSettlementInfoConfirm->ConfirmDate != tradingDay) {
+        }
+        else {
+            ReqSettlementInfoConfirm();
+        }
     }
     // login workflow #3
     QThread::sleep(1);
@@ -484,7 +485,7 @@ int Trader::ReqQrySettlementInfoConfirm()
     strcpy(info->BrokerID, BROKER_ID.c_str());
     strcpy(info->InvestorID, USER_ID.c_str());
     int ret = tdapi->ReqQrySettlementInfoConfirm(info, ++nRequestID);
-    showApiReturn(ret, "--> ReqQrySettlementInfoConfirm", "ReqQrySettlementInfoConfirm Failed");
+    showApiReturn(ret, "--> ReqQrySettlementInfoConfirm", "--x ReqQrySettlementInfoConfirm Failed");
     return ret;
 }
 
@@ -495,14 +496,14 @@ int Trader::ReqQrySettlementInfo(string TradingDay)
     strcpy(info->InvestorID, USER_ID.c_str());
     strcpy(info->TradingDay, TradingDay.c_str());
     int ret = tdapi->ReqQrySettlementInfo(info, ++nRequestID);
-    showApiReturn(ret, "--> ReqQrySettlementInfo", "ReqQrySettlementInfo Failed");
+    showApiReturn(ret, "--> ReqQrySettlementInfo", "--x ReqQrySettlementInfo Failed");
     return ret;
 }
 
 int Trader::ReqOrderInsert(CThostFtdcInputOrderField *pInputOrder)
 {
     int ret = tdapi->ReqOrderInsert(pInputOrder, ++nRequestID);
-    showApiReturn(ret, "--> ReqOrderInsert", "ReqOrderInsert Sent Error");
+    showApiReturn(ret, "--> ReqOrderInsert", "--x ReqOrderInsert Sent Error");
     return ret;
 }
 
@@ -531,7 +532,7 @@ int Trader::ReqOrderInsert(string InstrumentID, EnumOffsetFlagType OffsetFlag, E
     order->VolumeTotalOriginal = Volume;
 
     int ret = tdapi->ReqOrderInsert(order, ++nRequestID);
-    showApiReturn(ret, "--> LimitOrderInsert", "LimitOrderInsert Sent Error");
+    showApiReturn(ret, "--> LimitOrderInsert", "--x LimitOrderInsert Sent Error");
     return ret;
 }
 
@@ -560,7 +561,7 @@ int Trader::ReqOrderInsert(string InstrumentID, EnumOffsetFlagType OffsetFlag, E
     order->VolumeTotalOriginal = Volume;
 
     int ret = tdapi->ReqOrderInsert(order, ++nRequestID);
-    showApiReturn(ret, "--> MarketOrderInsert", "MarketOrderInsert Sent Error");
+    showApiReturn(ret, "--> MarketOrderInsert", "--x MarketOrderInsert Sent Error");
     return ret;
 }
 
@@ -592,14 +593,14 @@ int Trader::ReqOrderInsert(string InstrumentID, EnumContingentConditionType Cond
     order->VolumeTotalOriginal = Volume;
 
     int ret = tdapi->ReqOrderInsert(order, ++nRequestID);
-    showApiReturn(ret, "--> MarketOrderInsert", "MarketOrderInsert Sent Error");
+    showApiReturn(ret, "--> MarketOrderInsert", "--x MarketOrderInsert Sent Error");
     return ret;
 }
 
 int Trader::ReqOrderAction(CThostFtdcInputOrderActionField *pInputOrderAction)
 {
     int ret = tdapi->ReqOrderAction(pInputOrderAction, ++nRequestID);
-    showApiReturn(ret, "--> ReqOrderAction", "ReqOrderAction Sent Error");
+    showApiReturn(ret, "--> ReqOrderAction", "--x ReqOrderAction Sent Error");
     return ret;
 }
 
