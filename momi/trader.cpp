@@ -6,6 +6,7 @@
 #include <qthread.h>
 #include <qdialog.h>
 #include <qtextedit.h>
+#include <QTimer>
 #include "spdlog/spdlog.h"
 
 #include "trader.h"
@@ -187,8 +188,8 @@ void Trader::OnRspQrySettlementInfo(CThostFtdcSettlementInfoField *pSettlementIn
             }
 
             // login workflow #2
-            QThread::sleep(1);
-            ReqQrySettlementInfoConfirm();
+//            QThread::sleep(1);
+//            ReqQrySettlementInfoConfirm();
         }
     }
 }

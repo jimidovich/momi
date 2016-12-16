@@ -2,6 +2,7 @@
 #define TRADER_H
 
 #include <memory>
+#include <QTimer>
 #include "spdlog/spdlog.h"
 
 #include <QObject>
@@ -25,8 +26,10 @@ public:
 
     void reqConnect();
 
+public slots:
     int ReqQrySettlementInfoConfirm();
 
+public:
     int ReqQrySettlementInfo(std::string TradingDay = "");
 
     int ReqOrderInsert(CThostFtdcInputOrderField *pInputOrder);
@@ -168,6 +171,8 @@ private:
     std::shared_ptr<spdlog::logger> console;
     std::shared_ptr<spdlog::logger> g_logger;
     std::shared_ptr<spdlog::logger> trader_logger;
+
+    QTimer *timer;
 };
 #endif // !TRADER_H
 

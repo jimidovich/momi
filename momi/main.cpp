@@ -4,6 +4,7 @@
 #include <qtextcodec.h>
 #include <qdebug.h>
 #include "qthread.h"
+#include <QTimer>
 #include "spdlog/spdlog.h"
 
 #include "ctpmonitor.h"
@@ -52,6 +53,15 @@ int main(int argc, char *argv[])
     //Trader trader("tcp://222.66.235.70:21205", "66666", "00008218", "183488");
     MdSpi mdspi("tcp://180.168.146.187:10011", "9999", "063669", "1qaz2wsx");
     //MdSpi mdspi("tcp://222.66.235.70:21214", "66666", "00008218", "183488");
+
+    QThread tdThread;
+    trader.moveToThread(&tdThread);
+    qDebug() << trader.thread();
+
+    auto timer = new QTimer;
+    QObject::connect(timer, SIGNAL(timeout()), &trader, SLOT(ReqQrySettlementInfoConfirm()));
+    timer->setSingleShot(true);
+    timer->start(1000);
 
     Kalman kf;
     OMS oms;
