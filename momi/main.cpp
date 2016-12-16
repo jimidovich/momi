@@ -54,14 +54,12 @@ int main(int argc, char *argv[])
     MdSpi mdspi("tcp://180.168.146.187:10011", "9999", "063669", "1qaz2wsx");
     //MdSpi mdspi("tcp://222.66.235.70:21214", "66666", "00008218", "183488");
 
-    QThread tdThread;
-    trader.moveToThread(&tdThread);
-    qDebug() << trader.thread();
-
-    auto timer = new QTimer;
-    QObject::connect(timer, SIGNAL(timeout()), &trader, SLOT(ReqQrySettlementInfoConfirm()));
-    timer->setSingleShot(true);
-    timer->start(1000);
+    //call timer from main thread can work for trader schedule
+//    auto timer = new QTimer;
+//    trader.timer = timer;
+//    QObject::connect(timer, SIGNAL(timeout()), &trader, SLOT(ReqQrySettlementInfoConfirm()));
+//    timer->setSingleShot(true);
+//    timer->start(2000);
 
     Kalman kf;
     OMS oms;

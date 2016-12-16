@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <QTimer>
+#include <QCoreApplication>
 #include "spdlog/spdlog.h"
 
 #include <QObject>
@@ -27,10 +28,17 @@ public:
     void reqConnect();
 
 public slots:
+    int ReqQrySettlementInfo(std::string TradingDay = "");
+
     int ReqQrySettlementInfoConfirm();
 
+    int ReqQryInstrument();
+
+    int ReqQryTradingAccount();
+
+    int ReqQryInvestorPositionDetail(std::string InstrumentID = "");
+
 public:
-    int ReqQrySettlementInfo(std::string TradingDay = "");
 
     int ReqOrderInsert(CThostFtdcInputOrderField *pInputOrder);
 
@@ -52,11 +60,7 @@ public:
 
     int ReqQryDepthMarketData(std::string InstrumentID);
 
-    int ReqQryTradingAccount();
-
     int ReqQryInvestorPosition(std::string InstrumentID = "");
-
-    int ReqQryInstrument();
 
     int ReqQryInstrumentMarginRate(std::string InstrumentID, EnumHedgeFlagType hedgeFlag);
 
@@ -69,8 +73,6 @@ public:
     void setDispatcher(Dispatcher *ee);
 
     std::string getTradingDay();
-
-    int ReqQryInvestorPositionDetail(std::string InstrumentID = "");
 
     int login();
 
@@ -133,6 +135,8 @@ private:
 
     void setLogger();
 
+    static void timerReq(Trader *trader, const char *req);
+
     //template <typename... Args>
     //void logger(const char* fmt, const Args&... args);
 
@@ -151,6 +155,7 @@ private:
     std::string tradingDay;
     std::string strSettlementInfo;
     bool isNewSettlementInfo{ false };
+    bool isLoginWorkflow{false};
 
     //char *FrontAddress{ "tcp://122.224.98.87:27225" };
     //const std::string BROKER_ID{ "3010" };
@@ -171,8 +176,6 @@ private:
     std::shared_ptr<spdlog::logger> console;
     std::shared_ptr<spdlog::logger> g_logger;
     std::shared_ptr<spdlog::logger> trader_logger;
-
-    QTimer *timer;
 };
 #endif // !TRADER_H
 

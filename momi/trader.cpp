@@ -7,6 +7,7 @@
 #include <qdialog.h>
 #include <qtextedit.h>
 #include <QTimer>
+#include <QtConcurrent/QtConcurrent>
 #include "spdlog/spdlog.h"
 
 #include "trader.h"
@@ -143,10 +144,10 @@ void Trader::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFt
         emit sendToTraderMonitor(msg, Qt::green);
         logger(info, msg.toStdString().c_str());
 
-        // TODO: move workflow to portfolio's Timer.
         // login workflow #1
-        QThread::sleep(1);
-        ReqQrySettlementInfo();
+        isLoginWorkflow = true;
+        if (isLoginWorkflow)
+            QtConcurrent::run(timerReq, this, SLOT(ReqQrySettlementInfo()));
     }
 }
 
@@ -188,8 +189,17 @@ void Trader::OnRspQrySettlementInfo(CThostFtdcSettlementInfoField *pSettlementIn
             }
 
             // login workflow #2
-//            QThread::sleep(1);
-//            ReqQrySettlementInfoConfirm();
+//            QtConcurrent::run([=](){
+//                QEventLoop el;
+//                auto timer = new QTimer;
+//                QObject::connect(timer, SIGNAL(timeout()), this, SLOT(ReqQrySettlementInfoConfirm()));
+//                QObject::connect(timer, SIGNAL(timeout()), &el, SLOT(quit()));
+//                timer->setSingleShot(true);
+//                timer->start(100000);
+//                el.exec();
+//            });
+            if (isLoginWorkflow)
+                QtConcurrent::run(timerReq, this, SLOT(ReqQrySettlementInfoConfirm()));
         }
     }
 }
@@ -210,8 +220,8 @@ void Trader::OnRspQrySettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField 
         }
     }
     // login workflow #3
-    QThread::sleep(1);
-    ReqQryInstrument();
+    if (isLoginWorkflow)
+        QtConcurrent::run(timerReq, this, SLOT(ReqQryInstrument()));
 }
 
 void Trader::OnRspOrderInsert(CThostFtdcInputOrderField *pInputOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
@@ -360,8 +370,10 @@ void Trader::OnRspQryTradingAccount(CThostFtdcTradingAccountField *pTradingAccou
             QCoreApplication::postEvent(dispatcher, accInfoEvent);
 
             // login workflow #5
-            QThread::sleep(1);
-            ReqQryInvestorPositionDetail();
+            if (isLoginWorkflow) {
+                QtConcurrent::run(timerReq, this, SLOT(ReqQryInvestorPositionDetail()));
+                isLoginWorkflow = false;
+            }
         }
     }
 }
@@ -382,8 +394,8 @@ void Trader::OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument, CThostFt
 
             if (bIsLast) {
                 // login workflow #4
-                QThread::sleep(1);
-                ReqQryTradingAccount();
+                if (isLoginWorkflow)
+                    QtConcurrent::run(timerReq, this, SLOT(ReqQryTradingAccount()));
             }
         }
     }
@@ -774,6 +786,17 @@ void Trader::setLogger()
     trader_logger = spdlog::rotating_logger_mt("trader_logger", "logs/trader_log", 1024 * 1024 * 5, 3);
     //trader_logger = spdlog::daily_logger_mt("trader_logger", "logs/trader_log", 5, 0);
     trader_logger->flush_on(spdlog::level::info);
+}
+
+void Trader::timerReq(Trader *trader, const char *req)
+{
+    QEventLoop el;
+    auto timer = new QTimer;
+    QObject::connect(timer, SIGNAL(timeout()), trader, req);
+    QObject::connect(timer, SIGNAL(timeout()), &el, SLOT(quit()));
+    timer->setSingleShot(true);
+    timer->start(1000);
+    el.exec();
 }
 
 Dispatcher* Trader::getDispatcher()
