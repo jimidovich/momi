@@ -3,10 +3,12 @@
 
 #include <QObject>
 #include <QColor>
-#include "qmap.h"
-#include "ThostFtdcUserApiStruct.h"
-#include "struct.h"
+#include <QMap>
+
 #include "spdlog/spdlog.h"
+#include "ThostFtdcUserApiStruct.h"
+
+#include "struct.h"
 
 class Portfolio;
 class Trader;

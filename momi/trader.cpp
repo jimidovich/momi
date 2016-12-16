@@ -1,13 +1,15 @@
 ﻿#include <chrono>
 #include <set>
 #include <thread>
-#include "qcoreapplication.h"
-#include <qdebug.h>
-#include <qthread.h>
-#include <qdialog.h>
-#include <qtextedit.h>
+
+#include <QCoreApplication>
+#include <QDebug>
+#include <QThread>
+#include <QDialog>
+#include <QTextEdit>
 #include <QTimer>
 #include <QtConcurrent/QtConcurrent>
+
 #include "spdlog/spdlog.h"
 
 #include "trader.h"

@@ -1,7 +1,8 @@
-#include "qmap.h"
-#include "qstring.h"
+#include <QMap>
+#include <QString>
 
 #include "ThostFtdcUserApiStruct.h"
+
 #include "position.h"
 #include "struct.h"
 

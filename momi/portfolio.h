@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QAbstractTableModel>
 #include <QTableView>
+
 #include "position.h"
 
 class position;

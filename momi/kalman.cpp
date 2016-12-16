@@ -1,7 +1,8 @@
-#include "portfolio.h"
+#include <QDebug>
+
 #include "kalman.h"
-#include <qdebug.h>
 #include "struct.h"
+#include "portfolio.h"
 #include "oms.h"
 
 using namespace Eigen;

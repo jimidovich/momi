@@ -1,13 +1,14 @@
-#include "qdebug.h"
-#include "qthread.h"
-#include "qapplication.h"
-#include "qelapsedtimer.h"
-#include "qtimezone.h"
+#include <string>
+
+#include <QDebug>
+#include <QThread>
+#include <QApplication>
+#include <QElapsedTimer>
+#include <QTimeZone>
 
 #include "portfolio.h"
 #include "kdbconnector.h"
 #include "struct.h"
-#include <string>
 
 using namespace std;
 using namespace spdlog::level;

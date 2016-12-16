@@ -1,7 +1,8 @@
-﻿#include <qdebug.h>
-#include <qcoreapplication.h>
+﻿#include <QDebug>
+#include <QCoreApplication>
 
 #include "ThostFtdcMdApi.h"
+
 #include "mdspi.h"
 #include "myevent.h"
 

@@ -3,8 +3,10 @@
 
 #include <QObject>
 #include <QColor>
+
 #include "spdlog/spdlog.h"
 #include "ThostFtdcMdApi.h"
+
 #include "dispatcher.h"
 
 

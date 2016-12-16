@@ -2,13 +2,15 @@
 #define TRADER_H
 
 #include <memory>
-#include <QTimer>
-#include <QCoreApplication>
-#include "spdlog/spdlog.h"
 
+#include <QCoreApplication>
 #include <QObject>
+#include <QTimer>
 #include <QColor>
+
+#include "spdlog/spdlog.h"
 #include "ThostFtdcTraderApi.h"
+
 #include "struct.h"
 #include "dispatcher.h"
 

@@ -2,13 +2,15 @@
 #define KDBCONNECTOR_H
 
 #include <string>
-#include <QObject>
-#include <qmutex.h>
 
+#include <QObject>
+#include <QMutex>
+
+#include "spdlog/spdlog.h"
 #include "ThostFtdcUserApiDataType.h"
 #include "ThostFtdcUserApiStruct.h"
+
 #include "myevent.h"
-#include "spdlog/spdlog.h"
 
 #define KXVER 3
 #include "k.h"

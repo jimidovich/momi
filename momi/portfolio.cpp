@@ -1,12 +1,12 @@
-#include <qcoreapplication.h>
-#include <qdebug.h>
-#include "qvector.h"
-#include "qpair.h"
-#include "qmap.h"
-#include "qtimer.h"
-#include <qthread.h>
+#include <QCoreApplication>
+#include <QDebug>
+#include <QVector>
+#include <QMap>
+#include <QTimer>
+#include <QThread>
 
 #include "ThostFtdcUserApiDataType.h"
+
 #include "kalman.h"
 #include "portfolio.h"
 #include "struct.h"

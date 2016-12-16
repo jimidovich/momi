@@ -1,7 +1,7 @@
-#include "ctpmonitor.h"
-#include "qstring.h"
 #include <QtWidgets>
+#include <QString>
 
+#include "ctpmonitor.h"
 
 QString getCurrentTimeMsec()
 {

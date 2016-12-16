@@ -1,8 +1,9 @@
+#include <QDebug>
+#include <QCoreApplication>
+#include <QElapsedTimer>
+#include <QTimeZone>
+
 #include "dispatcher.h"
-#include <qdebug.h>
-#include <qcoreapplication.h>
-#include <qelapsedtimer.h>
-#include <qtimezone.h>
 
 Dispatcher::Dispatcher()
 {

@@ -1,10 +1,11 @@
 #ifndef KALMAN_H
 #define KALMAN_H
 
+#include "spdlog/spdlog.h"
 #include <Eigen/Dense>
+
 #include "myevent.h"
 #include "struct.h"
-#include "spdlog/spdlog.h"
 
 class OMS;
 class Portfolio;

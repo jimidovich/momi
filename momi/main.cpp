@@ -1,10 +1,10 @@
 //#include <QtWidgets/QApplication>
 //#include <QtWidgets>
-#include <iostream>
-#include <qtextcodec.h>
-#include <qdebug.h>
-#include "qthread.h"
+#include <QTextCodec>
+#include <QDebug>
+#include <QThread>
 #include <QTimer>
+
 #include "spdlog/spdlog.h"
 
 #include "ctpmonitor.h"

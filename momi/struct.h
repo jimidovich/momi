@@ -3,8 +3,9 @@
 
 #include <string>
 #include <map>
-#include "ThostFtdcUserApiStruct.h"
+
 #include <qmap.h>
+#include "ThostFtdcUserApiStruct.h"
 
 typedef QMap<std::string, CThostFtdcInstrumentField> SymInfoMap;
 typedef QMap<std::string, CThostFtdcDepthMarketDataField*> SymTickMap;
@@ -76,153 +77,153 @@ enum EnumDirectionType
 
 enum EnumContingentConditionType
 {
-    ///立即
+    ///锟斤拷锟斤拷
     Immediately = THOST_FTDC_CC_Immediately,
-    ///止损
+    ///止锟斤拷
     Touch = THOST_FTDC_CC_Touch,
     ///止赢
     TouchProfit = THOST_FTDC_CC_TouchProfit,
-    ///预埋单
+    ///预锟斤拷锟斤拷
     ParkedOrder = THOST_FTDC_CC_ParkedOrder,
-    ///最新价大于条件价
+    ///锟斤拷锟铰价达拷锟斤拷锟斤拷锟斤拷锟斤拷
     LastPriceGreaterThanStopPrice = THOST_FTDC_CC_LastPriceGreaterThanStopPrice,
-    ///最新价大于等于条件价
+    ///锟斤拷锟铰价达拷锟节碉拷锟斤拷锟斤拷锟斤拷锟斤拷
     LastPriceGreaterEqualStopPrice = THOST_FTDC_CC_LastPriceGreaterEqualStopPrice,
-    ///最新价小于条件价
+    ///锟斤拷锟铰硷拷小锟斤拷锟斤拷锟斤拷锟斤拷
     LastPriceLesserThanStopPrice = THOST_FTDC_CC_LastPriceLesserThanStopPrice,
-    ///最新价小于等于条件价
+    ///锟斤拷锟铰硷拷小锟节碉拷锟斤拷锟斤拷锟斤拷锟斤拷
     LastPriceLesserEqualStopPrice = THOST_FTDC_CC_LastPriceLesserEqualStopPrice,
-    ///卖一价大于条件价
+    ///锟斤拷一锟桔达拷锟斤拷锟斤拷锟斤拷锟斤拷
     AskPriceGreaterThanStopPrice = THOST_FTDC_CC_AskPriceGreaterThanStopPrice,
-    ///卖一价大于等于条件价
+    ///锟斤拷一锟桔达拷锟节碉拷锟斤拷锟斤拷锟斤拷锟斤拷
     AskPriceGreaterEqualStopPrice = THOST_FTDC_CC_AskPriceGreaterEqualStopPrice,
-    ///卖一价小于条件价
+    ///锟斤拷一锟斤拷小锟斤拷锟斤拷锟斤拷锟斤拷
     AskPriceLesserThanStopPrice = THOST_FTDC_CC_AskPriceLesserThanStopPrice,
-    ///卖一价小于等于条件价
+    ///锟斤拷一锟斤拷小锟节碉拷锟斤拷锟斤拷锟斤拷锟斤拷
     AskPriceLesserEqualStopPrice = THOST_FTDC_CC_AskPriceLesserEqualStopPrice,
-    ///买一价大于条件价
+    ///锟斤拷一锟桔达拷锟斤拷锟斤拷锟斤拷锟斤拷
     BidPriceGreaterThanStopPrice = THOST_FTDC_CC_BidPriceGreaterThanStopPrice,
-    ///买一价大于等于条件价
+    ///锟斤拷一锟桔达拷锟节碉拷锟斤拷锟斤拷锟斤拷锟斤拷
     BidPriceGreaterEqualStopPrice = THOST_FTDC_CC_BidPriceGreaterEqualStopPrice,
-    ///买一价小于条件价
+    ///锟斤拷一锟斤拷小锟斤拷锟斤拷锟斤拷锟斤拷
     BidPriceLesserThanStopPrice = THOST_FTDC_CC_BidPriceLesserThanStopPrice,
-    ///买一价小于等于条件价
+    ///锟斤拷一锟斤拷小锟节碉拷锟斤拷锟斤拷锟斤拷锟斤拷
     BidPriceLesserEqualStopPrice = THOST_FTDC_CC_BidPriceLesserEqualStopPrice
 };
 
 enum EnumForceCloseReasonType
 {
-    ///非强平
+    ///锟斤拷强平
     NotForceClose = THOST_FTDC_FCC_NotForceClose,
-    ///资金不足
+    ///锟绞斤拷锟斤拷锟斤拷
     LackDeposit = THOST_FTDC_FCC_LackDeposit,
-    ///客户超仓
+    ///锟酵伙拷锟斤拷锟斤拷
     ClientOverPositionLimit = THOST_FTDC_FCC_ClientOverPositionLimit,
-    ///会员超仓
+    ///锟斤拷员锟斤拷锟斤拷
     MemberOverPositionLimit = THOST_FTDC_FCC_MemberOverPositionLimit,
-    ///持仓非整数倍
+    ///锟街仓凤拷锟斤拷锟斤拷锟斤拷
     NotMultiple = THOST_FTDC_FCC_NotMultiple,
-    ///违规
+    ///违锟斤拷
     Violation = THOST_FTDC_FCC_Violation,
-    ///其它
+    ///锟斤拷锟斤拷
     Other = THOST_FTDC_FCC_Other,
-    ///自然人临近交割
+    ///锟斤拷然锟斤拷锟劫斤拷锟斤拷锟斤拷
     PersonDeliv = THOST_FTDC_FCC_PersonDeliv
 };
 
 enum EnumOrderPriceTypeType
 {
-    ///任意价
+    ///锟斤拷锟斤拷锟斤拷
     AnyPrice = THOST_FTDC_OPT_AnyPrice,
-    ///限价
+    ///锟睫硷拷
     LimitPrice = THOST_FTDC_OPT_LimitPrice,
-    ///最优价
+    ///锟斤拷锟脚硷拷
     BestPrice = THOST_FTDC_OPT_BestPrice,
-    ///最新价
+    ///锟斤拷锟铰硷拷
     LastPrice = THOST_FTDC_OPT_LastPrice,
-    ///最新价浮动上浮1个ticks
+    ///锟斤拷锟铰价革拷锟斤拷锟较革拷1锟斤拷ticks
     LastPricePlusOneTicks = THOST_FTDC_OPT_LastPricePlusOneTicks,
-    ///最新价浮动上浮2个ticks
+    ///锟斤拷锟铰价革拷锟斤拷锟较革拷2锟斤拷ticks
     LastPricePlusTwoTicks = THOST_FTDC_OPT_LastPricePlusTwoTicks,
-    ///最新价浮动上浮3个ticks
+    ///锟斤拷锟铰价革拷锟斤拷锟较革拷3锟斤拷ticks
     LastPricePlusThreeTicks = THOST_FTDC_OPT_LastPricePlusThreeTicks,
-    ///卖一价
+    ///锟斤拷一锟斤拷
     AskPrice1 = THOST_FTDC_OPT_AskPrice1,
-    ///卖一价浮动上浮1个ticks
+    ///锟斤拷一锟桔革拷锟斤拷锟较革拷1锟斤拷ticks
     AskPrice1PlusOneTicks = THOST_FTDC_OPT_AskPrice1PlusOneTicks,
-    ///卖一价浮动上浮2个ticks
+    ///锟斤拷一锟桔革拷锟斤拷锟较革拷2锟斤拷ticks
     AskPrice1PlusTwoTicks = THOST_FTDC_OPT_AskPrice1PlusTwoTicks,
-    ///卖一价浮动上浮3个ticks
+    ///锟斤拷一锟桔革拷锟斤拷锟较革拷3锟斤拷ticks
     AskPrice1PlusThreeTicks = THOST_FTDC_OPT_AskPrice1PlusThreeTicks,
-    ///买一价
+    ///锟斤拷一锟斤拷
     BidPrice1 = THOST_FTDC_OPT_BidPrice1,
-    ///买一价浮动上浮1个ticks
+    ///锟斤拷一锟桔革拷锟斤拷锟较革拷1锟斤拷ticks
     BidPrice1PlusOneTicks = THOST_FTDC_OPT_BidPrice1PlusOneTicks,
-    ///买一价浮动上浮2个ticks
+    ///锟斤拷一锟桔革拷锟斤拷锟较革拷2锟斤拷ticks
     BidPrice1PlusTwoTicks = THOST_FTDC_OPT_BidPrice1PlusTwoTicks,
-    ///买一价浮动上浮3个ticks
+    ///锟斤拷一锟桔革拷锟斤拷锟较革拷3锟斤拷ticks
     BidPrice1PlusThreeTicks = THOST_FTDC_OPT_BidPrice1PlusThreeTicks,
-    ///五档价
+    ///锟藉档锟斤拷
     FiveLevelPrice = THOST_FTDC_OPT_FiveLevelPrice
 };
 
 enum EnumTimeConditionType
 {
-    ///立即完成，否则撤销
+    ///锟斤拷锟斤拷锟斤拷锟缴ｏ拷锟斤拷锟斤拷锟斤拷锟斤拷
     IOC = THOST_FTDC_TC_IOC,
-    ///本节有效
+    ///锟斤拷锟斤拷锟斤拷效
     GFS = THOST_FTDC_TC_GFS,
-    ///当日有效
+    ///锟斤拷锟斤拷锟斤拷效
     GFD = THOST_FTDC_TC_GFD,
-    ///指定日期前有效
+    ///指锟斤拷锟斤拷锟斤拷前锟斤拷效
     GTD = THOST_FTDC_TC_GTD,
-    ///撤销前有效
+    ///锟斤拷锟斤拷前锟斤拷效
     GTC = THOST_FTDC_TC_GTC,
-    ///集合竞价有效
+    ///锟斤拷锟较撅拷锟斤拷锟斤拷效
     GFA = THOST_FTDC_TC_GFA
 };
 
 enum EnumVolumeConditionType
 {
-    ///任何数量
+    ///锟轿猴拷锟斤拷锟斤拷
     AV = THOST_FTDC_VC_AV,
-    ///最小数量
+    ///锟斤拷小锟斤拷锟斤拷
     MV = THOST_FTDC_VC_MV,
-    ///全部数量
+    ///全锟斤拷锟斤拷锟斤拷
     CV = THOST_FTDC_VC_CV
 };
 
 enum EnumHedgeFlagType
 {
-    ///投机
+    ///投锟斤拷
     Speculation = THOST_FTDC_HF_Speculation,
-    ///套利
+    ///锟斤拷锟斤拷
     Arbitrage = THOST_FTDC_HF_Arbitrage,
-    ///套保
+    ///锟阶憋拷
     Hedge = THOST_FTDC_HF_Hedge,
-    ///做市商
+    ///锟斤拷锟斤拷锟斤拷
     MarketMaker = THOST_FTDC_HF_MarketMaker
 };
 
 enum EnumOrderStatusType
 {
-    ///全部成交
+    ///全锟斤拷锟缴斤拷
     AllTraded = THOST_FTDC_OST_AllTraded,
-    ///部分成交还在队列中
+    ///锟斤拷锟街成斤拷锟斤拷锟节讹拷锟斤拷锟斤拷
     PartTradedQueueing = THOST_FTDC_OST_PartTradedQueueing,
-    ///部分成交不在队列中
+    ///锟斤拷锟街成斤拷锟斤拷锟节讹拷锟斤拷锟斤拷
     PartTradedNotQueueing = THOST_FTDC_OST_PartTradedNotQueueing,
-    ///未成交还在队列中
+    ///未锟缴斤拷锟斤拷锟节讹拷锟斤拷锟斤拷
     NoTradeQueueing = THOST_FTDC_OST_NoTradeQueueing,
-    ///未成交不在队列中
+    ///未锟缴斤拷锟斤拷锟节讹拷锟斤拷锟斤拷
     NoTradeNotQueueing = THOST_FTDC_OST_NoTradeNotQueueing,
-    ///撤单
+    ///锟斤拷锟斤拷
     Canceled = THOST_FTDC_OST_Canceled,
     ///未知
     Unknown = THOST_FTDC_OST_Unknown,
-    ///尚未触发
+    ///锟斤拷未锟斤拷锟斤拷
     NotTouched = THOST_FTDC_OST_NotTouched,
-    ///已触发
+    ///锟窖达拷锟斤拷
     Touched = THOST_FTDC_OST_Touched
 
 };

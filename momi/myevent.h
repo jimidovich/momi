@@ -6,6 +6,7 @@
 
 #include "ThostFtdcUserApiStruct.h"
 #include "ThostFtdcUserApiDataType.h"
+
 #include "struct.h"
 
 class Account;

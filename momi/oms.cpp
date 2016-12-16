@@ -1,6 +1,7 @@
+#include <QDebug>
+#include <QList>
+
 #include "portfolio.h"
-#include <qdebug.h>
-#include <qlist.h>
 #include "oms.h"
 #include "myevent.h"
 #include "trader.h"
