@@ -126,7 +126,7 @@ void KdbConnector::insertContractInfo(CThostFtdcInstrumentField *info)
         LifePhase, IsTrading, PositionType, PositionDateType, LongMarginRatio, ShortMarginRatio, MMSA);
 
     //self-maintained table
-    //k(-handle, "insert", ks("ContractsInfo"), data, (K)0);
+    //k(-handle, "insert", ks("contractsInfo"), data, (K)0);
     k(-handle, (S)"insert", ks((S)"ContractsInfo"), data, (K)0);
 
     //kdb+tick
@@ -141,26 +141,26 @@ void KdbConnector::insertFeed(CThostFtdcDepthMarketDataField * feed)
     QElapsedTimer t;
     t.start();
     mutex.lock();
-    K data, Contract, Date, Time, Last, Bid1, BidSize1, \
-        Ask1, AskSize1, Volume, Turnover, OpenInterest, AvgPrice, Open, High, Low;
+    K data, contract, date, time, last, bid, bsize, \
+        ask, asize, volume, turnover, oi, avgprice, open, high, low;
         //UpperLimit, LowerLimit, PreSettlement, PreClose, PreOpenInterest, Close, Settlement;
     //K tspan = k(handle, (S)".z.N", (K)0);
-    Contract = ks(feed->InstrumentID);
+    contract = ks(feed->InstrumentID);
     //K Exchange = ks(feed->ExchangeID);
-    Date = date2qDate(feed->TradingDay);
-    Time = qMakeTime(feed->UpdateTime, feed->UpdateMillisec);
-    Last = kf(feed->LastPrice);
-    Bid1 = kf(feed->BidPrice1);
-    BidSize1 = ki(feed->BidVolume1);
-    Ask1 = kf(feed->AskPrice1);
-    AskSize1 = ki(feed->AskVolume1);
-    Volume = ki(feed->Volume);
-    Turnover = kf(feed->Turnover);
-    OpenInterest = kf(feed->OpenInterest);
-    AvgPrice = kf(feed->AveragePrice);
-    Open = kf(feed->OpenPrice);
-    High = kf(feed->HighestPrice);
-    Low = kf(feed->LowestPrice);
+    date = date2qDate(feed->TradingDay);
+    time = qMakeTime(feed->UpdateTime, feed->UpdateMillisec);
+    last = kf(feed->LastPrice);
+    bid = kf(feed->BidPrice1);
+    bsize = ki(feed->BidVolume1);
+    ask = kf(feed->AskPrice1);
+    asize = ki(feed->AskVolume1);
+    volume = ki(feed->Volume);
+    turnover = kf(feed->Turnover);
+    oi = kf(feed->OpenInterest);
+    avgprice = kf(feed->AveragePrice);
+    open = kf(feed->OpenPrice);
+    high = kf(feed->HighestPrice);
+    low = kf(feed->LowestPrice);
     /*UpperLimit = kf(feed->UpperLimitPrice);
     LowerLimit = kf(feed->LowerLimitPrice);
     PreSettlement = kf(feed->PreSettlementPrice);
@@ -169,8 +169,8 @@ void KdbConnector::insertFeed(CThostFtdcDepthMarketDataField * feed)
     Close = kf(feed->ClosePrice);
     Settlement = kf(feed->SettlementPrice);*/
 
-    data = knk(15, Contract, Date, Time, Last, Bid1, BidSize1, Ask1, AskSize1,
-        Volume, Turnover, OpenInterest, AvgPrice, Open, High, Low);
+    data = knk(15, contract, date, time, last, bid, bsize, ask, asize,
+        volume, turnover, oi, avgprice, open, high, low);
     k(-handle, (S)".u.upd", ks((S)tableName), data, (K)0);
     //k(handle, "", (K)0); // flush
     //qDebug() << ++countTick << QTime::currentTime();
