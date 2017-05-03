@@ -4,7 +4,6 @@
 #include "ThostFtdcMdApi.h"
 
 #include "mdspi.h"
-#include "myevent.h"
 
 using namespace spdlog::level;
 
@@ -31,7 +30,6 @@ void MdSpi::init()
     reqConnect();
     logger(info, "Initializing MdSpi Finished");
 }
-
 
 void MdSpi::reqConnect()
 {
@@ -95,7 +93,12 @@ void MdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtd
         logger(info, msg.toStdString().c_str());
         emit sendToTraderMonitor(msg, Qt::green);
 //        logger(info, "Subscribe market data:");
-        std::string instruments = { "au1612 ag1612 au1706 ag1706 cu1612 IF1611 i1701" };
+        std::string instruments = {
+//            "IF1705;IH1705;IC1705;TF1706;T1706;"
+            "rb1710;ru1709;cu1706;zn1706;au1706;ag1706;sn1709;al1706;hc1710;bu1709;pb1706;sn1709;"
+//            "i1709;p1709;m1709;y1709;j1709;l1709;c1709;jm1709;cs1709;pp1709;jd1709;a1709;"
+//            "SR709;TA709;MA709;CF709;OI709;RM709;ZC709;FG709;SM709"
+        };
         subscribeMd(instruments);
     }
 }
@@ -140,12 +143,12 @@ void MdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDat
     auto fcpy = new CThostFtdcDepthMarketDataField;
     memcpy(fcpy, pDepthMarketData, sizeof(CThostFtdcDepthMarketDataField));
     auto feedEvent = new MyEvent(FeedEvent, fcpy);
-    QCoreApplication::postEvent(eventEngine, feedEvent);
+    QCoreApplication::postEvent(dispatcher, feedEvent);
 }
 
 void MdSpi::subscribeMd(std::string instruments)
 {
-    QStringList argv(QString(instruments.c_str()).split(" "));
+    QStringList argv(QString(instruments.c_str()).split(";"));
     int n = argv.count();
     if (n > 1)
     {
@@ -205,22 +208,22 @@ bool MdSpi::isErrorRspInfo(CThostFtdcRspInfoField *pRspInfo, const char *msg)
 void MdSpi::setLogger()
 {
     //console = spdlog::get("console");
-    console = spdlog::stdout_color_mt("mdspi  ");
-    console->set_pattern("[%H:%M:%S.%f] [%n] [%L] %v");
+    console = spdlog::stdout_color_mt("mdspi ");
+    console->set_pattern("[%H:%M:%S.%f] [%L] [%n] %v");
     g_logger = spdlog::get("file_logger");
     mdspi_logger = spdlog::rotating_logger_mt("mdspi_logger", "logs/mdspi_log", 1024 * 1024 * 5, 3);
     //trader_logger = spdlog::daily_logger_mt("trader_logger", "logs/trader_log", 5, 0);
     mdspi_logger->flush_on(spdlog::level::info);
 }
 
-Dispatcher * MdSpi::getEventEngine()
+Dispatcher * MdSpi::getDispatcher()
 {
-    return eventEngine;
+    return dispatcher;
 }
 
 void MdSpi::setDispatcher(Dispatcher *ee)
 {
-    eventEngine = ee;
+    dispatcher = ee;
 }
 
 void MdSpi::execCmdLine(QString cmdLine)

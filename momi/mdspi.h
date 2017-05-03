@@ -1,7 +1,6 @@
 ﻿#ifndef MDSPI_H
 #define MDSPI_H
 
-#include <QObject>
 #include <QColor>
 
 #include "spdlog/spdlog.h"
@@ -9,6 +8,7 @@
 
 #include "dispatcher.h"
 
+class QObject;
 
 class MdSpi : public QObject, public CThostFtdcMdSpi {
     Q_OBJECT
@@ -19,32 +19,24 @@ public:
     ~MdSpi();
 
     void init();
-
     void reqConnect();
-
     void setDispatcher(Dispatcher *ee);
+    void subscribeMd(std::string instruments);
+    void showApiReturn(int ret, QString outputIfSuccess = "", QString outputIfError = "MdApi sent Error.");
+    bool isErrorRspInfo(CThostFtdcRspInfoField *pRspInfo, const char *msg = "");
 
+    // overridden CThostFtdcMdSpi callback functions
     void OnFrontConnected();
-
     void OnFrontDisconnected(int nReason);
 
     void OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
-
     void OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
     void OnRspSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
-
     void OnRspUnSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
-
     void OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData);
 
-    void subscribeMd(std::string instruments);
-
-    void showApiReturn(int ret, QString outputIfSuccess = "", QString outputIfError = "MdApi sent Error.");
-
-    bool isErrorRspInfo(CThostFtdcRspInfoField *pRspInfo, const char *msg = "");
-
-    Dispatcher *getEventEngine();
+    Dispatcher *getDispatcher();
 
     public slots:
     void execCmdLine(QString cmdLine);
@@ -64,7 +56,7 @@ private:
     }
 
     CThostFtdcMdApi *mdapi{ nullptr };
-    Dispatcher *eventEngine{ nullptr };
+    Dispatcher *dispatcher{ nullptr };
     /*char *FrontAddress{ "tcp://122.224.98.87:27225" };
     const string BROKER_ID{ "3010" };
     const string USER_ID{ "10101847" };

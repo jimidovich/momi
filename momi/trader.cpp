@@ -8,6 +8,7 @@
 #include <QDialog>
 #include <QTextEdit>
 #include <QTimer>
+//#include <QColor>
 #include <QtConcurrent/QtConcurrent>
 
 #include "spdlog/spdlog.h"
@@ -115,7 +116,8 @@ void Trader::OnFrontDisconnected(int nReason)
     default:
         break;
     }
-    logger(err, msg.toLocal8Bit());
+//    logger(err, msg.toLocal8Bit());
+    logger(err, msg.toStdString().c_str());
     emit sendToTraderMonitor(msg, Qt::red);
 }
 
@@ -130,19 +132,20 @@ void Trader::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFt
         tradingDay = pRspUserLogin->TradingDay;
 
         QString msg;
+        QString preSpaces = "\n" + QString(" ").repeated(31);
         msg.append("Trader Login Successful.");
-        msg.append("\n....TradingDay = ").append(pRspUserLogin->TradingDay);
-        msg.append("\n....LoginTime  = ").append(pRspUserLogin->LoginTime);
-        msg.append("\n....SystemName = ").append(pRspUserLogin->SystemName);
-        msg.append("\n....UserID     = ").append(pRspUserLogin->UserID);
-        msg.append("\n....BrokerID   = ").append(pRspUserLogin->BrokerID);
-        msg.append("\n....SessionID  = ").append(QString::number(pRspUserLogin->SessionID));
-        msg.append("\n....FrontID    = ").append(QString::number(pRspUserLogin->FrontID));
-        msg.append("\n....INETime    = ").append(pRspUserLogin->INETime);
-        msg.append("\n....SHFE Time  = ").append(pRspUserLogin->SHFETime);
-        msg.append("\n....DCE  Time  = ").append(pRspUserLogin->DCETime);
-        msg.append("\n....CZCE Time  = ").append(pRspUserLogin->CZCETime);
-        msg.append("\n....FFEX Time  = ").append(pRspUserLogin->FFEXTime);
+        msg.append(preSpaces).append("TradingDay = ").append(pRspUserLogin->TradingDay);
+        msg.append(preSpaces).append("LoginTime  = ").append(pRspUserLogin->LoginTime);
+        msg.append(preSpaces).append("SystemName = ").append(pRspUserLogin->SystemName);
+        msg.append(preSpaces).append("UserID     = ").append(pRspUserLogin->UserID);
+        msg.append(preSpaces).append("BrokerID   = ").append(pRspUserLogin->BrokerID);
+        msg.append(preSpaces).append("SessionID  = ").append(QString::number(pRspUserLogin->SessionID));
+        msg.append(preSpaces).append("FrontID    = ").append(QString::number(pRspUserLogin->FrontID));
+        msg.append(preSpaces).append("INETime    = ").append(pRspUserLogin->INETime);
+        msg.append(preSpaces).append("SHFE Time  = ").append(pRspUserLogin->SHFETime);
+        msg.append(preSpaces).append("DCE  Time  = ").append(pRspUserLogin->DCETime);
+        msg.append(preSpaces).append("CZCE Time  = ").append(pRspUserLogin->CZCETime);
+        msg.append(preSpaces).append("FFEX Time  = ").append(pRspUserLogin->FFEXTime);
         emit sendToTraderMonitor(msg, Qt::green);
         logger(info, msg.toStdString().c_str());
 
@@ -359,10 +362,11 @@ void Trader::OnRspQryTradingAccount(CThostFtdcTradingAccountField *pTradingAccou
     if (!isErrorRspInfo(pRspInfo, "RspQryTradingAccount: ")) {
         if (bIsLast) {
             QString msg = "Trading Account";
-            msg.append("\n....Available  = ").append(QString::number(pTradingAccount->Available));
-            msg.append("\n....Balance    = ").append(QString::number(pTradingAccount->Balance));
-            msg.append("\n....CurrMargin = ").append(QString::number(pTradingAccount->CurrMargin));
-            msg.append("\n....Reserve    = ").append(QString::number(pTradingAccount->Reserve));
+            QString preSpaces = "\n" + QString(" ").repeated(31);
+            msg.append(preSpaces).append("Available  = ").append(QString::number(pTradingAccount->Available));
+            msg.append(preSpaces).append("Balance    = ").append(QString::number(pTradingAccount->Balance));
+            msg.append(preSpaces).append("CurrMargin = ").append(QString::number(pTradingAccount->CurrMargin));
+            msg.append(preSpaces).append("Reserve    = ").append(QString::number(pTradingAccount->Reserve));
             logger(info, msg.toStdString().c_str());
             emit sendToTraderMonitor(msg);
 
@@ -782,8 +786,8 @@ void Trader::handleDispatch(int tt)
 void Trader::setLogger()
 {
     //console = spdlog::get("console");
-    console = spdlog::stdout_color_mt("trader ");
-    console->set_pattern("[%H:%M:%S.%f] [%n] [%L] %v");
+    console = spdlog::stdout_color_mt("trader");
+    console->set_pattern("[%H:%M:%S.%f] [%L] [%n] %v");
     g_logger = spdlog::get("file_logger");
     trader_logger = spdlog::rotating_logger_mt("trader_logger", "logs/trader_log", 1024 * 1024 * 5, 3);
     //trader_logger = spdlog::daily_logger_mt("trader_logger", "logs/trader_log", 5, 0);
@@ -832,13 +836,18 @@ bool Trader::isErrorRspInfo(CThostFtdcRspInfoField *pRspInfo, const char *msg)
 
 void Trader::showApiReturn(int ret, QString outputIfSuccess, QString outputIfError)
 {
+    const QString green      = "\033[32m";
+    const QString reset      = "\033[00m";
+
     if (outputIfSuccess != "" || outputIfError != "") {
         QString msg;
+        QString msg_t;
         switch (ret) {
         case 0:
             //msg = outputIfSuccess.append("0: Sent successfully ").append(QString("ReqID=%1").arg(QString::number(nRequestID)));
             msg = outputIfSuccess.append(QString(" <Sent successfully. ReqID=%1>").arg(nRequestID));
-            logger(info, msg.toStdString().c_str());
+            msg_t = green + msg + reset;
+            logger(info, msg_t.toStdString().c_str());
             emit sendToTraderMonitor(msg, Qt::darkGreen);
             break;
         case -1:
@@ -925,10 +934,10 @@ void Trader::execCmdLine(QString cmdLine)
         else if (argv.at(0) == "qtrade" || argv.at(0) == "qtd") {
             ReqQryTrade();
         }
-        else if (argv.at(0) == "qpos") {
+        else if (argv.at(0) == "qp") {
             ReqQryInvestorPosition();
         }
-        else if (argv.at(0) == "qpdt") {
+        else if (argv.at(0) == "qpd") {
             ReqQryInvestorPositionDetail();
         }
         else if (argv.at(0) == "qmkt") {
@@ -937,7 +946,7 @@ void Trader::execCmdLine(QString cmdLine)
         else if (argv.at(0) == "qcomm") {
             ReqQryInstrumentCommissionRate(argv.at(1).toStdString());
         }
-        else if (argv.at(0) == "qaccount" || argv.at(0) == "qacc") {
+        else if (argv.at(0) == "qa" || argv.at(0) == "qacc") {
             ReqQryTradingAccount();
         }
         else if (argv.at(0) == "qc" || argv.at(0) == "qinst") {
@@ -953,12 +962,13 @@ void Trader::execCmdLine(QString cmdLine)
             QTextEdit *text = new QTextEdit;
             text->resize(1250, 750);
             text->setAttribute(Qt::WA_DeleteOnClose);
-            text->setFont(QFont("Noto Sans Mono CJK SC", 9));
+//            text->setFont(QFont("Noto Sans Mono CJK SC", 9));
+            text->setFont(QFont("xos4 Terminess Powerline", 9));
             text->append(QString::fromLocal8Bit(strSettlementInfo.c_str()));
             text->show();
         }
         else {
-            emit sendToTraderMonitor("Invalid cmd.");
+            emit sendToTraderCmdMonitor("Invalid cmd.", Qt::yellow);
         }
     }
 }

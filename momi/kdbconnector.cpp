@@ -243,9 +243,9 @@ void KdbConnector::setLogger(std::string consoleName)
     //console = spdlog::get("console");
     kdb_logger = spdlog::rotating_logger_mt(consoleName+"_logger", "logs/"+consoleName+"_log", 1024 * 1024 * 5, 3);
     kdb_logger->flush_on(spdlog::level::info);
-    consoleName.resize(7, ' ');
+    consoleName.resize(6, ' ');
     console = spdlog::stdout_color_mt(consoleName);
-    console->set_pattern("[%H:%M:%S.%f] [%n] [%L] %v");
+    console->set_pattern("[%H:%M:%S.%f] [%L] [%n] %v");
     g_logger = spdlog::get("file_logger");
 }
 

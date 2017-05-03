@@ -1,7 +1,6 @@
 #ifndef CTPMONITOR_H
 #define CTPMONITOR_H
 
-#include <QtWidgets/QMainWindow>
 #include "ui_ctpmonitor.h"
 
 class CtpMonitor : public QMainWindow {
@@ -18,19 +17,22 @@ signals:
 	void sendCmdLineToMdspi(QString cmdLine);
 	void sendCmdLineToOms(QString cmdLine);
 
-	public slots:
+public slots:
+    void recCmdLine();
     void printTraderMsg(QString msg, QColor clr);
 	void printMdSpiMsg(QString msg);
 	void printPosMsg(QString msg);
 	void printAccMsg(QString msg);
-	void printToTraderCommandHist();
-	void recCmdLine();
+    void echoToTraderCmdMonitor();
+    void printToTraderCmdMonitor(QString msg, QColor clr = Qt::white);
 
 private slots:
 
     void on_stlinfoButton_clicked();
 
 private:
+    // CtpMonotorClass is sub-class of UI_CtpMonitorClass, which creates
+    // mainwindow components and sets ui
 	Ui::CtpMonitorClass ui;
 };
 

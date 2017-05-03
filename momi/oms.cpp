@@ -5,7 +5,7 @@
 #include "oms.h"
 #include "myevent.h"
 #include "trader.h"
-#include "struct.h"
+//#include "struct.h"
 
 OMS::OMS(QObject * parent) : QObject(parent)
 {

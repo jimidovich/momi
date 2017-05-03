@@ -74,7 +74,8 @@ inline ansicolor_sink::ansicolor_sink(sink_ptr wrapped_sink) : sink_(wrapped_sin
 {
     colors_[level::trace]   = cyan;
     colors_[level::debug]   = cyan;
-    colors_[level::info]    = bold;
+//    colors_[level::info]    = bold;
+    colors_[level::info]    = reset;
     colors_[level::warn]    = yellow + bold;
     colors_[level::err]     = red + bold;
     colors_[level::critical] = bold + on_red;

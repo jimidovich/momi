@@ -3,15 +3,21 @@
 
 #include <QObject>
 #include <QColor>
-#include <QMap>
+//#include <QMap>
 
 #include "spdlog/spdlog.h"
 #include "ThostFtdcUserApiStruct.h"
 
 #include "struct.h"
 
+//class QObject;
+
+template <class Key, class T>
+class QMap;
+
 class Portfolio;
 class Trader;
+
 
 class Trade {
 public:
@@ -22,7 +28,6 @@ public:
     CThostFtdcTradeField *tradeInfo;
 };
 typedef QMap<QString, Trade> TradeList;
-
 
 class Order {
 public:
@@ -40,7 +45,6 @@ public:
     CThostFtdcOrderField *orderInfo;
 };
 typedef QMap<QString, Order> OrderList;
-
 
 struct PosTarget {
     std::string sym{ "" };
@@ -65,16 +69,13 @@ struct PosTarget {
 };
 typedef QMap<QString, PosTarget> TargetList;
 
-
 struct PairPosTarget {
     PosTarget yTarget;
     PosTarget xTarget;
 };
 
-
 class OMS : public QObject {
     Q_OBJECT
-
 public:
     OMS(QObject *parent = Q_NULLPTR);
     //OMS(Trader* trader, Portfolio* pf);
@@ -92,20 +93,18 @@ public:
     void switchOff();
     //void sendOrderForTarget(std::string sym, int tgtPos, double price);
 
-    public slots:
-    void execCmdLine(QString cmdLine);
-
-signals:
-    void sendToTraderMonitor(QString msg, QColor clr = Qt::white);
-
-public:
     TradeList tradeList;
     OrderList orderList;
     OrderList workingOrderList;
     TargetList targetList;
 
-private:
+public slots:
+    void execCmdLine(QString cmdLine);
 
+signals:
+    void sendToTraderMonitor(QString msg, QColor clr = Qt::white);
+
+private:
     void calcLongShortTarget(PosTarget &pt);
     void sendOrderForTarget(PosTarget &pt);
     void orderInsertWithOffsetFlag(std::string &sym, EnumOpenClose o_c, EnumDirectionType direction, double price, int volume);
@@ -115,7 +114,6 @@ private:
     Trader *trader{ nullptr };
     Portfolio *pf{ nullptr };
     PairPosTarget ppt;
-
     bool isWorking{ false };
 
     std::shared_ptr<spdlog::logger> console;

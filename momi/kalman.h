@@ -13,28 +13,21 @@ class Portfolio;
 struct Pair {
     std::string yname, xname;
     int ymulti = 1, xmulti = 1;
-    int currYpos = 0, currXpos = 0, targetYpos = 0, targetXpos = 0;
+    int currYpos = 0, currXpos = 0;
+    int targetYpos = 0, targetXpos = 0;
     double targetYprice = 0, targetXprice = 0;
 };
 
 class Kalman {
 public:
     Kalman();
-
     ~Kalman();
-
     void setLogger();
-
     void onFeed(MyEvent *myev);
-
     void updateXY(double y, double x);
-
     void updateLastTime(char *newTime);
-
     void progress();
-
     void setOMS(OMS *oms);
-
     void setPortfolio(Portfolio *pf);
 
     std::string lastTime{ "nn:nn:nn" };

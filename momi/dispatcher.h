@@ -1,12 +1,13 @@
 #ifndef DISPATCHER_H
 #define DISPATCHER_H
 
-#include <QObject>
+//#include <QObject>
 #include "myevent.h"
 //#include "kdbconnector.h"
 
 //typedef void(msgHandlerClass::*MyEventHandler)(QEvent*);
 
+//class QObject;
 class KdbConnector;
 
 class Dispatcher : public QObject {

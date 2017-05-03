@@ -32,8 +32,8 @@ Kalman::~Kalman()
 
 void Kalman::setLogger()
 {
-    console = spdlog::stdout_color_mt("kalman ");
-    console->set_pattern("[%H:%M:%S.%f] [%n] [%L] %v");
+    console = spdlog::stdout_color_mt("kalman");
+    console->set_pattern("[%H:%M:%S.%f] %n [%L] %v");
     g_logger = spdlog::get("file_logger");
     kalman_logger = spdlog::rotating_logger_mt("kalman_logger", "logs/kalman_log", 1024 * 1024 * 5, 3);
     //kalman_logger = spdlog::daily_logger_mt("kalman_logger", "logs/kalman_log", 5, 0);

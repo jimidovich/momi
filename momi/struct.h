@@ -4,12 +4,11 @@
 #include <string>
 #include <map>
 
-#include <qmap.h>
+#include <QMap>
 #include "ThostFtdcUserApiStruct.h"
 
 typedef QMap<std::string, CThostFtdcInstrumentField> SymInfoMap;
 typedef QMap<std::string, CThostFtdcDepthMarketDataField*> SymTickMap;
-
 
 struct Symbol {
     Symbol() {}

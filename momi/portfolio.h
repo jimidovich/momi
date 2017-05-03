@@ -46,14 +46,13 @@ public:
 	Portfolio(Trader *td, OMS *oms, Kalman *kf);
 	~Portfolio();
 
-
 	int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
 	int columnCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const Q_DECL_OVERRIDE;
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
 	void updatePosTable();
 
-	void setEventEngine(Dispatcher *ee);
+	void setDispatcher(Dispatcher *ee);
 	void setOMS(OMS *oms);
 	void setPosTableView(QTableView *ptv);
 	Trader* getTrader();
@@ -67,7 +66,7 @@ signals:
 	void sendToPosMonitor(QString msg);
 	void sendToAccMonitor(QString msg);
 
-	public slots:
+public slots:
 	void onEvent(QEvent *ev);
 
 private:
@@ -80,12 +79,13 @@ private:
 	void printNetPos();
 	void printAcc();
 
+    QTime initTime();
+    QTime updateTime();
+
 	std::string tradingDay;
-	Account acc;
 	std::string time;
 	int millisec{ 0 };
-	QTime initTime();
-	QTime updateTime();
+    Account acc;
 
 	int lastRowCount{ 0 };  // for tableview
 	QTableView *postableview;
@@ -97,7 +97,7 @@ private:
 	//RM rm;
 	OMS *oms{ nullptr };
 	Trader *trader{ nullptr };
-	Dispatcher *eventEngine{ nullptr };
+    Dispatcher *dispatcher{ nullptr };
 	Kalman *kf{ nullptr };
 
 	/*void updateOnFeed(string sym, double price);
@@ -106,6 +106,5 @@ private:
 	//void updateNetPosList(const PosDetail& pd);
 	//void addPnl(double rp, double rcp, double p, double cp);
 	//void addPnl(NetPos& np, double rp, double rcp, double p, double cp);
-
 };
 #endif // !PORTFOLIO_H

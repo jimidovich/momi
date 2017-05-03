@@ -16,7 +16,7 @@ TARGET = momi
 TEMPLATE = app
 
 SOURCES += main.cpp\
-        ctpmonitor.cpp \
+    ctpmonitor.cpp \
     dispatcher.cpp \
     kalman.cpp \
     kdbconnector.cpp \
@@ -29,7 +29,7 @@ SOURCES += main.cpp\
     strategy.cpp \
     trader.cpp
 
-HEADERS  += ctpmonitor.h \
+HEADERS += ctpmonitor.h \
     dispatcher.h \
     k.h \
     kalman.h \
@@ -48,7 +48,7 @@ HEADERS  += ctpmonitor.h \
     ThostFtdcUserApiDataType.h \
     ThostFtdcUserApiStruct.h
 
-FORMS    += ctpmonitor.ui
+FORMS += ctpmonitor.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/v6.3.6_20160606_api_tradeapi_linux64/release/ -lthostmduserapi
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/v6.3.6_20160606_api_tradeapi_linux64/debug/ -lthostmduserapi

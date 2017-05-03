@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include <QObject>
+//#include <QObject>
 #include <QMutex>
 
 #include "spdlog/spdlog.h"
@@ -15,6 +15,7 @@
 #define KXVER 3
 #include "k.h"
 
+class QObject;
 class Account;
 
 class KdbConnector : public QObject {
@@ -26,7 +27,6 @@ public:
     ~KdbConnector();
     
     void setTradingDay(const char *tday);
-
     void setLogger(std::string consoleName);
 
     public slots:

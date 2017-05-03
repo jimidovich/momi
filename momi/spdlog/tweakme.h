@@ -38,7 +38,7 @@
 //
 // WARNING: If the log pattern contains thread id (i.e, %t) while this flag is on, the result is undefined.
 //
-// #define SPDLOG_NO_THREAD_ID
+ #define SPDLOG_NO_THREAD_ID
 ///////////////////////////////////////////////////////////////////////////////
 
 

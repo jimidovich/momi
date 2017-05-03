@@ -4,7 +4,6 @@
 #include "ThostFtdcUserApiStruct.h"
 
 #include "position.h"
-#include "struct.h"
 
 Position::Position()
 {

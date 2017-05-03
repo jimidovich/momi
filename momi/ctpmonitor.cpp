@@ -1,5 +1,5 @@
-#include <QtWidgets>
-#include <QString>
+#include <QTime>
+#include <QSplitter>
 
 #include "ctpmonitor.h"
 
@@ -69,9 +69,9 @@ CtpMonitor::CtpMonitor(QWidget *parent)
     hLayout->addWidget(splitter);
 
 
-    connect(ui.sendButton, &QPushButton::clicked, this, &CtpMonitor::printToTraderCommandHist);
+    connect(ui.sendButton, &QPushButton::clicked, this, &CtpMonitor::echoToTraderCmdMonitor);
     connect(ui.sendButton, &QPushButton::clicked, this, &CtpMonitor::recCmdLine);
-    connect(ui.traderCommandLine, &QLineEdit::returnPressed, this, &CtpMonitor::printToTraderCommandHist);
+    connect(ui.traderCommandLine, &QLineEdit::returnPressed, this, &CtpMonitor::echoToTraderCmdMonitor);
     connect(ui.traderCommandLine, &QLineEdit::returnPressed, this, &CtpMonitor::recCmdLine);
 }
 
@@ -86,7 +86,7 @@ Ui::CtpMonitorClass CtpMonitor::getui()
 
 void CtpMonitor::printMdSpiMsg(QString msg)
 {
-    ui.mdOutput->appendPlainText(msg);
+//    ui.mdOutput->appendPlainText(msg);
 }
 
 void CtpMonitor::printPosMsg(QString msg)
@@ -101,20 +101,64 @@ void CtpMonitor::printAccMsg(QString msg)
     ui.accOutput->appendPlainText(msg);
 }
 
-void CtpMonitor::printToTraderCommandHist()
+void CtpMonitor::echoToTraderCmdMonitor()
 {
-    QTime t(QTime::currentTime());
-    QString currentTime(t.toString());
-    QString msec(QString::number(t.msec()));
+//    QTime t(QTime::currentTime());
+//    QString currentTime(t.toString());
+//    QString msec(QString::number(t.msec()));
     QString cmd(ui.traderCommandLine->text());
-    ui.traderCommandHist->appendPlainText("[" + getCurrentTimeMsec() + "]$" + cmd);
+//    ui.traderCommandHist->setPlainText("[" + getCurrentTimeMsec() + "]$" + cmd + "\n");
+    cmd = QString("[" + getCurrentTimeMsec() + "]$") + cmd;
+    printToTraderCmdMonitor(cmd, Qt::white);
+}
+
+void CtpMonitor::printToTraderCmdMonitor(QString msg, QColor clr)
+{
+//    msg = QString("[" + getCurrentTimeMsec() + "] ") + msg;
+    //QColor clr(255,0,0);
+    //auto clr = Qt::yellow;
+    stringToHtmlFilter(msg);
+    stringToHtml(msg, clr);
+    ui.traderCommandHist->moveCursor(QTextCursor::End);
+    ui.traderCommandHist->insertHtml(msg);
+    ui.traderCommandHist->append("");
 }
 
 void CtpMonitor::recCmdLine()
 {
     QString cmdLine(ui.traderCommandLine->text());
     QStringList argv(cmdLine.split(" "));
-    if (argv.at(0) == "md")
+    if (argv.at(0) == "?") {
+        QString usage{
+            "Trader commands:\n"
+            "q[?]                queries\n"
+            "i[?]                insert orders\n"
+            "c[?]                cancel orders\n"
+            "login               trader login\n"
+            "logout              trader logout\n"
+            "\n"
+            "MD(Market Data) commands:\n"
+            "md [?]\n"
+            "\n"
+            "OMS(Order Management System) commands:\n"
+            "oms [?]"
+        };
+        printToTraderCmdMonitor(usage, Qt::cyan);
+    }
+    else if (argv.at(0) == "q?") {
+        QString usage{
+            "Query commands:\n"
+            "qa                  Query account\n"
+            "qod                 Query orders\n"
+            "qtd                 Query trades\n"
+            "qp                  Query positions\n"
+            "qpd                 Query positions in detail\n"
+            "qcomm               Query instrument commission rate\n"
+            "qmkt [contract]     Query depth market data"
+        };
+        printToTraderCmdMonitor(usage, Qt::cyan);
+    }
+    else if (argv.at(0) == "md")
         emit sendCmdLineToMdspi(cmdLine);
     else if (argv.at(0) == "oms")
         emit sendCmdLineToOms(cmdLine);

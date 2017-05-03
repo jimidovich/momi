@@ -131,9 +131,9 @@ void Portfolio::updatePosTable()
     //emit dataChanged(topleft, bottomright);
 }
 
-void Portfolio::setEventEngine(Dispatcher *ee)
+void Portfolio::setDispatcher(Dispatcher *ee)
 {
-    eventEngine = ee;
+    dispatcher = ee;
 }
 
 void Portfolio::setOMS(OMS *oms)
@@ -224,7 +224,7 @@ void Portfolio::onEvent(QEvent *ev)
         millisec = myev->feed->UpdateMillisec;
 
         auto accEvent = new MyEvent(AccountUpdateEvent, &acc);
-        QCoreApplication::postEvent(eventEngine, accEvent);
+        QCoreApplication::postEvent(dispatcher, accEvent);
         printAcc();
         printNetPos();
         updatePosTable();
@@ -257,7 +257,7 @@ void Portfolio::onEvent(QEvent *ev)
 void Portfolio::printNetPos()
 {
     QString msg;
-    msg.append("Symbol").append("\tNetPos").append("\tAvgCost").append("\tPositionPnL").append("\tNetPnL").append("\ttime\n");
+    msg.append("Symbol").append("\tNetPos").append("\tAvgCost").append("\tPosPnL").append("\tNetPnL").append("\ttime\n");
     for (auto sym : netPosList.keys()) {
         auto pos = netPosList[sym];
         msg.append(sym).append("\t").append(QString::number(pos.netPos)).append("\t");

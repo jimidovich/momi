@@ -1,9 +1,6 @@
-//#include <QtWidgets/QApplication>
-//#include <QtWidgets>
 #include <QTextCodec>
 #include <QDebug>
 #include <QThread>
-#include <QTimer>
 
 #include "spdlog/spdlog.h"
 
@@ -28,11 +25,11 @@ int main(int argc, char *argv[])
     QTextCodec *codec = QTextCodec::codecForName("GB2312");
     QTextCodec::setCodecForLocale(codec);
 
-    auto console = spdlog::stdout_color_mt("console");
+    auto console = spdlog::stdout_color_mt(" momi ");
+    console->set_pattern("[%H:%M:%S.%f] [%L] [%n] %v");
     auto file_logger = spdlog::rotating_logger_mt("file_logger", "logs/main_log", 1024 * 1024 * 5, 3);
-    console->set_pattern("[%H:%M:%S.%f] [%n] [%L] %v");
-
     file_logger->flush_on(spdlog::level::info);
+
     console->info("Enter Program");
     file_logger->info("Enter Program");
 
@@ -48,7 +45,6 @@ int main(int argc, char *argv[])
     Dispatcher dispatcher;
     dispatcher.setKdbConnector(&kdbConnector);
 
-    //Trader trader;
     Trader trader("tcp://180.168.146.187:10000", "9999", "063669", "1qaz2wsx");
     //Trader trader("tcp://222.66.235.70:21205", "66666", "00008218", "183488");
     MdSpi mdspi("tcp://180.168.146.187:10011", "9999", "063669", "1qaz2wsx");
@@ -64,11 +60,12 @@ int main(int argc, char *argv[])
     Kalman kf;
     OMS oms;
     Portfolio pf(&trader, &oms, &kf);
+
     kf.setOMS(&oms);
     kf.setPortfolio(&pf);
     oms.setTrader(&trader);
     oms.setPortfolio(&pf);
-    pf.setEventEngine(&dispatcher);
+    pf.setDispatcher(&dispatcher);
     trader.setDispatcher(&dispatcher);
     mdspi.setDispatcher(&dispatcher);
 
@@ -99,6 +96,7 @@ int main(int argc, char *argv[])
     if (argc == 1) {
 //        CtpMonitor w;
         QObject::connect(&trader, &Trader::sendToTraderMonitor, w, &CtpMonitor::printTraderMsg);
+        QObject::connect(&trader, &Trader::sendToTraderCmdMonitor, w, &CtpMonitor::printToTraderCmdMonitor);
         QObject::connect(w, &CtpMonitor::sendCmdLineToTrader, &trader, &Trader::execCmdLine);
         QObject::connect(&mdspi, &MdSpi::sendToTraderMonitor, w, &CtpMonitor::printTraderMsg);
         QObject::connect(&mdspi, &MdSpi::sendToMdMonitor, w, &CtpMonitor::printMdSpiMsg);
