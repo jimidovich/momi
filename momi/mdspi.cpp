@@ -94,10 +94,10 @@ void MdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtd
         emit sendToTraderMonitor(msg, Qt::green);
 //        logger(info, "Subscribe market data:");
         std::string instruments = {
-//            "IF1705;IH1705;IC1705;TF1706;T1706;"
+            "IF1705;IH1705;IC1705;TF1706;T1706;"
             "rb1710;ru1709;cu1706;zn1706;au1706;ag1706;sn1709;al1706;hc1710;bu1709;pb1706;sn1709;"
-//            "i1709;p1709;m1709;y1709;j1709;l1709;c1709;jm1709;cs1709;pp1709;jd1709;a1709;"
-//            "SR709;TA709;MA709;CF709;OI709;RM709;ZC709;FG709;SM709"
+            "i1709;p1709;m1709;y1709;j1709;l1709;c1709;jm1709;cs1709;pp1709;jd1709;a1709;"
+            "SR709;TA709;MA709;CF709;OI709;RM709;ZC709;FG709;SM709"
         };
         subscribeMd(instruments);
     }

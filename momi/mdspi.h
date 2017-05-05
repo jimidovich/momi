@@ -71,7 +71,7 @@ private:
     const std::string BROKER_ID;
     const std::string USER_ID;
     const std::string PASSWORD;
-    int countTick{ 0 };
+    unsigned long countTick{ 0 };
 
     std::shared_ptr<spdlog::logger> console;
     std::shared_ptr<spdlog::logger> g_logger;

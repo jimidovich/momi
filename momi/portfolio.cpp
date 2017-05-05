@@ -86,14 +86,15 @@ QVariant Portfolio::data(const QModelIndex &index, int role /*= Qt::DisplayRole*
         int col = index.column();
         if (row < netPosList.size()) {
             auto i = netPosList.begin();
+            auto curr_sym = (i + row).value().sym;
             switch (col)
             {
-            case 0: return QString((i + row).value().sym.c_str());
+            case 0: return QString(curr_sym.c_str());
             case 1:
-                if (symList.contains((i + row).value().sym))
+                if (symList.contains(curr_sym))
                 {
-                    if (symList[(i + row).value().sym].mkt != nullptr)
-                        return QString::number(symList[(i + row).value().sym].mkt->LastPrice);
+                    if (symList[curr_sym].mkt != nullptr)
+                        return QString::number(symList[curr_sym].mkt->LastPrice);
                 }
                 else
                     return "";
@@ -257,14 +258,17 @@ void Portfolio::onEvent(QEvent *ev)
 void Portfolio::printNetPos()
 {
     QString msg;
-    msg.append("Symbol").append("\tNetPos").append("\tAvgCost").append("\tPosPnL").append("\tNetPnL").append("\ttime\n");
+    int fw = -12; // field width left-aligned
+    msg = QString("%1%2%3%4%5%6\n").arg("Symbol", fw).arg("NetPos", fw).arg("AvgCost", fw).arg("PosPnL", fw).arg("NetPnL", fw).arg("Time");
     for (auto sym : netPosList.keys()) {
         auto pos = netPosList[sym];
-        msg.append(sym).append("\t").append(QString::number(pos.netPos)).append("\t");
-        msg.append(QString::number(pos.avgCostPrice)).append("\t").append(QString::number(pos.positionProfit));
-        msg.append("\t").append(QString("%1").arg(pos.netPnl));
-        msg.append("\t").append(getTimeMsec(time, millisec)).append("\n");
-
+        msg += QString("%1%2%3%4%5%6\n")
+                .arg(sym, fw)
+                .arg(pos.netPos, fw)
+                .arg(pos.avgCostPrice, fw)
+                .arg(pos.positionProfit, fw)
+                .arg(pos.netPnl, fw)
+                .arg(getTimeMsec(time, millisec));
     }
     emit sendToPosMonitor(msg);
 }
@@ -272,14 +276,24 @@ void Portfolio::printNetPos()
 void Portfolio::printAcc()
 {
     QString msg;
-    msg.append("Balance\t").append("Gross PnL\t").append("R.PnL\t").append("Unr.PnL\t").append("Margin\t").append("Comm\t").append("time\n");
-    msg.append(QString("%1").arg(int(acc.balance)));
-    msg.append("\t").append(QString("%1").arg(acc.netPnl));
-    msg.append("\t").append(QString("%1").arg(acc.closeProfit));
-    msg.append("\t").append(QString("%1").arg(acc.positionProfit));
-    msg.append("\t").append(QString("%1").arg(acc.margin));
-    msg.append("\t").append(QString("%1").arg(acc.commission));
-    msg.append("\t").append(getTimeMsec(time, millisec));
+    int fw = -12; // field width left-aligned
+    msg = QString("%1%2%3%4%5%6%7\n").arg("Balance", fw).arg("Grs.PnL", fw).arg("R.PnL", fw).arg("Unr.PnL", fw).arg("Margin", fw).arg("Comm", fw).arg("Time");
+//    msg.append("Balance\t").append("Gross PnL\t").append("R.PnL\t").append("Unr.PnL\t").append("Margin\t").append("Comm\t").append("time\n");
+//    msg.append(QString("%1").arg(int(acc.balance)));
+//    msg.append("\t").append(QString("%1").arg(acc.netPnl));
+//    msg.append("\t").append(QString("%1").arg(acc.closeProfit));
+//    msg.append("\t").append(QString("%1").arg(acc.positionProfit));
+//    msg.append("\t").append(QString("%1").arg(acc.margin));
+//    msg.append("\t").append(QString("%1").arg(acc.commission));
+//    msg.append("\t").append(getTimeMsec(time, millisec));
+    msg += QString("%1%2%3%4%5%6%7\n")
+            .arg(acc.balance, fw, 'f', 0)
+            .arg(acc.netPnl, fw)
+            .arg(acc.closeProfit, fw)
+            .arg(acc.positionProfit, fw)
+            .arg(acc.margin, fw)
+            .arg(acc.commission, fw)
+            .arg(getTimeMsec(time, millisec));
     emit sendToAccMonitor(msg);
 }
 

@@ -86,7 +86,8 @@ Ui::CtpMonitorClass CtpMonitor::getui()
 
 void CtpMonitor::printMdSpiMsg(QString msg)
 {
-//    ui.mdOutput->appendPlainText(msg);
+    ui.mdOutput->clear();
+    ui.mdOutput->appendPlainText(msg);
 }
 
 void CtpMonitor::printPosMsg(QString msg)
