@@ -1,7 +1,7 @@
 #include <QTime>
 #include <QSplitter>
 
-#include "ctpmonitor.h"
+#include "include/ctpmonitor.h"
 
 QString getCurrentTimeMsec()
 {
@@ -156,6 +156,35 @@ void CtpMonitor::recCmdLine()
             "qpd                 Query positions in detail\n"
             "qcomm               Query instrument commission rate\n"
             "qmkt [contract]     Query depth market data"
+        };
+        printToTraderCmdMonitor(usage, Qt::cyan);
+    }
+    else if (argv.at(0) == "i?") {
+        QString usage{
+            "Insert order commands:\n"
+            "i [o/c] [b/s] [symbol] [price] [volume]\n"
+            "\n"
+            "examples:\n"
+            "i o b rb1710 2900 1    Open Buy rb1710 bid=2900 vol=1"
+        };
+        printToTraderCmdMonitor(usage, Qt::cyan);
+    }
+    else if (argv.at(0) == "c?") {
+        QString usage{
+            "Cancel order commands:\n"
+            "c [sys] [ExchangeID] [OrderSysID]\n"
+            "c [ref] [InstrumentID] [OrderRef]\n"
+            "\n"
+            "use qod to get order info"
+        };
+        printToTraderCmdMonitor(usage, Qt::cyan);
+    }
+    else if (argv.at(0) == "oms?") {
+        QString usage{
+            "oms commands:\n"
+            "oms on                              Turn on OMS\n"
+            "oms off                             Turn off OMS\n"
+            "oms tgt [symbol] [tgtpos] [price]   Use algo trying to get tgtpos\n"
         };
         printToTraderCmdMonitor(usage, Qt::cyan);
     }

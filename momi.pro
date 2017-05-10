@@ -10,43 +10,43 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 INCLUDEPATH += "./eigen3"
 
-LIBS += $$PWD/c.o
+LIBS += $$PWD/kdb/c.o
 
 TARGET = momi
 TEMPLATE = app
 
-SOURCES += main.cpp\
-    ctpmonitor.cpp \
-    dispatcher.cpp \
-    kalman.cpp \
-    kdbconnector.cpp \
-    mdspi.cpp \
-    myevent.cpp \
-    oms.cpp \
-    portfolio.cpp \
-    position.cpp \
-    rm.cpp \
-    strategy.cpp \
-    trader.cpp
+SOURCES += src/main.cpp\
+    src/ctpmonitor.cpp \
+    src/dispatcher.cpp \
+    src/kalman.cpp \
+    src/kdbconnector.cpp \
+    src/mdspi.cpp \
+    src/myevent.cpp \
+    src/oms.cpp \
+    src/portfolio.cpp \
+    src/position.cpp \
+    src/rm.cpp \
+    src/strategy.cpp \
+    src/trader.cpp
 
-HEADERS += ctpmonitor.h \
-    dispatcher.h \
-    k.h \
-    kalman.h \
-    kdbconnector.h \
-    mdspi.h \
-    myevent.h \
-    oms.h \
-    portfolio.h \
-    position.h \
-    rm.h \
-    strategy.h \
-    struct.h \
-    trader.h \
-    ThostFtdcMdApi.h \
-    ThostFtdcTraderApi.h \
-    ThostFtdcUserApiDataType.h \
-    ThostFtdcUserApiStruct.h
+HEADERS += include/ctpmonitor.h \
+    include/dispatcher.h \
+    include/k.h \
+    include/kalman.h \
+    include/kdbconnector.h \
+    include/mdspi.h \
+    include/myevent.h \
+    include/oms.h \
+    include/portfolio.h \
+    include/position.h \
+    include/rm.h \
+    include/strategy.h \
+    include/struct.h \
+    include/trader.h \
+    include/ThostFtdcMdApi.h \
+    include/ThostFtdcTraderApi.h \
+    include/ThostFtdcUserApiDataType.h \
+    include/ThostFtdcUserApiStruct.h
 
 FORMS += ctpmonitor.ui
 

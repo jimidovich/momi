@@ -1,4 +1,4 @@
-#include "rm.h"
+#include "include/rm.h"
 
 RM::RM(QObject *parent)
 	: QObject(parent)

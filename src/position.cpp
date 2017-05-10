@@ -3,7 +3,7 @@
 
 #include "ThostFtdcUserApiStruct.h"
 
-#include "position.h"
+#include "include/position.h"
 
 Position::Position()
 {

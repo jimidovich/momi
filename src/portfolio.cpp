@@ -7,12 +7,12 @@
 
 #include "ThostFtdcUserApiDataType.h"
 
-#include "kalman.h"
-#include "portfolio.h"
-#include "struct.h"
-#include "rm.h"
-#include "oms.h"
-#include "trader.h"
+#include "include/kalman.h"
+#include "include/portfolio.h"
+#include "include/struct.h"
+#include "include/rm.h"
+#include "include/oms.h"
+#include "include/trader.h"
 
 using namespace std;
 
@@ -259,7 +259,13 @@ void Portfolio::printNetPos()
 {
     QString msg;
     int fw = -12; // field width left-aligned
-    msg = QString("%1%2%3%4%5%6\n").arg("Symbol", fw).arg("NetPos", fw).arg("AvgCost", fw).arg("PosPnL", fw).arg("NetPnL", fw).arg("Time");
+    msg = QString("%1%2%3%4%5%6\n")
+            .arg("Symbol", fw)
+            .arg("NetPos", fw)
+            .arg("AvgCost", fw)
+            .arg("PosPnL", fw)
+            .arg("NetPnL", fw)
+            .arg("Time");
     for (auto sym : netPosList.keys()) {
         auto pos = netPosList[sym];
         msg += QString("%1%2%3%4%5%6\n")
@@ -277,15 +283,14 @@ void Portfolio::printAcc()
 {
     QString msg;
     int fw = -12; // field width left-aligned
-    msg = QString("%1%2%3%4%5%6%7\n").arg("Balance", fw).arg("Grs.PnL", fw).arg("R.PnL", fw).arg("Unr.PnL", fw).arg("Margin", fw).arg("Comm", fw).arg("Time");
-//    msg.append("Balance\t").append("Gross PnL\t").append("R.PnL\t").append("Unr.PnL\t").append("Margin\t").append("Comm\t").append("time\n");
-//    msg.append(QString("%1").arg(int(acc.balance)));
-//    msg.append("\t").append(QString("%1").arg(acc.netPnl));
-//    msg.append("\t").append(QString("%1").arg(acc.closeProfit));
-//    msg.append("\t").append(QString("%1").arg(acc.positionProfit));
-//    msg.append("\t").append(QString("%1").arg(acc.margin));
-//    msg.append("\t").append(QString("%1").arg(acc.commission));
-//    msg.append("\t").append(getTimeMsec(time, millisec));
+    msg = QString("%1%2%3%4%5%6%7\n")
+            .arg("Balance", fw)
+            .arg("Grs.PnL", fw)
+            .arg("R.PnL", fw)
+            .arg("Unr.PnL", fw)
+            .arg("Margin", fw)
+            .arg("Comm", fw)
+            .arg("Time");
     msg += QString("%1%2%3%4%5%6%7\n")
             .arg(acc.balance, fw, 'f', 0)
             .arg(acc.netPnl, fw)

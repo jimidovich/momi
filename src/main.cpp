@@ -1,19 +1,20 @@
 #include <QTextCodec>
 #include <QDebug>
 #include <QThread>
+#include <QDir>
 
 #include "spdlog/spdlog.h"
 
-#include "ctpmonitor.h"
-#include "myevent.h"
-#include "oms.h"
-#include "trader.h"
-#include "mdspi.h"
-#include "portfolio.h"
-#include "kalman.h"
-#include "dispatcher.h"
+#include "include/ctpmonitor.h"
+#include "include/myevent.h"
+#include "include/oms.h"
+#include "include/trader.h"
+#include "include/mdspi.h"
+#include "include/portfolio.h"
+#include "include/kalman.h"
+#include "include/dispatcher.h"
 // include kdbconnector.h in last order for k.h polute reason
-#include "kdbconnector.h"
+#include "include/kdbconnector.h"
 
 //#pragma comment(lib,"thostmduserapi.lib")
 //#pragma comment(lib,"thosttraderapi.lib")
@@ -24,6 +25,10 @@ int main(int argc, char *argv[])
 {
     QTextCodec *codec = QTextCodec::codecForName("GB2312");
     QTextCodec::setCodecForLocale(codec);
+
+    // logs directory for spdlog file
+    auto qdir = new QDir();
+    if (!qdir->exists("./logs")) qdir->mkdir("./logs");
 
     auto console = spdlog::stdout_color_mt(" momi ");
     console->set_pattern("[%H:%M:%S.%f] [%L] [%n] %v");

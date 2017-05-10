@@ -53,17 +53,17 @@ protected:
     K qDataList(K tspan, K time);
     K date2qDate(char *date);
 
-    const char *hostname{ "localhost" };
     int port{ 5010 };
+    int handle{ 0 };
+    const char *hostname{ "localhost" };
     const char *username{ "" };
     const char *password{ "" };
-    int handle{ 0 };
     const char *tableName{ "market" };
     const char *cinfoName{ "info" };
     bool tableExist{ false };
     const char *tradingDay{ nullptr };
-    QMutex mutex;
     int countTick{ 0 };
+    QMutex mutex;
 
     std::shared_ptr<spdlog::logger> console;
     std::shared_ptr<spdlog::logger> g_logger;

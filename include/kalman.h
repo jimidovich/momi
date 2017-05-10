@@ -12,10 +12,14 @@ class Portfolio;
 
 struct Pair {
     std::string yname, xname;
-    int ymulti = 1, xmulti = 1;
-    int currYpos = 0, currXpos = 0;
-    int targetYpos = 0, targetXpos = 0;
-    double targetYprice = 0, targetXprice = 0;
+    int ymulti = 1;
+    int xmulti = 1;
+    int currYpos = 0;
+    int currXpos = 0;
+    int targetYpos = 0;
+    int targetXpos = 0;
+    double targetYprice = 0;
+    double targetXprice = 0;
 };
 
 class Kalman {

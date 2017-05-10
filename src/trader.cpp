@@ -13,10 +13,10 @@
 
 #include "spdlog/spdlog.h"
 
-#include "trader.h"
-#include "myevent.h"
-#include "position.h"
-#include "struct.h"
+#include "include/trader.h"
+#include "include/myevent.h"
+#include "include/position.h"
+#include "include/struct.h"
 
 using namespace std;
 using namespace spdlog::level;
@@ -27,8 +27,15 @@ Trader::Trader(QObject *parent) : QObject(parent)
     //tdapi->Join();
 }
 
-Trader::Trader(const string &frontAddress, const string &brokerID, const string &userID, const string &password)
-    : QObject(Q_NULLPTR), FrontAddress(frontAddress), BROKER_ID(brokerID), USER_ID(userID), PASSWORD(password)
+Trader::Trader(const string &frontAddress,
+               const string &brokerID,
+               const string &userID,
+               const string &password)
+    : QObject(Q_NULLPTR),
+      FrontAddress(frontAddress),
+      BROKER_ID(brokerID),
+      USER_ID(userID),
+      PASSWORD(password)
 {
     init();
 }
@@ -880,7 +887,7 @@ void Trader::execCmdLine(QString cmdLine)
     QStringList argv(cmdLine.split(" "));
     int n = argv.count();
     if (n > 0) {
-        if (argv.at(0) == "insert" || argv.at(0) == "ins") {
+        if (argv.at(0) == "i" || argv.at(0) == "ins") {
             if (n == 6) {
                 string InstrumentID{ argv.at(1).toStdString() };
                 //EnumOffsetFlagType OffsetFlag{ str2OffsetFlagType(argv.at(2).toStdString()) };
@@ -915,7 +922,7 @@ void Trader::execCmdLine(QString cmdLine)
         else if (argv.at(0) == "infoconfirm") {
             ReqSettlementInfoConfirm();
         }
-        else if (argv.at(0) == "cancel" || argv.at(0) == "x") {
+        else if (argv.at(0) == "c" || argv.at(0) == "x") {
             if (n == 4 && argv.at(1) == "sys") {
                 string ExchangeID{ argv.at(2).toStdString() };
                 string OrderSysID{ argv.at(3).toStdString() };
@@ -923,9 +930,9 @@ void Trader::execCmdLine(QString cmdLine)
                 ReqOrderAction("", 0, 0, "", ExchangeID, OrderSysID);
             }
             if (n == 4 && argv.at(1) == "ref") {
-                string InstrmentID{ argv.at(2).toStdString() };
+                string InstrumentID{ argv.at(2).toStdString() };
                 string OrderRef{ argv.at(3).toStdString() };
-                ReqOrderAction(InstrmentID, OrderRef);
+                ReqOrderAction(InstrumentID, OrderRef);
             }
         }
         else if (argv.at(0) == "qorder" || argv.at(0) == "qod") {

@@ -3,7 +3,7 @@
 #include <QElapsedTimer>
 #include <QTimeZone>
 
-#include "dispatcher.h"
+#include "include/dispatcher.h"
 
 Dispatcher::Dispatcher()
 {

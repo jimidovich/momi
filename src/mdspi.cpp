@@ -3,7 +3,7 @@
 
 #include "ThostFtdcMdApi.h"
 
-#include "mdspi.h"
+#include "include/mdspi.h"
 
 using namespace spdlog::level;
 
@@ -12,8 +12,15 @@ MdSpi::MdSpi(QObject * parent) : QObject(parent)
     init();
 }
 
-MdSpi::MdSpi(const std::string &frontAddress, const std::string &brokerID, const std::string &userID, const std::string &password)
-    : QObject(Q_NULLPTR), FrontAddress(frontAddress), BROKER_ID(brokerID), USER_ID(userID), PASSWORD(password)
+MdSpi::MdSpi(const std::string &frontAddress,
+             const std::string &brokerID,
+             const std::string &userID,
+             const std::string &password)
+    : QObject(Q_NULLPTR),
+      FrontAddress(frontAddress),
+      BROKER_ID(brokerID),
+      USER_ID(userID),
+      PASSWORD(password)
 {
     init();
 }

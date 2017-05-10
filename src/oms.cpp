@@ -1,10 +1,10 @@
 #include <QDebug>
 #include <QList>
 
-#include "portfolio.h"
-#include "oms.h"
-#include "myevent.h"
-#include "trader.h"
+#include "include/portfolio.h"
+#include "include/oms.h"
+#include "include/myevent.h"
+#include "include/trader.h"
 //#include "struct.h"
 
 OMS::OMS(QObject * parent) : QObject(parent)

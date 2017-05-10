@@ -1,9 +1,9 @@
 #include <QDebug>
 
-#include "kalman.h"
-#include "struct.h"
-#include "portfolio.h"
-#include "oms.h"
+#include "include/kalman.h"
+#include "include/struct.h"
+#include "include/portfolio.h"
+#include "include/oms.h"
 
 using namespace Eigen;
 using namespace std;
@@ -19,8 +19,8 @@ Kalman::Kalman()
     C = Matrix2d::Zero();
     R = Matrix2d::Zero();
 
-    pair.yname = "au1612";
-    pair.xname = "ag1612";
+    pair.yname = "au1706";
+    pair.xname = "ag1706";
     pair.ymulti = 1000;
     pair.xmulti = 15;
 }
@@ -33,7 +33,7 @@ Kalman::~Kalman()
 void Kalman::setLogger()
 {
     console = spdlog::stdout_color_mt("kalman");
-    console->set_pattern("[%H:%M:%S.%f] %n [%L] %v");
+    console->set_pattern("[%H:%M:%S.%f] [%L] [%n] %v");
     g_logger = spdlog::get("file_logger");
     kalman_logger = spdlog::rotating_logger_mt("kalman_logger", "logs/kalman_log", 1024 * 1024 * 5, 3);
     //kalman_logger = spdlog::daily_logger_mt("kalman_logger", "logs/kalman_log", 5, 0);

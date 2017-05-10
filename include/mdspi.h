@@ -15,7 +15,10 @@ class MdSpi : public QObject, public CThostFtdcMdSpi {
 
 public:
     MdSpi(QObject *parent = Q_NULLPTR);
-    MdSpi(const std::string &frontAddress, const std::string &brokerID, const std::string &userID, const std::string &password);
+    MdSpi(const std::string &frontAddress,
+          const std::string &brokerID,
+          const std::string &userID,
+          const std::string &password);
     ~MdSpi();
 
     void init();
@@ -71,7 +74,7 @@ private:
     const std::string BROKER_ID;
     const std::string USER_ID;
     const std::string PASSWORD;
-    unsigned long countTick{ 0 };
+    long countTick{ 0 };
 
     std::shared_ptr<spdlog::logger> console;
     std::shared_ptr<spdlog::logger> g_logger;

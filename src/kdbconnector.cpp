@@ -6,9 +6,9 @@
 #include <QElapsedTimer>
 #include <QTimeZone>
 
-#include "portfolio.h"
-#include "kdbconnector.h"
-#include "struct.h"
+#include "include/portfolio.h"
+#include "include/kdbconnector.h"
+#include "include/struct.h"
 
 using namespace std;
 using namespace spdlog::level;
