@@ -5,7 +5,8 @@
 #include <QTimer>
 #include <QThread>
 
-#include "ThostFtdcUserApiDataType.h"
+//#include "include/ThostFtdcUserApiDataType.h"
+#include "include/ThostFtdcUserApiStruct.h"
 
 #include "include/kalman.h"
 #include "include/portfolio.h"
@@ -210,7 +211,7 @@ void Portfolio::onEvent(QEvent *ev)
         }
         else
         {
-            Symbol s = { nullptr, myev->contractInfo };
+            Symbol s = { new CThostFtdcDepthMarketDataField, myev->contractInfo };
             symList.insert(sym, s);
         }
         break;
@@ -218,7 +219,13 @@ void Portfolio::onEvent(QEvent *ev)
     case FeedEvent:
     {
         string sym = myev->feed->InstrumentID;
-        symList[sym].mkt = myev->feed;
+//        symList[sym].mkt = myev->feed;
+        if (!symList.contains(sym)) {
+            auto nmkt = new CThostFtdcDepthMarketDataField;
+            auto ninfo = new CThostFtdcInstrumentField;
+            symList.insert(sym, Symbol(nmkt, ninfo));
+        }
+        memcpy(symList[sym].mkt, myev->feed, sizeof(CThostFtdcDepthMarketDataField));
 
         evalAccount(acc, aggPosList, symList);	// Choose which price to MTM
         time = myev->feed->UpdateTime;

@@ -59,5 +59,30 @@ MyEvent::MyEvent(EnumMyEventType type, Account *acc)
 
 MyEvent::~MyEvent()
 {
+    switch (myType) {
+    case FeedEvent:
+        delete feed;
+        break;
+    case AccountInfoEvent:
+        delete accInfo;
+        break;
+    case ContractInfoEvent:
+        delete contractInfo;
+        break;
+    case PositionEvent:
+        delete pos;
+        break;
+    case PositionDetailEvent:
+        delete posDetail;
+        break;
+    case OrderEvent:
+        delete order;
+        break;
+    case TradeEvent:
+        delete trade;
+        break;
+    default:
+        break;
+    }
 
 }
