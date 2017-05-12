@@ -58,20 +58,24 @@ void Kalman::onFeed(MyEvent *myev)
 {
     string sym = myev->feed->InstrumentID;
     if (((sym == pair.yname) || (sym == pair.xname))
-        && (pf->symList[pair.yname].mkt != nullptr) && (pf->symList[pair.xname].mkt != nullptr)) {
-        // time freq filter:
-        if ((string(pf->symList[pair.yname].mkt->UpdateTime).substr(3, 2) != lastTime.substr(3, 2)) &&
-            string(pf->symList[pair.xname].mkt->UpdateTime).substr(3, 2) != lastTime.substr(3, 2)) {
+        && (pf->symList[pair.yname].mkt != nullptr)
+        && (pf->symList[pair.xname].mkt != nullptr)) {
+        if ((string(pf->symList[pair.yname].mkt->InstrumentID) == pair.yname)
+            && (string(pf->symList[pair.xname].mkt->InstrumentID) == pair.xname)) {
+            // time freq filter:
+            if ((string(pf->symList[pair.yname].mkt->UpdateTime).substr(3, 2) != lastTime.substr(3, 2)) &&
+                string(pf->symList[pair.xname].mkt->UpdateTime).substr(3, 2) != lastTime.substr(3, 2)) {
 
-            updateLastTime(pf->symList[sym].mkt->UpdateTime);
-            updateXY(pf->symList[pair.yname].mkt->LastPrice, pf->symList[pair.xname].mkt->LastPrice);
-            progress();
+                updateLastTime(pf->symList[sym].mkt->UpdateTime);
+                updateXY(pf->symList[pair.yname].mkt->LastPrice, pf->symList[pair.xname].mkt->LastPrice);
+                progress();
 
-            //oms->setPosTarget(pair.yname.c_str(), pair.targetYpos, pair.targetYprice);
-            //oms->setPosTarget(pair.xname.c_str(), pair.targetXpos, pair.targetXprice);
+                //oms->setPosTarget(pair.yname.c_str(), pair.targetYpos, pair.targetYprice);
+                //oms->setPosTarget(pair.xname.c_str(), pair.targetXpos, pair.targetXprice);
 
-            oms->setPosTarget(pair.yname.c_str(), 0, y_t);
-            oms->setPosTarget(pair.xname.c_str(), 0, x_t);
+                oms->setPosTarget(pair.yname.c_str(), 0, y_t);
+                oms->setPosTarget(pair.xname.c_str(), 0, x_t);
+            }
         }
     }
 }
