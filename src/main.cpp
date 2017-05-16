@@ -38,10 +38,9 @@ int main(int argc, char *argv[])
     console->info("Enter Program");
     file_logger->info("Enter Program");
 
-    bool gui = argc == 1;  // shorthand gui option
     QApplication a(argc, argv);
     CtpMonitor *w = nullptr;
-    if (gui) {
+    if (argc == 1) {
         w = new CtpMonitor;
         w->show();
     }
