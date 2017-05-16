@@ -1,5 +1,6 @@
 ﻿#include <QDebug>
 #include <QCoreApplication>
+#include <QThread>
 
 #include "ThostFtdcMdApi.h"
 
@@ -100,6 +101,9 @@ void MdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtd
         logger(info, msg.toStdString().c_str());
         emit sendToTraderMonitor(msg, Qt::green);
 //        logger(info, "Subscribe market data:");
+
+        // wait for trader req all contracts info, then can initialize symList
+        QThread::sleep(5);
         std::string instruments = {
             "IF1705;IH1705;IC1705;TF1706;T1706;"
             "rb1710;ru1709;cu1706;zn1706;au1706;ag1706;sn1709;al1706;hc1710;bu1709;pb1706;sn1709;"
