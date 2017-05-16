@@ -32,9 +32,16 @@ int main(int argc, char *argv[])
 
     auto console = spdlog::stdout_color_mt(" momi ");
     console->set_pattern("[%H:%M:%S.%f] [%L] [%n] %v");
+    if (console != nullptr )
+    {
+        return 1;
+    }
     auto file_logger = spdlog::rotating_logger_mt("file_logger", "logs/main_log", 1024 * 1024 * 5, 3);
+    if (console != nullptr )
+    {
+        return 2;
+    }
     file_logger->flush_on(spdlog::level::info);
-
     console->info("Enter Program");
     file_logger->info("Enter Program");
 
