@@ -31,11 +31,11 @@ int main(int argc, char *argv[])
     if (!qdir->exists("./logs")) qdir->mkdir("./logs");
 
     auto console = spdlog::stdout_color_mt(" momi ");
-    console->set_pattern("[%H:%M:%S.%f] [%L] [%n] %v");
     if (console != nullptr )
     {
         return 1;
     }
+    console->set_pattern("[%H:%M:%S.%f] [%L] [%n] %v");
     auto file_logger = spdlog::rotating_logger_mt("file_logger", "logs/main_log", 1024 * 1024 * 5, 3);
     if (console != nullptr )
     {
