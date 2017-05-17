@@ -28,19 +28,26 @@ int main(int argc, char *argv[])
 
     // logs directory for spdlog file
     auto qdir = new QDir();
-    if (!qdir->exists("./logs")) qdir->mkdir("./logs");
-
-    auto console = spdlog::stdout_color_mt(" momi ");
-    if (console != nullptr )
+    if (qdir == nullptr )
     {
         return 1;
     }
-    console->set_pattern("[%H:%M:%S.%f] [%L] [%n] %v");
-    auto file_logger = spdlog::rotating_logger_mt("file_logger", "logs/main_log", 1024 * 1024 * 5, 3);
-    if (console != nullptr )
+
+    if (!qdir->exists("./logs")) qdir->mkdir("./logs");
+
+    auto console = spdlog::stdout_color_mt(" momi ");
+    if (console == nullptr )
     {
         return 2;
     }
+
+    console->set_pattern("[%H:%M:%S.%f] [%L] [%n] %v");
+    auto file_logger = spdlog::rotating_logger_mt("file_logger", "logs/main_log", 1024 * 1024 * 5, 3);
+    if (file_logger == nullptr )
+    {
+        return 3;
+    }
+
     file_logger->flush_on(spdlog::level::info);
     console->info("Enter Program");
     file_logger->info("Enter Program");
