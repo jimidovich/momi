@@ -2,11 +2,13 @@
 #include <QCoreApplication>
 #include <QThread>
 
-#include "ThostFtdcMdApi.h"
+#include <iostream>
+#include "include/ThostFtdcMdApi.h"
 
 #include "include/mdspi.h"
 
 using namespace spdlog::level;
+using namespace std;
 
 MdSpi::MdSpi(QObject * parent) : QObject(parent)
 {
@@ -142,19 +144,31 @@ void MdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDat
     //qDebug() << "Depth Market Data:" << endl;
     //qDebug() << this->thread();
 
-    QString msg;
-    msg.append(QString::number(++countTick)).append("\t");
-    msg.append(pDepthMarketData->InstrumentID).append("\t");
-    msg.append("LastPrice=").append(QString::number(pDepthMarketData->LastPrice)).append("\t");
-    msg.append("Turnover=").append(QString::number(pDepthMarketData->Turnover / 1e8)).append("\t");
-    msg.append(pDepthMarketData->UpdateTime).append(".");
-//    msg.append(QString::number(pDepthMarketData->UpdateMillisec));
-    msg.append(QString("%1").arg(pDepthMarketData->UpdateMillisec, 3, 10, QChar('0')));
-    emit sendToMdMonitor(msg);
-    auto fcpy = new CThostFtdcDepthMarketDataField;
-    memcpy(fcpy, pDepthMarketData, sizeof(CThostFtdcDepthMarketDataField));
-    auto feedEvent = new MyEvent(FeedEvent, fcpy);
-    QCoreApplication::postEvent(dispatcher, feedEvent);
+//    QString msg;
+//    msg.append(QString::number(++countTick)).append("\t");
+//    msg.append(pDepthMarketData->InstrumentID).append("\t");
+//    msg.append("LastPrice=").append(QString::number(pDepthMarketData->LastPrice)).append("\t");
+//    msg.append("Turnover=").append(QString::number(pDepthMarketData->Turnover / 1e8)).append("\t");
+//    msg.append(pDepthMarketData->UpdateTime).append(".");
+////    msg.append(QString::number(pDepthMarketData->UpdateMillisec));
+//    msg.append(QString("%1").arg(pDepthMarketData->UpdateMillisec, 3, 10, QChar('0')));
+//    emit sendToMdMonitor(msg);
+//    auto fcpy = new CThostFtdcDepthMarketDataField;
+//    memcpy(fcpy, pDepthMarketData, sizeof(CThostFtdcDepthMarketDataField));
+//    auto feedEvent = new MyEvent(FeedEvent, fcpy);
+//    QCoreApplication::postEvent(dispatcher, feedEvent);
+
+    cout << "incoming new data: " << pDepthMarketData->LastPrice << endl;
+    cout << "post() called from thread id: " << this_thread::get_id() << endl;
+    unique_lock<mutex> locker(dataHub->mu);
+    double lastpx = pDepthMarketData->LastPrice;
+    dataHub->q.push(lastpx);
+    locker.unlock();
+//    cout_lk.lock();
+    cout << "MD posted data: " << dataHub->q.back() << endl;
+//    cout_lk.unlock();
+    dataHub->newTickPosted.notify_one();
+
 }
 
 void MdSpi::subscribeMd(std::string instruments)

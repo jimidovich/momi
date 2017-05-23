@@ -17,6 +17,7 @@ TEMPLATE = app
 
 SOURCES += src/main.cpp\
     src/ctpmonitor.cpp \
+    src/datahub.cpp \
     src/dispatcher.cpp \
     src/kalman.cpp \
     src/kdbconnector.cpp \
@@ -27,9 +28,10 @@ SOURCES += src/main.cpp\
     src/position.cpp \
     src/rm.cpp \
     src/strategy.cpp \
-    src/trader.cpp
+    src/trader.cpp \
 
 HEADERS += include/ctpmonitor.h \
+    include/datahub.h \
     include/dispatcher.h \
     include/k.h \
     include/kalman.h \
@@ -46,7 +48,7 @@ HEADERS += include/ctpmonitor.h \
     include/ThostFtdcMdApi.h \
     include/ThostFtdcTraderApi.h \
     include/ThostFtdcUserApiDataType.h \
-    include/ThostFtdcUserApiStruct.h
+    include/ThostFtdcUserApiStruct.h \
 
 FORMS += ctpmonitor.ui
 

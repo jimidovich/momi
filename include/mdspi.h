@@ -6,6 +6,7 @@
 #include "spdlog/spdlog.h"
 #include "ThostFtdcMdApi.h"
 
+#include "datahub.h"
 #include "dispatcher.h"
 
 class QObject;
@@ -40,6 +41,8 @@ public:
     void OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData);
 
     Dispatcher *getDispatcher();
+
+    DataHub *dataHub;
 
     public slots:
     void execCmdLine(QString cmdLine);

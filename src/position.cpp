@@ -1,7 +1,7 @@
 #include <QMap>
 #include <QString>
 
-#include "ThostFtdcUserApiStruct.h"
+#include "include/ThostFtdcUserApiStruct.h"
 
 #include "include/position.h"
 

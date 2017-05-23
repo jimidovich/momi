@@ -3,7 +3,13 @@
 
 //#include <QObject>
 #include "myevent.h"
+#include "datahub.h"
 //#include "kdbconnector.h"
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <queue>
+#include <chrono>
 
 //typedef void(msgHandlerClass::*MyEventHandler)(QEvent*);
 
@@ -38,5 +44,27 @@ private:
 	int count{ 0 };
 	KdbConnector *kdbConnector{ nullptr };
 };
+
+class Reader;
+
+class Dispatcher1
+{
+public:
+    Dispatcher1(){}
+    Dispatcher1(std::string name):name(name){}
+    ~Dispatcher1() {myThread.join();}
+    void onTick(int data);
+    void waitForTick();
+    void runThread();
+    Reader *r1;
+    Reader *r2;
+
+    DataHub* dh;
+private:
+    std::string name;
+    std::thread myThread;
+    std::unique_lock<std::mutex> locker;
+};
+
 
 #endif // !DISPATCHER_H
