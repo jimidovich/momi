@@ -97,14 +97,18 @@ void Dispatcher1::waitForTick() {
         locker = unique_lock<mutex>(dh->mu);
         if (dh->q.empty()) {
 //            cout_lk.lock();
-            cout << name << " waiting..." << endl;
+//            cout << name << " waiting..." << endl;
 //            cout_lk.unlock();
             dh->newTickPosted.wait(locker);
         }
 //        cout_lk.lock();
-        cout << name <<  " fetching data from thread id: " << this_thread::get_id() << endl;
-        cout << name <<  " got data: " << dh->q.front() << endl;
+//        cout << name <<  " fetching data from thread id: " << this_thread::get_id() << endl;
+//        cout << name <<  " got data: " << dh->q.front() << endl;
 //        cout_lk.unlock();
+
+        // notified time
+        auto us1 = chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count()%1000000;
+
         auto data = dh->q.front();
         dh->q.pop();
         locker.unlock();
@@ -112,11 +116,21 @@ void Dispatcher1::waitForTick() {
         //dispatching
         auto t1 = thread(&Reader::onTick, r1, data, "");
         auto t2 = thread(&Reader::onTick, r2, data, "");
+        auto t3 = thread(&Reader::onTick, r1, data, "");
+        auto t4 = thread(&Reader::onTick, r2, data, "");
+        auto t5 = thread(&Reader::onTick, r1, data, "");
+        auto t6 = thread(&Reader::onTick, r2, data, "");
         t1.detach();
         t2.detach();
+        t3.detach();
+        t4.detach();
+        t5.detach();
+        t6.detach();
 
 //        r1->onTick(data, "");
 //        r2->onTick(data, "");
+        auto us2 = chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count()%1000000;
+        cout << "o " << us1 << " elapsed " << us2-us1 << endl;
 
 
         //onTick(data);

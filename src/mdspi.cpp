@@ -3,6 +3,7 @@
 #include <QThread>
 
 #include <iostream>
+#include <chrono>
 #include "include/ThostFtdcMdApi.h"
 
 #include "include/mdspi.h"
@@ -158,14 +159,19 @@ void MdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDat
 //    auto feedEvent = new MyEvent(FeedEvent, fcpy);
 //    QCoreApplication::postEvent(dispatcher, feedEvent);
 
-    cout << "incoming new data: " << pDepthMarketData->LastPrice << endl;
-    cout << "post() called from thread id: " << this_thread::get_id() << endl;
-    unique_lock<mutex> locker(dataHub->mu);
+    //Manually delay for testing
+//    this_thread::sleep_for(chrono::milliseconds(10));
+    cout <<"i " << chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count()%1000000 << endl;
+//    cout << "incoming new data: " << pDepthMarketData->LastPrice << endl;
+//    cout << "post() called from thread id: " << this_thread::get_id() << endl;
+    auto fcpy = new CThostFtdcDepthMarketDataField;
+    memcpy(fcpy, pDepthMarketData, sizeof(CThostFtdcDepthMarketDataField));
     double lastpx = pDepthMarketData->LastPrice;
+    unique_lock<mutex> locker(dataHub->mu);
     dataHub->q.push(lastpx);
     locker.unlock();
 //    cout_lk.lock();
-    cout << "MD posted data: " << dataHub->q.back() << endl;
+//    cout << "MD posted data: " << dataHub->q.back() << endl;
 //    cout_lk.unlock();
     dataHub->newTickPosted.notify_one();
 
