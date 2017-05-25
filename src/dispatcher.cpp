@@ -35,7 +35,7 @@ void Dispatcher::customEvent(QEvent *ev)
 	//sendToHandler(ev, (msgHandlerClass::*)(MyEvent*) h);
 	switch (((MyEvent*)ev)->myType)
 	{
-	case FeedEvent:
+    case MarketEvent:
 		emit dispatchFeed(ev);
 		break;
 	case AccountInfoEvent:
@@ -76,10 +76,11 @@ public:
     Reader(){}
     ~Reader(){}
     void onTick(double data, string color);
+    void onEvent(CtpDataEvent ev);
     void waitForTick();
     void runThread();
 
-    DataHub* dh;
+    DataQueue<double>* dh;
 private:
     string name;
     thread myThread;
@@ -87,50 +88,30 @@ private:
 };
 
 
-void Dispatcher1::onTick(int data) {
-    this_thread::sleep_for(chrono::milliseconds(15));
-}
-
-
 void Dispatcher1::waitForTick() {
     while(1) {
-        locker = unique_lock<mutex>(dh->mu);
-        if (dh->q.empty()) {
-//            cout_lk.lock();
-//            cout << name << " waiting..." << endl;
-//            cout_lk.unlock();
-            dh->newTickPosted.wait(locker);
-        }
-//        cout_lk.lock();
-//        cout << name <<  " fetching data from thread id: " << this_thread::get_id() << endl;
-//        cout << name <<  " got data: " << dh->q.front() << endl;
-//        cout_lk.unlock();
+        auto data = dataHub->feedQueue.fetch();
+        auto ev = dataHub->eventQueue.fetch();
 
-        // notified time
         auto us1 = chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count()%1000000;
-
-        auto data = dh->q.front();
-        dh->q.pop();
-        locker.unlock();
-
         //dispatching
         auto t1 = thread(&Reader::onTick, r1, data, "");
-        auto t2 = thread(&Reader::onTick, r2, data, "");
-        auto t3 = thread(&Reader::onTick, r1, data, "");
-        auto t4 = thread(&Reader::onTick, r2, data, "");
-        auto t5 = thread(&Reader::onTick, r1, data, "");
-        auto t6 = thread(&Reader::onTick, r2, data, "");
+        auto t2 = thread(&Reader::onEvent, r2, ev);
         t1.detach();
         t2.detach();
-        t3.detach();
-        t4.detach();
-        t5.detach();
-        t6.detach();
+//        auto t3 = thread(&Reader::onTick, r1, data, "");
+//        auto t4 = thread(&Reader::onTick, r2, data, "");
+//        auto t5 = thread(&Reader::onTick, r1, data, "");
+//        auto t6 = thread(&Reader::onTick, r2, data, "");
+//        t3.detach();
+//        t4.detach();
+//        t5.detach();
+//        t6.detach();
 
 //        r1->onTick(data, "");
-//        r2->onTick(data, "");
+//        r2->onEvent(ev);
         auto us2 = chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count()%1000000;
-        cout << "o " << us1 << " elapsed " << us2-us1 << endl;
+//        cout << "o " << us1 << " elapsed " << us2-us1 << endl;
 
 
         //onTick(data);

@@ -14,9 +14,9 @@ class Trader;
 class Dispatcher;
 class Kalman;
 
-class Account {
+struct Account {
 public:
-	Account();
+    Account();
 	Account(CThostFtdcTradingAccountField *af);
 
 	std::string brokerID;

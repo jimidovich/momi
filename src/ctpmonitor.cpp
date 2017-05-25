@@ -162,10 +162,10 @@ void CtpMonitor::recCmdLine()
     else if (argv.at(0) == "i?") {
         QString usage{
             "Insert order commands:\n"
-            "i [o/c] [b/s] [symbol] [price] [volume]\n"
+            "i [symbol] [o/c] [b/s] [price] [volume]\n"
             "\n"
             "examples:\n"
-            "i o b rb1710 2900 1    Open Buy rb1710 bid=2900 vol=1"
+            "i rb1710 o b 2900 1     rb1710 Open Buy bid=2900 vol=1"
         };
         printToTraderCmdMonitor(usage, Qt::cyan);
     }

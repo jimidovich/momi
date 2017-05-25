@@ -42,7 +42,7 @@ public:
 
     Dispatcher *getDispatcher();
 
-    DataHub *dataHub;
+    DataHub* dataHub;
 
     public slots:
     void execCmdLine(QString cmdLine);

@@ -53,17 +53,15 @@ public:
     Dispatcher1(){}
     Dispatcher1(std::string name):name(name){}
     ~Dispatcher1() {myThread.join();}
-    void onTick(int data);
     void waitForTick();
     void runThread();
     Reader *r1;
     Reader *r2;
 
-    DataHub* dh;
+    DataHub* dataHub;
 private:
     std::string name;
     std::thread myThread;
-    std::unique_lock<std::mutex> locker;
 };
 
 

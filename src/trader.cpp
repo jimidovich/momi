@@ -1,6 +1,7 @@
 ﻿#include <chrono>
 #include <set>
 #include <thread>
+//#include <stdio.h>
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -58,7 +59,7 @@ void Trader::reqConnect()
     tdapi = CThostFtdcTraderApi::CreateFtdcTraderApi();
     tdapi->RegisterSpi(this);
     tdapi->SubscribePublicTopic(THOST_TERT_RESTART);
-    tdapi->SubscribePrivateTopic(THOST_TERT_QUICK);
+    tdapi->SubscribePrivateTopic(THOST_TERT_RESUME);
     char *front = new char[FrontAddress.length() + 1];
     strcpy(front, FrontAddress.c_str());
     tdapi->RegisterFront(front);
@@ -225,10 +226,10 @@ void Trader::OnRspQrySettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField 
 			msg += QString("RspQrySettlementInfoConfirm: ConfirmDate=%1 ConfirmTime=%2").arg(pSettlementInfoConfirm->ConfirmDate, pSettlementInfoConfirm->ConfirmTime);
 			logger(info, msg.toStdString().c_str());
 			emit sendToTraderMonitor(msg);
-//			if (pSettlementInfoConfirm->ConfirmDate != tradingDay) {
+//			if (std::string(pSettlementInfoConfirm->ConfirmDate) != tradingDay) {
         }
         else {
-            ReqSettlementInfoConfirm();
+            ReqSettlementInfoConfirm();  // need not to wait 1 sec?
         }
     }
     // login workflow #3
@@ -424,7 +425,7 @@ void Trader::OnRspQryDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarke
     if (!isErrorRspInfo(pRspInfo, "RspQryDepthMarketData: ")) {
         auto fcpy = new CThostFtdcDepthMarketDataField;
         memcpy(fcpy, pDepthMarketData, sizeof(CThostFtdcDepthMarketDataField));
-        auto feedEvent = new MyEvent(FeedEvent, fcpy);
+        auto feedEvent = new MyEvent(MarketEvent, fcpy);
         QCoreApplication::postEvent(dispatcher, feedEvent);
     }
 }
@@ -643,10 +644,9 @@ int Trader::ReqOrderAction(string InstrumentID, string OrderRef)
     // TODO: check self set orderRef's format!
     if (OrderRef != "")
     {
-        int n = OrderRef.length();
         // OrderRef has format "     xxxxx", length set 12 here.
-        QString tmp{ 12 - n,' ' };
-        strcpy(action->OrderRef, tmp.append(OrderRef.c_str()).toStdString().c_str());
+        if (OrderRef.length() > 12) return -100;
+        strcpy(action->OrderRef, QString::fromStdString(OrderRef).rightJustified(12, ' ').toStdString().c_str());
     }
     return ReqOrderAction(action);
 }
@@ -665,20 +665,17 @@ int Trader::ReqOrderAction(string InstrumentID, int FrontID, int SessionID, stri
         action->SessionID = SessionID;
     if (OrderRef != "")
     {
-        //strcpy(action->OrderRef, OrderRef.c_str());
-        int n = OrderRef.length();
         // OrderRef has format "     xxxxx", length set 12 here.
-        QString tmp{ 12 - n,' ' };
-        strcpy(action->OrderRef, tmp.append(OrderRef.c_str()).toStdString().c_str());
+        if (OrderRef.length() > 12) return -100;
+        strcpy(action->OrderRef, QString::fromStdString(OrderRef).rightJustified(12, ' ').toStdString().c_str());
     }
     if (ExchangeID != "")
         strcpy(action->ExchangeID, ExchangeID.c_str());
     if (OrderSysID != "")
     {
-        int n = OrderSysID.length();
-        // OrderSysID has format "     xxxxx", length set 12 here.
-        QString tmp{ 12 - n,' ' };
-        strcpy(action->OrderSysID, tmp.append(OrderSysID.c_str()).toStdString().c_str());
+        // OrderSysID has format "     xxxxx", length set 20 here.
+        if (OrderRef.length() > 20) return -101;
+        strcpy(action->OrderRef, QString::fromStdString(OrderRef).rightJustified(20, ' ').toStdString().c_str());
     }
     return ReqOrderAction(action);
 }

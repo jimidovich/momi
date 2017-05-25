@@ -216,20 +216,20 @@ void Portfolio::onEvent(QEvent *ev)
         }
         break;
     }
-    case FeedEvent:
+    case MarketEvent:
     {
-        string sym = myev->feed->InstrumentID;
+        string sym = myev->mkt->InstrumentID;
 //        symList[sym].mkt = myev->feed;
         if (!symList.contains(sym)) {
             auto nmkt = new CThostFtdcDepthMarketDataField;
             auto ninfo = new CThostFtdcInstrumentField;
             symList.insert(sym, Symbol(nmkt, ninfo));
         }
-        memcpy(symList[sym].mkt, myev->feed, sizeof(CThostFtdcDepthMarketDataField));
+        memcpy(symList[sym].mkt, myev->mkt, sizeof(CThostFtdcDepthMarketDataField));
 
         evalAccount(acc, aggPosList, symList);	// Choose which price to MTM
-        time = myev->feed->UpdateTime;
-        millisec = myev->feed->UpdateMillisec;
+        time = myev->mkt->UpdateTime;
+        millisec = myev->mkt->UpdateMillisec;
 
         auto accEvent = new MyEvent(AccountUpdateEvent, &acc);
         QCoreApplication::postEvent(dispatcher, accEvent);

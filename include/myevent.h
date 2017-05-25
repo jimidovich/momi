@@ -8,14 +8,13 @@
 #include "ThostFtdcUserApiDataType.h"
 
 #include "struct.h"
-
-class Account;
+#include "portfolio.h"
 
 const QEvent::Type MY_CUSTOM_EVENT = static_cast<QEvent::Type>(QEvent::User + 100);
 
 enum EnumMyEventType
 {
-	FeedEvent,
+    MarketEvent,
 	AccountInfoEvent,
 	ContractInfoEvent,
 	PositionEvent,
@@ -38,7 +37,7 @@ public:
 	~MyEvent();
 
 	EnumMyEventType myType;
-	CThostFtdcDepthMarketDataField *feed{ nullptr };
+    CThostFtdcDepthMarketDataField *mkt{ nullptr };
 	CThostFtdcTradingAccountField *accInfo{ nullptr };
 	CThostFtdcInstrumentField *contractInfo{ nullptr };
 	CThostFtdcInvestorPositionField *pos{ nullptr };
@@ -47,6 +46,47 @@ public:
 	CThostFtdcOrderField *order{ nullptr };
 	Account *acc{ nullptr };
 	bool isLast{ true };
+};
+
+
+class MyEvent1 {
+public:
+    MyEvent1(EnumMyEventType type, CThostFtdcDepthMarketDataField *mkt);
+    MyEvent1(EnumMyEventType type, CThostFtdcTradingAccountField *accInfo);
+    MyEvent1(EnumMyEventType type, CThostFtdcInstrumentField *contractInfo);
+    MyEvent1(EnumMyEventType type, CThostFtdcInvestorPositionField *pos);
+    MyEvent1(EnumMyEventType type, CThostFtdcInvestorPositionDetailField *posDetail);
+    MyEvent1(EnumMyEventType type, CThostFtdcTradeField *trade);
+    MyEvent1(EnumMyEventType type, CThostFtdcOrderField *order);
+    MyEvent1(EnumMyEventType type, Account *acc);
+    ~MyEvent1();
+
+    EnumMyEventType eventType;
+    CThostFtdcDepthMarketDataField *mkt{ nullptr };
+    CThostFtdcTradingAccountField *accInfo{ nullptr };
+    CThostFtdcInstrumentField *contractInfo{ nullptr };
+    CThostFtdcInvestorPositionField *pos{ nullptr };
+    CThostFtdcInvestorPositionDetailField *posDetail{ nullptr };
+    CThostFtdcTradeField *trade{ nullptr };
+    CThostFtdcOrderField *order{ nullptr };
+    Account *acc{ nullptr };
+    bool isLast{ true };
+};
+
+
+struct CtpDataEvent {
+    EnumMyEventType type;
+    union {
+        CThostFtdcDepthMarketDataField mkt;
+        CThostFtdcTradingAccountField accInfo;
+        CThostFtdcInstrumentField contractInfo;
+        CThostFtdcInvestorPositionField pos;
+        CThostFtdcInvestorPositionDetailField posDetail;
+        CThostFtdcTradeField trade;
+        CThostFtdcOrderField order;
+//        Account acc;
+    };
+    bool isLast{ true };
 };
 
 #endif // MYEVENT_H

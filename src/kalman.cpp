@@ -56,7 +56,7 @@ void Kalman::setPortfolio(Portfolio *pf)
 
 void Kalman::onFeed(MyEvent *myev)
 {
-    string sym = myev->feed->InstrumentID;
+    string sym = myev->mkt->InstrumentID;
     if (((sym == pair.yname) || (sym == pair.xname))
         && (pf->symList[pair.yname].mkt != nullptr)
         && (pf->symList[pair.xname].mkt != nullptr)) {

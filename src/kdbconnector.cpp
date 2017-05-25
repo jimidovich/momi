@@ -42,10 +42,10 @@ void KdbConnector::onEvent(QEvent *ev)
     auto myev = (MyEvent*)ev;
     switch (myev->myType)
     {
-    case FeedEvent:
+    case MarketEvent:
         //insertFeed(ev->getFeed());
         //qDebug() << QThread::currentThreadId() << "+++++++++++++kdb";
-        insertFeed(myev->feed);
+        insertFeed(myev->mkt);
         break;
     case ContractInfoEvent:
         //writeContractInfo(ev->getContractInfo());

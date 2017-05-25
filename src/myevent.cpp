@@ -4,7 +4,7 @@
 MyEvent::MyEvent(EnumMyEventType type, CThostFtdcDepthMarketDataField *mkt)
 	: QEvent(MY_CUSTOM_EVENT),
 	myType(type),
-	feed(mkt)
+    mkt(mkt)
 {
 }
 
@@ -60,8 +60,8 @@ MyEvent::MyEvent(EnumMyEventType type, Account *acc)
 MyEvent::~MyEvent()
 {
     switch (myType) {
-    case FeedEvent:
-        delete feed;
+    case MarketEvent:
+        delete mkt;
         break;
     case AccountInfoEvent:
         delete accInfo;
@@ -85,4 +85,81 @@ MyEvent::~MyEvent()
         break;
     }
 
+}
+
+MyEvent1::MyEvent1(EnumMyEventType type, CThostFtdcDepthMarketDataField *mkt)
+{
+    this->mkt = new CThostFtdcDepthMarketDataField;
+    memcpy(this->mkt, mkt, sizeof(CThostFtdcDepthMarketDataField));
+}
+
+MyEvent1::MyEvent1(EnumMyEventType type, CThostFtdcTradingAccountField *accInfo)
+{
+    this->accInfo = new CThostFtdcTradingAccountField;
+    memcpy(this->accInfo, accInfo, sizeof(CThostFtdcDepthMarketDataField));
+}
+
+MyEvent1::MyEvent1(EnumMyEventType type, CThostFtdcInstrumentField *contractInfo)
+{
+    this->contractInfo = new CThostFtdcInstrumentField ;
+    memcpy(this->contractInfo, contractInfo, sizeof(CThostFtdcInstrumentField ));
+}
+
+MyEvent1::MyEvent1(EnumMyEventType type, CThostFtdcInvestorPositionField *pos)
+{
+    this->pos = new CThostFtdcInvestorPositionField;
+    memcpy(this->pos, pos, sizeof(CThostFtdcInvestorPositionField));
+}
+
+MyEvent1::MyEvent1(EnumMyEventType type, CThostFtdcInvestorPositionDetailField *posDetail)
+{
+    this->posDetail = new CThostFtdcInvestorPositionDetailField;
+    memcpy(this->posDetail, posDetail, sizeof(CThostFtdcInvestorPositionDetailField));
+}
+
+MyEvent1::MyEvent1(EnumMyEventType type, CThostFtdcTradeField *trade)
+{
+    this->trade = new CThostFtdcTradeField;
+    memcpy(this->trade, trade, sizeof(CThostFtdcTradeField));
+}
+
+MyEvent1::MyEvent1(EnumMyEventType type, CThostFtdcOrderField *order)
+{
+    this->order = new CThostFtdcOrderField;
+    memcpy(this->order, order, sizeof(CThostFtdcOrderField));
+}
+
+MyEvent1::MyEvent1(EnumMyEventType type, Account *acc)
+{
+    this->acc = new Account;
+    memcpy(this->acc, acc, sizeof(Account));
+}
+
+MyEvent1::~MyEvent1()
+{
+    switch (eventType) {
+    case MarketEvent:
+        delete mkt;
+        break;
+    case AccountInfoEvent:
+        delete accInfo;
+        break;
+    case ContractInfoEvent:
+        delete contractInfo;
+        break;
+    case PositionEvent:
+        delete pos;
+        break;
+    case PositionDetailEvent:
+        delete posDetail;
+        break;
+    case OrderEvent:
+        delete order;
+        break;
+    case TradeEvent:
+        delete trade;
+        break;
+    default:
+        break;
+    }
 }

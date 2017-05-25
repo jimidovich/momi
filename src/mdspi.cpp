@@ -7,6 +7,7 @@
 #include "include/ThostFtdcMdApi.h"
 
 #include "include/mdspi.h"
+#include "include/myevent.h"
 
 using namespace spdlog::level;
 using namespace std;
@@ -92,7 +93,7 @@ void MdSpi::OnFrontDisconnected(int nReason)
     default:
         break;
     }
-    logger(err, msg.toLocal8Bit());
+    logger(err, msg.toStdString().c_str());
     emit sendToTraderMonitor(msg, Qt::red);
 }
 
@@ -160,21 +161,20 @@ void MdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDat
 //    QCoreApplication::postEvent(dispatcher, feedEvent);
 
     //Manually delay for testing
-//    this_thread::sleep_for(chrono::milliseconds(10));
-    cout <<"i " << chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count()%1000000 << endl;
-//    cout << "incoming new data: " << pDepthMarketData->LastPrice << endl;
-//    cout << "post() called from thread id: " << this_thread::get_id() << endl;
-    auto fcpy = new CThostFtdcDepthMarketDataField;
-    memcpy(fcpy, pDepthMarketData, sizeof(CThostFtdcDepthMarketDataField));
-    double lastpx = pDepthMarketData->LastPrice;
-    unique_lock<mutex> locker(dataHub->mu);
-    dataHub->q.push(lastpx);
-    locker.unlock();
-//    cout_lk.lock();
-//    cout << "MD posted data: " << dataHub->q.back() << endl;
-//    cout_lk.unlock();
-    dataHub->newTickPosted.notify_one();
+//    this_thread::sleep_for(chrono::milliseconds(100));
+    cout <<"i " << chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count()%1000000 <<
+           "ctptime= " << pDepthMarketData->UpdateTime << pDepthMarketData->UpdateMillisec << endl;
+//    auto fcpy = new CThostFtdcDepthMarketDataField;
+//    memcpy(fcpy, pDepthMarketData, sizeof(CThostFtdcDepthMarketDataField));
 
+    double lastpx = pDepthMarketData->LastPrice;
+    dataHub->feedQueue.post(lastpx);
+//    cout << "\r" << dataHub->count << flush;
+
+    CtpDataEvent ev;
+    ev.type = MarketEvent;
+    ev.mkt = *pDepthMarketData;
+    dataHub->eventQueue.post(ev);
 }
 
 void MdSpi::subscribeMd(std::string instruments)

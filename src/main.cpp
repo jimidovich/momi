@@ -41,10 +41,7 @@ public:
     Reader(){}
     ~Reader(){}
     void onTick(double data, string color);
-    void waitForTick();
-    void runThread();
-
-    DataHub* dh;
+    void onEvent(CtpDataEvent ev);
 private:
     string name;
     thread myThread;
@@ -52,39 +49,19 @@ private:
 };
 
 void Reader::onTick(double data, string color) {
-//    cout_lk.lock();
-//    cout << name << " onTick(), got data: " << data << endl;
-//    cout_lk.unlock();
-//    this_thread::sleep_for(chrono::microseconds(1));
-//    cout_lk.lock();
-//    cout << name << " work done for data: " << data << ", on thread id: " << this_thread::get_id() << endl;
-//    cout_lk.unlock();
-    int s=0;
-    for (int i=0;i<=100;i++) s+=i;
+//    cout << name << " px=" << data << endl;
 }
 
-void Reader::waitForTick() {
-    //while(1) {
-    //    locker = unique_lock<mutex>(mu);
-    //    if (q.empty()) {
-    //        cout << name << " waiting..." << endl;
-    //        newTickPosted.wait(locker);
-    //    }
-    //    cout << name <<  " fetching data from thread id: " << this_thread::get_id() << endl;
-    //    cout << name <<  " got data: " << q.front() << endl;
-    //    int data = q.front();
-    //    q.pop();
-    //    locker.unlock();
-
-        //onTick(data);
-    //}
+void Reader::onEvent(CtpDataEvent ev) {
+    switch (ev.type) {
+    case MarketEvent:
+        cout << name << " " << chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count()%1000000 <<
+            " sym=" << ev.mkt.InstrumentID << " px=" << ev.mkt.LastPrice << endl;
+        break;
+    default:
+        break;
+    }
 }
-
-void Reader::runThread() {
-    myThread = thread(&Reader::waitForTick, this);
-}
-
-
 
 
 int main(int argc, char *argv[])
@@ -141,15 +118,13 @@ int main(int argc, char *argv[])
 //    timer->setSingleShot(true);
 //    timer->start(2000);
 
-    DataHub dHub;
-    mdspi.dataHub = &dHub;
+    DataHub dataHub;
+    mdspi.dataHub = &dataHub;
     Dispatcher1 d("d1");
-    d.dh = &dHub;
+    d.dataHub = &dataHub;
 
     Reader reader1("reader1");
-    reader1.dh = &dHub;
-    Reader reader2("reader2");
-    reader2.dh = &dHub;
+    Reader reader2("r");
     d.r1 = &reader1;
     d.r2 = &reader2;
 
