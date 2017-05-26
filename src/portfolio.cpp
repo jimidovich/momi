@@ -262,6 +262,120 @@ void Portfolio::onEvent(QEvent *ev)
     }
 }
 
+
+
+void Portfolio::onCtpDataEvent(CtpEvent ev)
+{
+    switch (ev.type)
+    {
+    case PositionEvent:
+    {
+        /*if (myev->pos->BrokerID[0] != 0)
+        {
+            isInPosStream = true;
+            if (beginUpdate)
+            {
+            }
+        }
+        else
+        {
+            isInPosStream = false;
+            beginUpdate = true;
+        }*/
+        break;
+    }
+    case PositionDetailEvent:
+    {
+        if (ev.posDetail.BrokerID[0] != 0)
+        {
+            isInPosStream = true;
+            if (beginUpdate)
+            {
+                Position p(&(ev.posDetail), symList);
+                posList.insert(p.positionID, p);
+            }
+        }
+        else
+        {
+            aggPosList = constructAggPosList(posList);
+            netPosList = constructNetPosList(aggPosList);
+            isInPosStream = false;
+            beginUpdate = true;
+            // Reset Tableview rows
+            beginResetModel();
+            endResetModel();
+        }
+        break;
+    }
+//    case AccountInfoEvent:
+//    {
+//        acc = Account(myev->accInfo);
+//        break;
+//    }
+
+//    case ContractInfoEvent:
+//    {
+//        string sym = ev.contractInfo.InstrumentID;
+//        if (symList1.keys().contains(sym))
+//            symList1[sym].info = ev.contractInfo;
+//        else
+//        {
+//            Symbol s = { new CThostFtdcDepthMarketDataField, myev->contractInfo };
+//            symList1.insert(sym, s);
+//        }
+//        break;
+//    }
+//    case MarketEvent:
+//    {
+//        string sym = myev->mkt->InstrumentID;
+////        symList[sym].mkt = myev->feed;
+//        if (!symList.contains(sym)) {
+//            auto nmkt = new CThostFtdcDepthMarketDataField;
+//            auto ninfo = new CThostFtdcInstrumentField;
+//            symList.insert(sym, Symbol(nmkt, ninfo));
+//        }
+//        memcpy(symList[sym].mkt, myev->mkt, sizeof(CThostFtdcDepthMarketDataField));
+
+//        evalAccount(acc, aggPosList, symList);	// Choose which price to MTM
+//        time = myev->mkt->UpdateTime;
+//        millisec = myev->mkt->UpdateMillisec;
+
+//        auto accEvent = new MyEvent(AccountUpdateEvent, &acc);
+//        QCoreApplication::postEvent(dispatcher, accEvent);
+//        printAcc();
+//        printNetPos();
+//        updatePosTable();
+//        //postableview->update();
+//        //qDebug() << QThread::currentThreadId() << "++++++++++++++++++++++ pf";
+
+//        kf->onFeed(myev);
+//        oms->handleTargets();
+
+//        break;
+//    }
+//    case TradeEvent:
+//    {
+//        updatePosOnTrade(aggPosList, posList, myev->trade, symList);
+//        netPosList.clear();
+//        netPosList = constructNetPosList(aggPosList);
+//        oms->onEvent(ev);
+//        break;
+//    }
+//    case OrderEvent:
+//    {
+//        oms->onEvent(ev);
+//        break;
+//    }
+//    default:
+//        break;
+//    }
+      }
+}
+
+
+
+
+
 void Portfolio::printNetPos()
 {
     QString msg;

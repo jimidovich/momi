@@ -14,6 +14,8 @@ class Trader;
 class Dispatcher;
 class Kalman;
 
+struct CtpEvent;
+
 struct Account {
 public:
     Account();
@@ -56,6 +58,8 @@ public:
 	void setOMS(OMS *oms);
 	void setPosTableView(QTableView *ptv);
 	Trader* getTrader();
+
+    void onCtpDataEvent(CtpEvent ev);
 
 	SymbolList symList;
 	PosList posList;

@@ -270,10 +270,11 @@ void Trader::OnRspQryOrder(CThostFtdcOrderField *pOrder, CThostFtdcRspInfoField 
             //msg.append(" ActiveTime=").append(pOrder->ActiveTime);
             emit sendToTraderMonitor(msg);
 
-            auto fcpy = new CThostFtdcOrderField;
-            memcpy(fcpy, pOrder, sizeof(CThostFtdcOrderField));
-            auto orderEvent = new MyEvent(OrderEvent, fcpy);
-            QCoreApplication::postEvent(dispatcher, orderEvent);
+//            auto fcpy = new CThostFtdcOrderField;
+//            memcpy(fcpy, pOrder, sizeof(CThostFtdcOrderField));
+//            auto orderEvent = new MyEvent(OrderEvent, fcpy);
+//            QCoreApplication::postEvent(dispatcher, orderEvent);
+            dataHub->eventQueue.post(CtpEvent(pOrder));
         }
         if (bIsLast)
         {
@@ -316,20 +317,24 @@ void Trader::OnRspQryInvestorPosition(CThostFtdcInvestorPositionField *pInvestor
             msg.append(" Margin=").append(QString::number(pInvestorPosition->UseMargin));
             emit sendToTraderMonitor(msg);
 
-            auto fcpy = new CThostFtdcInvestorPositionField;
-            memcpy(fcpy, pInvestorPosition, sizeof(CThostFtdcInvestorPositionField));
-            auto posEvent = new MyEvent(PositionEvent, fcpy);
-            QCoreApplication::postEvent(dispatcher, posEvent);
+//            auto fcpy = new CThostFtdcInvestorPositionField;
+//            memcpy(fcpy, pInvestorPosition, sizeof(CThostFtdcInvestorPositionField));
+//            auto posEvent = new MyEvent(PositionEvent, fcpy);
+//            QCoreApplication::postEvent(dispatcher, posEvent);
+            dataHub->eventQueue.post(CtpEvent(pInvestorPosition));
         }
         if (bIsLast) {
             logger(info, "Qry InvestorPosition Finished");
             emit sendToTraderMonitor("Qry InvestorPosition Finished.");
 
             // Send isLast signal event
-            auto fcpy = new CThostFtdcInvestorPositionField;
-            memset(fcpy, 0, sizeof(CThostFtdcInvestorPositionField));
-            auto posEvent = new MyEvent(PositionEvent, fcpy);
-            QCoreApplication::postEvent(dispatcher, posEvent);
+//            auto fcpy = new CThostFtdcInvestorPositionField;
+//            memset(fcpy, 0, sizeof(CThostFtdcInvestorPositionField));
+//            auto posEvent = new MyEvent(PositionEvent, fcpy);
+//            QCoreApplication::postEvent(dispatcher, posEvent);
+            CtpEvent ev;
+            ev.isLast = true;
+            dataHub->eventQueue.post(ev);
         }
     }
 }
@@ -347,20 +352,24 @@ void Trader::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDetailFiel
             msg.append(" Margin=").append(QString::number(pInvestorPositionDetail->Margin));
             emit sendToTraderMonitor(msg);
 
-            auto fcpy = new CThostFtdcInvestorPositionDetailField;
-            memcpy(fcpy, pInvestorPositionDetail, sizeof(CThostFtdcInvestorPositionDetailField));
-            auto posDetailEvent = new MyEvent(PositionDetailEvent, fcpy);
-            QCoreApplication::postEvent(dispatcher, posDetailEvent);
+//            auto fcpy = new CThostFtdcInvestorPositionDetailField;
+//            memcpy(fcpy, pInvestorPositionDetail, sizeof(CThostFtdcInvestorPositionDetailField));
+//            auto posDetailEvent = new MyEvent(PositionDetailEvent, fcpy);
+//            QCoreApplication::postEvent(dispatcher, posDetailEvent);
+            dataHub->eventQueue.post(CtpEvent(pInvestorPositionDetail));
         }
         if (bIsLast) {
             logger(info, "Qry InvestorPositionDetail Finished");
             emit sendToTraderMonitor("Qry InvestorPositionDetail Finished.");
 
             // Send isLast signal event
-            auto fcpy = new CThostFtdcInvestorPositionDetailField;
-            memset(fcpy, 0, sizeof(CThostFtdcInvestorPositionDetailField));
-            auto posDetailEvent = new MyEvent(PositionDetailEvent, fcpy);
-            QCoreApplication::postEvent(dispatcher, posDetailEvent);
+//            auto fcpy = new CThostFtdcInvestorPositionDetailField;
+//            memset(fcpy, 0, sizeof(CThostFtdcInvestorPositionDetailField));
+//            auto posDetailEvent = new MyEvent(PositionDetailEvent, fcpy);
+//            QCoreApplication::postEvent(dispatcher, posDetailEvent);
+            CtpEvent ev;
+            ev.isLast = true;
+            dataHub->eventQueue.post(ev);
         }
     }
 }
@@ -378,10 +387,11 @@ void Trader::OnRspQryTradingAccount(CThostFtdcTradingAccountField *pTradingAccou
             logger(info, msg.toStdString().c_str());
             emit sendToTraderMonitor(msg);
 
-            auto fcpy = new CThostFtdcTradingAccountField;
-            memcpy(fcpy, pTradingAccount, sizeof(CThostFtdcTradingAccountField));
-            auto accInfoEvent = new MyEvent(AccountInfoEvent, fcpy);
-            QCoreApplication::postEvent(dispatcher, accInfoEvent);
+//            auto fcpy = new CThostFtdcTradingAccountField;
+//            memcpy(fcpy, pTradingAccount, sizeof(CThostFtdcTradingAccountField));
+//            auto accInfoEvent = new MyEvent(AccountInfoEvent, fcpy);
+//            QCoreApplication::postEvent(dispatcher, accInfoEvent);
+            dataHub->eventQueue.post(CtpEvent(pTradingAccount));
 
             // login workflow #5
             if (isLoginWorkflow) {
@@ -401,10 +411,11 @@ void Trader::OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument, CThostFt
             //msg.append(" ").append(pInstrument->ExchangeID);
             //msg.append(" ").append(pInstrument->ExpireDate);
             //emit sendToTraderMonitor(msg);
-            auto fcpy = new CThostFtdcInstrumentField;
-            memcpy(fcpy, pInstrument, sizeof(CThostFtdcInstrumentField));
-            auto contractInfoEvent = new MyEvent(ContractInfoEvent, fcpy);
-            QCoreApplication::postEvent(dispatcher, contractInfoEvent);
+//            auto fcpy = new CThostFtdcInstrumentField;
+//            memcpy(fcpy, pInstrument, sizeof(CThostFtdcInstrumentField));
+//            auto contractInfoEvent = new MyEvent(ContractInfoEvent, fcpy);
+//            QCoreApplication::postEvent(dispatcher, contractInfoEvent);
+            dataHub->eventQueue.post(CtpEvent(pInstrument));
 
             if (bIsLast) {
                 // login workflow #4
@@ -423,10 +434,11 @@ void Trader::OnRspQryInstrumentCommissionRate(CThostFtdcInstrumentCommissionRate
 void Trader::OnRspQryDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
     if (!isErrorRspInfo(pRspInfo, "RspQryDepthMarketData: ")) {
-        auto fcpy = new CThostFtdcDepthMarketDataField;
-        memcpy(fcpy, pDepthMarketData, sizeof(CThostFtdcDepthMarketDataField));
-        auto feedEvent = new MyEvent(MarketEvent, fcpy);
-        QCoreApplication::postEvent(dispatcher, feedEvent);
+//        auto fcpy = new CThostFtdcDepthMarketDataField;
+//        memcpy(fcpy, pDepthMarketData, sizeof(CThostFtdcDepthMarketDataField));
+//        auto feedEvent = new MyEvent(MarketEvent, fcpy);
+//        QCoreApplication::postEvent(dispatcher, feedEvent);
+        dataHub->eventQueue.post(CtpEvent(pDepthMarketData));
     }
 }
 
@@ -448,10 +460,11 @@ void Trader::OnRtnOrder(CThostFtdcOrderField *pOrder)
         //logger(info, "OnRtnOrder: OrderRef={}, Status={}, Status Msg={}", pOrder->OrderRef, pOrder->OrderStatus, pOrder->StatusMsg);
         logger(info, msg.toStdString().c_str());
 
-        auto fcpy = new CThostFtdcOrderField;
-        memcpy(fcpy, pOrder, sizeof(CThostFtdcOrderField));
-        auto orderEvent = new MyEvent(OrderEvent, fcpy);
-        QCoreApplication::postEvent(dispatcher, orderEvent);
+//        auto fcpy = new CThostFtdcOrderField;
+//        memcpy(fcpy, pOrder, sizeof(CThostFtdcOrderField));
+//        auto orderEvent = new MyEvent(OrderEvent, fcpy);
+//        QCoreApplication::postEvent(dispatcher, orderEvent);
+        dataHub->eventQueue.post(CtpEvent(pOrder));
     }
     else
         logger(err, "OnRtnOrder nullptr or null data");
@@ -467,18 +480,23 @@ void Trader::OnRtnTrade(CThostFtdcTradeField *pTrade)
         //msg.append(" OrderSysID=").append(pTrade->OrderSysID);
         //msg.append(" OrderRef=").append(pTrade->OrderRef);
         //msg.append("\n").append(pTrade->InstrumentID);
-        msg.append(" Dir=").append(mymap::direction_char.at(pTrade->Direction));
-        msg.append(" Offset=").append(mymap::offsetFlag_string.at(pTrade->OffsetFlag).c_str());
-        msg.append(" Price=").append(QString::number(pTrade->Price));
-        msg.append(" Volume=").append(QString::number(pTrade->Volume));
-        msg.append(" T=").append(pTrade->TradeTime);
+
+//        msg.append(" Dir=").append(mymap::direction_char.at(pTrade->Direction));
+//        msg.append(" Offset=").append(mymap::offsetFlag_string.at(pTrade->OffsetFlag).c_str());
+//        msg.append(" Price=").append(QString::number(pTrade->Price));
+//        msg.append(" Volume=").append(QString::number(pTrade->Volume));
+//        msg.append(" T=").append(pTrade->TradeTime);
         logger(info, msg.toStdString().c_str());
         emit sendToTraderMonitor(msg);
 
-        auto fcpy = new CThostFtdcTradeField;
-        memcpy(fcpy, pTrade, sizeof(CThostFtdcTradeField));
-        auto tradeEvent = new MyEvent(TradeEvent, fcpy);
-        QCoreApplication::postEvent(dispatcher, tradeEvent);
+//        auto fcpy = new CThostFtdcTradeField;
+//        memcpy(fcpy, pTrade, sizeof(CThostFtdcTradeField));
+//        auto tradeEvent = new MyEvent(TradeEvent, fcpy);
+//        QCoreApplication::postEvent(dispatcher, tradeEvent);
+        CtpEvent ev(pTrade);
+//        dataHub->eventQueue.post(CtpDataEvent(pTrade));
+        dataHub->eventQueue.post(ev);
+
     }
     else
         logger(err, "OnRtnTrade nullptr or null data");

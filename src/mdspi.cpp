@@ -171,10 +171,10 @@ void MdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDat
     dataHub->feedQueue.post(lastpx);
 //    cout << "\r" << dataHub->count << flush;
 
-    CtpDataEvent ev;
-    ev.type = MarketEvent;
-    ev.mkt = *pDepthMarketData;
-    dataHub->eventQueue.post(ev);
+    //CtpDataEvent ev;
+    //ev.type = MarketEvent;
+    //ev.mkt = *pDepthMarketData;
+    dataHub->eventQueue.post(CtpEvent(pDepthMarketData));
 }
 
 void MdSpi::subscribeMd(std::string instruments)

@@ -41,7 +41,7 @@ public:
     Reader(){}
     ~Reader(){}
     void onTick(double data, string color);
-    void onEvent(CtpDataEvent ev);
+    void onEvent(CtpEvent ev);
 private:
     string name;
     thread myThread;
@@ -52,12 +52,15 @@ void Reader::onTick(double data, string color) {
 //    cout << name << " px=" << data << endl;
 }
 
-void Reader::onEvent(CtpDataEvent ev) {
+void Reader::onEvent(CtpEvent ev) {
     switch (ev.type) {
     case MarketEvent:
         cout << name << " " << chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count()%1000000 <<
             " sym=" << ev.mkt.InstrumentID << " px=" << ev.mkt.LastPrice << endl;
         break;
+    case TradeEvent:
+        cout << name << " rtntrade" << chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count()%1000000 <<
+            " sym=" << ev.trade.InstrumentID << " px=" << ev.trade.Price << endl;
     default:
         break;
     }
@@ -120,6 +123,7 @@ int main(int argc, char *argv[])
 
     DataHub dataHub;
     mdspi.dataHub = &dataHub;
+    trader.dataHub = &dataHub;
     Dispatcher1 d("d1");
     d.dataHub = &dataHub;
 
@@ -129,6 +133,17 @@ int main(int argc, char *argv[])
     d.r2 = &reader2;
 
     d.runThread();
+
+    for (int i=0; i<10; ++i) {
+        CThostFtdcDepthMarketDataField f = {};
+        strcpy(f.InstrumentID, "aaaabbbbccccddddeeeeffffgggghhhhiiiijjjj");
+        f.LastPrice = 90.0+i;
+        mdspi.OnRtnDepthMarketData(&f);
+
+        CThostFtdcTradeField td = {};
+        td.Price = 1000+i;
+        trader.OnRtnTrade(&td);
+    }
 
     Kalman kf;
     OMS oms;

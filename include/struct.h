@@ -19,6 +19,17 @@ struct Symbol {
 };
 typedef QMap<std::string, Symbol> SymbolList;
 
+
+struct Symbol1 {
+    Symbol1() {}
+    Symbol1(CThostFtdcDepthMarketDataField mkt, CThostFtdcInstrumentField info)
+        :mkt(mkt), info(info) {}
+    CThostFtdcDepthMarketDataField mkt;
+    CThostFtdcInstrumentField info;
+};
+typedef QMap<std::string, Symbol1> SymbolList1;
+
+
 struct AccountMtM {
     std::string accountID;
     double balance{ 0 };

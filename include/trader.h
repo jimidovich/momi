@@ -59,6 +59,8 @@ public:
 
     Dispatcher* getDispatcher();
 
+    DataHub *dataHub;
+
 public slots:
     int ReqQrySettlementInfo(std::string TradingDay = "");
     int ReqQrySettlementInfoConfirm();
@@ -71,7 +73,7 @@ signals:
     void sendToTraderMonitor(QString msg, QColor clr = Qt::white);
     void sendToTraderCmdMonitor(QString msg, QColor clr = Qt::white);
 
-private:
+public:
     // overridden ThostFtdcTraderSpi callback functions
     void OnFrontConnected();
     void OnFrontDisconnected(int nReason);

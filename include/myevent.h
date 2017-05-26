@@ -74,7 +74,7 @@ public:
 };
 
 
-struct CtpDataEvent {
+struct CtpEvent {
     EnumMyEventType type;
     union {
         CThostFtdcDepthMarketDataField mkt;
@@ -86,7 +86,16 @@ struct CtpDataEvent {
         CThostFtdcOrderField order;
 //        Account acc;
     };
-    bool isLast{ true };
+    bool isLast{ false };
+
+    CtpEvent() {}
+    CtpEvent(CThostFtdcDepthMarketDataField *p) {type = MarketEvent; mkt = *p;}
+    CtpEvent(CThostFtdcTradingAccountField *p) {type = AccountInfoEvent; accInfo = *p;}
+    CtpEvent(CThostFtdcInstrumentField *p) {type = ContractInfoEvent; contractInfo = *p;}
+    CtpEvent(CThostFtdcInvestorPositionField *p) {type = PositionEvent; pos = *p;}
+    CtpEvent(CThostFtdcInvestorPositionDetailField *p) {type = PositionDetailEvent; posDetail = *p;}
+    CtpEvent(CThostFtdcTradeField *p) {type = TradeEvent; trade = *p;}
+    CtpEvent(CThostFtdcOrderField *p) {type = OrderEvent; order = *p;}
 };
 
 #endif // MYEVENT_H

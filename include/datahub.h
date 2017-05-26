@@ -15,26 +15,26 @@ public:
     ~DataQueue(){}
 
     void post(T data) {
-        std::unique_lock<std::mutex> locker(this->feed_mu);
-        this->q.push(data);
-        this->count++;
+        std::unique_lock<std::mutex> locker(mu);
+        q.push(data);
+        count++;
         locker.unlock();
-        this->newDataPosted.notify_one();
+        newDataPosted.notify_one();
     }
 
     T fetch() {
-        std::unique_lock<std::mutex> locker(this->feed_mu);
-        if (this->q.empty())
-            this->newDataPosted.wait(locker);
-        auto data = this->q.front();
-        this->q.pop();
+        std::unique_lock<std::mutex> locker(mu);
+        if (q.empty())
+            newDataPosted.wait(locker);
+        auto data = q.front();
+        q.pop();
         locker.unlock();
         return data;
     }
 
     std::queue<T> q;
     std::condition_variable newDataPosted;
-    std::mutex feed_mu;
+    std::mutex mu;
     int count = 0;
 };
 
@@ -42,7 +42,7 @@ class DataHub
 {
 public:
     DataQueue<double> feedQueue;
-    DataQueue<CtpDataEvent> eventQueue;
+    DataQueue<CtpEvent> eventQueue;
 };
 
 #endif // DATAHUB_H
