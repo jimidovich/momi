@@ -264,7 +264,7 @@ void Portfolio::onEvent(QEvent *ev)
 
 
 
-void Portfolio::onCtpDataEvent(CtpEvent ev)
+void Portfolio::onCtpEvent(CtpEvent ev)
 {
     switch (ev.type)
     {
@@ -307,24 +307,24 @@ void Portfolio::onCtpDataEvent(CtpEvent ev)
         }
         break;
     }
-//    case AccountInfoEvent:
-//    {
-//        acc = Account(myev->accInfo);
-//        break;
-//    }
+    case AccountInfoEvent:
+    {
+        acc = Account(&(ev.accInfo));
+        break;
+    }
 
-//    case ContractInfoEvent:
-//    {
-//        string sym = ev.contractInfo.InstrumentID;
-//        if (symList1.keys().contains(sym))
-//            symList1[sym].info = ev.contractInfo;
-//        else
-//        {
-//            Symbol s = { new CThostFtdcDepthMarketDataField, myev->contractInfo };
-//            symList1.insert(sym, s);
-//        }
-//        break;
-//    }
+    case ContractInfoEvent:
+    {
+        string sym = ev.contractInfo.InstrumentID;
+        if (symList1.keys().contains(sym))
+            symList1[sym].info = ev.contractInfo;
+        else
+        {
+            Symbol1 s(CThostFtdcDepthMarketDataField{}, ev.contractInfo);  // insert new
+            symList1.insert(sym, s);
+        }
+        break;
+    }
 //    case MarketEvent:
 //    {
 //        string sym = myev->mkt->InstrumentID;
@@ -366,10 +366,9 @@ void Portfolio::onCtpDataEvent(CtpEvent ev)
 //        oms->onEvent(ev);
 //        break;
 //    }
-//    default:
-//        break;
-//    }
-      }
+    default:
+        break;
+    }
 }
 
 

@@ -46,6 +46,7 @@ private:
 };
 
 class Reader;
+class Portfolio;
 
 class Dispatcher1
 {
@@ -57,6 +58,7 @@ public:
     void runThread();
     Reader *r1;
     Reader *r2;
+    Portfolio *pf;
 
     DataHub* dataHub;
 private:

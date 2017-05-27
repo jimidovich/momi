@@ -59,12 +59,15 @@ public:
 	void setPosTableView(QTableView *ptv);
 	Trader* getTrader();
 
-    void onCtpDataEvent(CtpEvent ev);
+    void onCtpEvent(CtpEvent ev);
 
 	SymbolList symList;
 	PosList posList;
 	AggPosList aggPosList;
 	NetPosList netPosList;
+
+
+    SymbolList1 symList1;
 
 signals:
 	void sendToPosMonitor(QString msg);

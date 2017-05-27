@@ -61,6 +61,9 @@ void Reader::onEvent(CtpEvent ev) {
     case TradeEvent:
         cout << name << " rtntrade" << chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count()%1000000 <<
             " sym=" << ev.trade.InstrumentID << " px=" << ev.trade.Price << endl;
+    case AccountInfoEvent:
+        cout << name << " AccountInfo" << chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count()%1000000 <<
+            " avail" << ev.accInfo.Available << endl;
     default:
         break;
     }
@@ -121,29 +124,6 @@ int main(int argc, char *argv[])
 //    timer->setSingleShot(true);
 //    timer->start(2000);
 
-    DataHub dataHub;
-    mdspi.dataHub = &dataHub;
-    trader.dataHub = &dataHub;
-    Dispatcher1 d("d1");
-    d.dataHub = &dataHub;
-
-    Reader reader1("reader1");
-    Reader reader2("r");
-    d.r1 = &reader1;
-    d.r2 = &reader2;
-
-    d.runThread();
-
-    for (int i=0; i<10; ++i) {
-        CThostFtdcDepthMarketDataField f = {};
-        strcpy(f.InstrumentID, "aaaabbbbccccddddeeeeffffgggghhhhiiiijjjj");
-        f.LastPrice = 90.0+i;
-        mdspi.OnRtnDepthMarketData(&f);
-
-        CThostFtdcTradeField td = {};
-        td.Price = 1000+i;
-        trader.OnRtnTrade(&td);
-    }
 
     Kalman kf;
     OMS oms;
@@ -166,6 +146,45 @@ int main(int argc, char *argv[])
     dispatcher.registerHandler(&pf, SIGNAL(dispatchOrder(QEvent*)), SLOT(onEvent(QEvent*)));
     dispatcher.registerHandler(&kdbConnector, SIGNAL(dispatchFeed(QEvent*)), SLOT(onEvent(QEvent*)));
     dispatcher.registerHandler(&kdbConnector, SIGNAL(dispatchAccUpdate(QEvent*)), SLOT(onEvent(QEvent*)));
+
+//    TESTING
+    DataHub dataHub;
+    mdspi.dataHub = &dataHub;
+    trader.dataHub = &dataHub;
+    Dispatcher1 d("d1");
+    d.dataHub = &dataHub;
+
+    Reader reader1("reader1");
+    Reader reader2("r");
+    d.r1 = &reader1;
+    d.r2 = &reader2;
+    d.pf = &pf;
+
+    d.runThread();
+
+    for (int i=0; i<10; ++i) {
+        CThostFtdcDepthMarketDataField f = {};
+        strcpy(f.InstrumentID, "aaaabbbbccccddddeeeeffffgggghhhhiiiijjjj");
+        f.LastPrice = 90.0+i;
+        mdspi.OnRtnDepthMarketData(&f);
+
+        CThostFtdcTradeField td = {};
+        td.Price = 1000+i;
+        trader.OnRtnTrade(&td);
+    }
+    CThostFtdcTradingAccountField f = {};
+    f.Available = 888;
+    trader.OnRspQryTradingAccount(&f,nullptr,1,true);
+
+    CThostFtdcInstrumentField f1{};
+    strcpy(f1.InstrumentID, "aa111");
+    trader.OnRspQryInstrument(&f1,nullptr,2,true);
+
+
+
+//    END TESTING
+
+
 
     QThread thread;
     //QThread thread1;
