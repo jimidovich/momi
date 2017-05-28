@@ -7,8 +7,8 @@
 #include <QMap>
 #include "ThostFtdcUserApiStruct.h"
 
-typedef QMap<std::string, CThostFtdcInstrumentField> SymInfoMap;
-typedef QMap<std::string, CThostFtdcDepthMarketDataField*> SymTickMap;
+typedef std::map<std::string, CThostFtdcInstrumentField> SymInfoTable;
+typedef std::map<std::string, CThostFtdcDepthMarketDataField> SymMktTable;
 
 struct Symbol {
     Symbol() {}
@@ -28,6 +28,7 @@ struct Symbol1 {
     CThostFtdcInstrumentField info;
 };
 typedef QMap<std::string, Symbol1> SymbolList1;
+
 
 
 struct AccountMtM {

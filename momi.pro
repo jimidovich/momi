@@ -29,6 +29,8 @@ SOURCES += src/main.cpp\
     src/rm.cpp \
     src/strategy.cpp \
     src/trader.cpp \
+    src/account.cpp \
+    src/book.cpp
 
 HEADERS += include/ctpmonitor.h \
     include/datahub.h \
@@ -49,6 +51,8 @@ HEADERS += include/ctpmonitor.h \
     include/ThostFtdcTraderApi.h \
     include/ThostFtdcUserApiDataType.h \
     include/ThostFtdcUserApiStruct.h \
+    include/account.h \
+    include/book.h
 
 FORMS += ctpmonitor.ui
 

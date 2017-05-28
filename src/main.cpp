@@ -14,6 +14,7 @@
 #include "include/portfolio.h"
 #include "include/kalman.h"
 #include "include/dispatcher.h"
+#include "include/strategy.h"
 // include kdbconnector.h in last order for k.h polute reason
 #include "include/kdbconnector.h"
 
@@ -34,6 +35,7 @@ using namespace std;
 //string yellowcolor = "\033[33m";
 //string resetcolor = "\033[00m";
 
+// TESTING
 class Reader
 {
 public:
@@ -68,6 +70,7 @@ void Reader::onEvent(CtpEvent ev) {
         break;
     }
 }
+// end TESTING class
 
 
 int main(int argc, char *argv[])
@@ -78,24 +81,18 @@ int main(int argc, char *argv[])
     // logs directory for spdlog file
     auto qdir = new QDir();
     if (qdir == nullptr )
-    {
         return 1;
-    }
 
     if (!qdir->exists("./logs")) qdir->mkdir("./logs");
 
     auto console = spdlog::stdout_color_mt(" momi ");
     if (console == nullptr )
-    {
         return 2;
-    }
 
     console->set_pattern("[%H:%M:%S.%f] [%L] [%n] %v");
     auto file_logger = spdlog::rotating_logger_mt("file_logger", "logs/main_log", 1024 * 1024 * 5, 3);
     if (file_logger == nullptr )
-    {
         return 3;
-    }
 
     file_logger->flush_on(spdlog::level::info);
     console->info("Enter Program");
@@ -112,38 +109,30 @@ int main(int argc, char *argv[])
     Dispatcher dispatcher;
     dispatcher.setKdbConnector(&kdbConnector);
 
-    Trader trader("tcp://180.168.146.187:10000", "9999", "063669", "1qaz2wsx");
+    Trader trader("tcp://180.168.146.187:10030", "9999", "063669", "1qaz2wsx");
     //Trader trader("tcp://222.66.235.70:21205", "66666", "00008218", "183488");
-    MdSpi mdspi("tcp://180.168.146.187:10011", "9999", "063669", "1qaz2wsx");
+    MdSpi mdspi("tcp://180.168.146.187:10031", "9999", "063669", "1qaz2wsx");
     //MdSpi mdspi("tcp://222.66.235.70:21214", "66666", "00008218", "183488");
-
-    //call timer from main thread can work for trader schedule
-//    auto timer = new QTimer;
-//    trader.timer = timer;
-//    QObject::connect(timer, SIGNAL(timeout()), &trader, SLOT(ReqQrySettlementInfoConfirm()));
-//    timer->setSingleShot(true);
-//    timer->start(2000);
-
 
     Kalman kf;
     OMS oms;
     Portfolio pf(&trader, &oms, &kf);
 
-    kf.setOMS(&oms);
-    kf.setPortfolio(&pf);
+//    kf.setOMS(&oms);
+//    kf.setPortfolio(&pf);
     oms.setTrader(&trader);
     oms.setPortfolio(&pf);
-    pf.setDispatcher(&dispatcher);
-    trader.setDispatcher(&dispatcher);
-    mdspi.setDispatcher(&dispatcher);
+//    pf.setDispatcher(&dispatcher);
+//    trader.setDispatcher(&dispatcher);
+//    mdspi.setDispatcher(&dispatcher);
 
-    dispatcher.registerHandler(&pf, SIGNAL(dispatchPos(QEvent*)), SLOT(onEvent(QEvent*)));
-    dispatcher.registerHandler(&pf, SIGNAL(dispatchPosDetail(QEvent*)), SLOT(onEvent(QEvent*)));
-    dispatcher.registerHandler(&pf, SIGNAL(dispatchAccInfo(QEvent*)), SLOT(onEvent(QEvent*)));
-    dispatcher.registerHandler(&pf, SIGNAL(dispatchContractInfo(QEvent*)), SLOT(onEvent(QEvent*)));
-    dispatcher.registerHandler(&pf, SIGNAL(dispatchFeed(QEvent*)), SLOT(onEvent(QEvent*)));
-    dispatcher.registerHandler(&pf, SIGNAL(dispatchTrade(QEvent*)), SLOT(onEvent(QEvent*)));
-    dispatcher.registerHandler(&pf, SIGNAL(dispatchOrder(QEvent*)), SLOT(onEvent(QEvent*)));
+//    dispatcher.registerHandler(&pf, SIGNAL(dispatchPos(QEvent*)), SLOT(onEvent(QEvent*)));
+//    dispatcher.registerHandler(&pf, SIGNAL(dispatchPosDetail(QEvent*)), SLOT(onEvent(QEvent*)));
+//    dispatcher.registerHandler(&pf, SIGNAL(dispatchAccInfo(QEvent*)), SLOT(onEvent(QEvent*)));
+//    dispatcher.registerHandler(&pf, SIGNAL(dispatchContractInfo(QEvent*)), SLOT(onEvent(QEvent*)));
+//    dispatcher.registerHandler(&pf, SIGNAL(dispatchFeed(QEvent*)), SLOT(onEvent(QEvent*)));
+//    dispatcher.registerHandler(&pf, SIGNAL(dispatchTrade(QEvent*)), SLOT(onEvent(QEvent*)));
+//    dispatcher.registerHandler(&pf, SIGNAL(dispatchOrder(QEvent*)), SLOT(onEvent(QEvent*)));
     dispatcher.registerHandler(&kdbConnector, SIGNAL(dispatchFeed(QEvent*)), SLOT(onEvent(QEvent*)));
     dispatcher.registerHandler(&kdbConnector, SIGNAL(dispatchAccUpdate(QEvent*)), SLOT(onEvent(QEvent*)));
 
@@ -151,34 +140,42 @@ int main(int argc, char *argv[])
     DataHub dataHub;
     mdspi.dataHub = &dataHub;
     trader.dataHub = &dataHub;
+    pf.dataHub = &dataHub;
     Dispatcher1 d("d1");
     d.dataHub = &dataHub;
 
-    Reader reader1("reader1");
-    Reader reader2("r");
-    d.r1 = &reader1;
-    d.r2 = &reader2;
+    Strategy strategy;
+    strategy.trader = &trader;
+    strategy.pf = &pf;
+    strategy.oms = &oms;
+//    strategy.rm = &rm;
+
+
+//    Reader reader1("reader1");
+//    Reader reader2("r");
+//    d.r1 = &reader1;
+//    d.r2 = &reader2;
     d.pf = &pf;
 
     d.runThread();
 
-    for (int i=0; i<10; ++i) {
-        CThostFtdcDepthMarketDataField f = {};
-        strcpy(f.InstrumentID, "aaaabbbbccccddddeeeeffffgggghhhhiiiijjjj");
-        f.LastPrice = 90.0+i;
-        mdspi.OnRtnDepthMarketData(&f);
+//    for (int i=0; i<10; ++i) {
+//        CThostFtdcDepthMarketDataField f = {};
+//        strcpy(f.InstrumentID, "aaaabbbbccccddddeeeeffffgggghhhhiiiijjjj");
+//        f.LastPrice = 90.0+i;
+//        mdspi.OnRtnDepthMarketData(&f);
 
-        CThostFtdcTradeField td = {};
-        td.Price = 1000+i;
-        trader.OnRtnTrade(&td);
-    }
-    CThostFtdcTradingAccountField f = {};
-    f.Available = 888;
-    trader.OnRspQryTradingAccount(&f,nullptr,1,true);
+//        CThostFtdcTradeField td = {};
+//        td.Price = 1000+i;
+//        trader.OnRtnTrade(&td);
+//    }
+//    CThostFtdcTradingAccountField f = {};
+//    f.Available = 888;
+//    trader.OnRspQryTradingAccount(&f,nullptr,1,true);
 
-    CThostFtdcInstrumentField f1{};
-    strcpy(f1.InstrumentID, "aa111");
-    trader.OnRspQryInstrument(&f1,nullptr,2,true);
+//    CThostFtdcInstrumentField f1{};
+//    strcpy(f1.InstrumentID, "aa111");
+//    trader.OnRspQryInstrument(&f1,nullptr,2,true);
 
 
 
@@ -191,7 +188,7 @@ int main(int argc, char *argv[])
     // TODO: Check connector operating in other thread.
     // use direct call or func pointer of base class for other thread.
     kdbConnector.moveToThread(&thread);
-    dispatcher.moveToThread(&thread);
+//    dispatcher.moveToThread(&thread);
     pf.moveToThread(&thread);
 
     TickSubscriber tickSub("kdbsub");
@@ -214,8 +211,9 @@ int main(int argc, char *argv[])
         QObject::connect(w, &CtpMonitor::sendCmdLineToOms, &oms, &OMS::execCmdLine);
         //mythread.kdbConnector.setTradingDay(trader.getTradingDay().c_str());
 
-        w->getui().posTableView->setModel(&pf);
-        pf.setPosTableView(w->getui().posTableView);
+        // posTableView i may not doing it right
+//        w->getui().posTableView->setModel(&pf);
+//        pf.setPosTableView(w->getui().posTableView);
 
         w->show();
         auto ret = a.exec();

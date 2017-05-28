@@ -6,6 +6,7 @@
 #include <mutex>
 
 #include "myevent.h"
+#include "struct.h"
 
 template <typename T>
 class DataQueue
@@ -43,6 +44,12 @@ class DataHub
 public:
     DataQueue<double> feedQueue;
     DataQueue<CtpEvent> eventQueue;
+
+//    SymbolList1 symList1;
+    SymInfoTable symInfoTable;
+    SymMktTable symMktTable;
+
+    void onCtpEvent(CtpEvent ev);
 };
 
 #endif // DATAHUB_H

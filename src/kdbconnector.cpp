@@ -52,7 +52,7 @@ void KdbConnector::onEvent(QEvent *ev)
         insertContractInfo(myev->contractInfo);
         break;
     case AccountUpdateEvent:
-        insertAccount(*myev->acc);
+//        insertAccount(*myev->acc);
     default:
         break;
     }
@@ -180,7 +180,7 @@ void KdbConnector::insertFeed(CThostFtdcDepthMarketDataField * feed)
     //qDebug() << "kdb" << t.elapsed() << "ms";
 }
 
-void KdbConnector::insertAccount(const Account &acc)
+void KdbConnector::insertAccount(const PortfolioValue &acc)
 {
     K data, id, balance, pnl, rPnL, unrPnL, available, margin;
     id = ks((S)acc.accountID.c_str());

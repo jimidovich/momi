@@ -9,6 +9,7 @@
 #include "ThostFtdcUserApiStruct.h"
 
 #include "struct.h"
+#include "myevent.h"
 
 //class QObject;
 
@@ -42,7 +43,7 @@ public:
     char longShortSide{ 0 };
     int workingVolume{ 0 };
     int lastVolumeTraded{ 0 };
-    CThostFtdcOrderField *orderInfo;
+    CThostFtdcOrderField orderInfo;
 };
 typedef QMap<QString, Order> OrderList;
 
@@ -81,6 +82,8 @@ public:
     //OMS(Trader* trader, Portfolio* pf);
     ~OMS();
 
+    void onCtpEvent(CtpEvent ev);
+
     void onEvent(QEvent *ev);
     void setTrader(Trader *trader);
     void setPortfolio(Portfolio *pf);
@@ -91,6 +94,7 @@ public:
     void handleTargets();
     void switchOn();
     void switchOff();
+    void cancelAllWorking();
     //void sendOrderForTarget(std::string sym, int tgtPos, double price);
 
     TradeList tradeList;

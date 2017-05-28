@@ -189,7 +189,8 @@ void Trader::OnRspQrySettlementInfo(CThostFtdcSettlementInfoField *pSettlementIn
             strSettlementInfo = "";
             isNewSettlementInfo = false;
         }
-        strSettlementInfo += pSettlementInfo->Content;
+        if (pSettlementInfo != nullptr)
+            strSettlementInfo += pSettlementInfo->Content;
         if (bIsLast) {
             isNewSettlementInfo = true;
             if (strSettlementInfo == "") {
@@ -356,7 +357,9 @@ void Trader::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDetailFiel
 //            memcpy(fcpy, pInvestorPositionDetail, sizeof(CThostFtdcInvestorPositionDetailField));
 //            auto posDetailEvent = new MyEvent(PositionDetailEvent, fcpy);
 //            QCoreApplication::postEvent(dispatcher, posDetailEvent);
-            dataHub->eventQueue.post(CtpEvent(pInvestorPositionDetail));
+            CtpEvent ev(pInvestorPositionDetail);
+            ev.isLast = bIsLast;
+            dataHub->eventQueue.post(ev);
         }
         if (bIsLast) {
             logger(info, "Qry InvestorPositionDetail Finished");
@@ -367,9 +370,6 @@ void Trader::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDetailFiel
 //            memset(fcpy, 0, sizeof(CThostFtdcInvestorPositionDetailField));
 //            auto posDetailEvent = new MyEvent(PositionDetailEvent, fcpy);
 //            QCoreApplication::postEvent(dispatcher, posDetailEvent);
-            CtpEvent ev;
-            ev.isLast = true;
-            dataHub->eventQueue.post(ev);
         }
     }
 }
@@ -664,7 +664,8 @@ int Trader::ReqOrderAction(string InstrumentID, string OrderRef)
     {
         // OrderRef has format "     xxxxx", length set 12 here.
         if (OrderRef.length() > 12) return -100;
-        strcpy(action->OrderRef, QString::fromStdString(OrderRef).rightJustified(12, ' ').toStdString().c_str());
+//        strcpy(action->OrderRef, QString::fromStdString(OrderRef).rightJustified(12, ' ').toStdString().c_str());
+            strcpy(action->OrderRef, OrderRef.c_str());
     }
     return ReqOrderAction(action);
 }
@@ -685,15 +686,17 @@ int Trader::ReqOrderAction(string InstrumentID, int FrontID, int SessionID, stri
     {
         // OrderRef has format "     xxxxx", length set 12 here.
         if (OrderRef.length() > 12) return -100;
-        strcpy(action->OrderRef, QString::fromStdString(OrderRef).rightJustified(12, ' ').toStdString().c_str());
+//        strcpy(action->OrderRef, QString::fromStdString(OrderRef).rightJustified(12, ' ').toStdString().c_str());
+            strcpy(action->OrderRef, OrderRef.c_str());
     }
     if (ExchangeID != "")
         strcpy(action->ExchangeID, ExchangeID.c_str());
     if (OrderSysID != "")
     {
-        // OrderSysID has format "     xxxxx", length set 20 here.
-        if (OrderRef.length() > 20) return -101;
-        strcpy(action->OrderRef, QString::fromStdString(OrderRef).rightJustified(20, ' ').toStdString().c_str());
+        // OrderSysID has format "     xxxxx", length set 20 here.  //Holy shit, 12 or 20? sample feedback shows "     xxxx" 12 length in char[20]
+//        if (OrderRef.length() > 20) return -101;
+//        strcpy(action->OrderRef, QString::fromStdString(OrderRef).rightJustified(20, ' ').toStdString().c_str());
+        strcpy(action->OrderSysID, OrderSysID.c_str());
     }
     return ReqOrderAction(action);
 }

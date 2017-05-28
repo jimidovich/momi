@@ -18,7 +18,7 @@
   </property>
   <property name="font">
    <font>
-    <family>xos4 Terminess Powerline</family>
+    <family>Roboto Mono for Powerline</family>
     <weight>75</weight>
     <bold>true</bold>
    </font>
@@ -1488,7 +1488,7 @@ QProgressBar::chunk {
       <widget class="QPushButton" name="sendButton">
        <property name="font">
         <font>
-         <family>xos4 Terminess Powerline</family>
+         <family>Monospace</family>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -1735,7 +1735,7 @@ QProgressBar::chunk {
        <property name="font">
         <font>
          <family>xos4 Terminess Powerline</family>
-         <pointsize>12</pointsize>
+         <pointsize>11</pointsize>
         </font>
        </property>
       </widget>
@@ -1746,7 +1746,7 @@ QProgressBar::chunk {
         <widget class="QPushButton" name="stlinfoButton">
          <property name="font">
           <font>
-           <family>xos4 Terminess Powerline</family>
+           <family>Monospace</family>
           </font>
          </property>
          <property name="text">
@@ -1764,7 +1764,7 @@ QProgressBar::chunk {
          </property>
          <property name="font">
           <font>
-           <family>xos4 Terminess Powerline</family>
+           <family>Monospace</family>
           </font>
          </property>
          <property name="text">
@@ -2018,7 +2018,7 @@ QProgressBar::chunk {
        <property name="font">
         <font>
          <family>xos4 Terminess Powerline</family>
-         <pointsize>10</pointsize>
+         <pointsize>11</pointsize>
         </font>
        </property>
       </widget>
@@ -2263,7 +2263,7 @@ QProgressBar::chunk {
     <property name="font">
      <font>
       <family>xos4 Terminess Powerline</family>
-      <pointsize>10</pointsize>
+      <pointsize>11</pointsize>
      </font>
     </property>
     <property name="readOnly">
@@ -2508,7 +2508,7 @@ QProgressBar::chunk {
     <property name="font">
      <font>
       <family>xos4 Terminess Powerline</family>
-      <pointsize>10</pointsize>
+      <pointsize>11</pointsize>
      </font>
     </property>
     <property name="readOnly">
@@ -2753,7 +2753,7 @@ QProgressBar::chunk {
     <property name="font">
      <font>
       <family>xos4 Terminess Powerline</family>
-      <pointsize>10</pointsize>
+      <pointsize>11</pointsize>
      </font>
     </property>
     <property name="locale">
@@ -3001,7 +3001,7 @@ QProgressBar::chunk {
     <property name="font">
      <font>
       <family>xos4 Terminess Powerline</family>
-      <pointsize>10</pointsize>
+      <pointsize>11</pointsize>
      </font>
     </property>
     <property name="readOnly">
@@ -3020,6 +3020,7 @@ QProgressBar::chunk {
     <property name="font">
      <font>
       <family>xos4 Terminess Powerline</family>
+      <pointsize>11</pointsize>
      </font>
     </property>
    </widget>
@@ -3030,7 +3031,7 @@ QProgressBar::chunk {
      <x>0</x>
      <y>0</y>
      <width>1125</width>
-     <height>20</height>
+     <height>19</height>
     </rect>
    </property>
   </widget>

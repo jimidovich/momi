@@ -92,10 +92,9 @@ QVariant Portfolio::data(const QModelIndex &index, int role /*= Qt::DisplayRole*
             {
             case 0: return QString(curr_sym.c_str());
             case 1:
-                if (symList.contains(curr_sym))
+                if (dataHub->symMktTable.find(curr_sym) != dataHub->symMktTable.end())
                 {
-                    if (symList[curr_sym].mkt != nullptr)
-                        return QString::number(symList[curr_sym].mkt->LastPrice);
+                    return QString::number(dataHub->symMktTable.at(curr_sym).LastPrice);
                 }
                 else
                     return "";
@@ -181,7 +180,7 @@ void Portfolio::onEvent(QEvent *ev)
             isInPosStream = true;
             if (beginUpdate)
             {
-                Position p(myev->posDetail, symList);
+                Position p(myev->posDetail, dataHub->symInfoTable);
                 posList.insert(p.positionID, p);
             }
         }
@@ -199,7 +198,7 @@ void Portfolio::onEvent(QEvent *ev)
     }
     case AccountInfoEvent:
     {
-        acc = Account(myev->accInfo);
+        pfValue = PortfolioValue(myev->accInfo);
         break;
     }
     case ContractInfoEvent:
@@ -227,12 +226,12 @@ void Portfolio::onEvent(QEvent *ev)
         }
         memcpy(symList[sym].mkt, myev->mkt, sizeof(CThostFtdcDepthMarketDataField));
 
-        evalAccount(acc, aggPosList, symList);	// Choose which price to MTM
+        evalAccount(pfValue, aggPosList, dataHub->symMktTable);	// Choose which price to MTM
         time = myev->mkt->UpdateTime;
         millisec = myev->mkt->UpdateMillisec;
 
-        auto accEvent = new MyEvent(AccountUpdateEvent, &acc);
-        QCoreApplication::postEvent(dispatcher, accEvent);
+//        auto accEvent = new MyEvent(AccountUpdateEvent, &acc);
+//        QCoreApplication::postEvent(dispatcher, accEvent);
         printAcc();
         printNetPos();
         updatePosTable();
@@ -246,7 +245,7 @@ void Portfolio::onEvent(QEvent *ev)
     }
     case TradeEvent:
     {
-        updatePosOnTrade(aggPosList, posList, myev->trade, symList);
+        updatePosOnTrade(aggPosList, posList, myev->trade, dataHub->symInfoTable);
         netPosList.clear();
         netPosList = constructNetPosList(aggPosList);
         oms->onEvent(ev);
@@ -286,16 +285,17 @@ void Portfolio::onCtpEvent(CtpEvent ev)
     }
     case PositionDetailEvent:
     {
-        if (ev.posDetail.BrokerID[0] != 0)
+//        if (ev.posDetail.BrokerID[0] != 0)
+        if (pfValue.brokerID == ev.posDetail.BrokerID)
         {
             isInPosStream = true;
             if (beginUpdate)
             {
-                Position p(&(ev.posDetail), symList);
+                Position p(&(ev.posDetail), dataHub->symInfoTable);
                 posList.insert(p.positionID, p);
             }
         }
-        else
+        if (ev.isLast)
         {
             aggPosList = constructAggPosList(posList);
             netPosList = constructNetPosList(aggPosList);
@@ -309,63 +309,64 @@ void Portfolio::onCtpEvent(CtpEvent ev)
     }
     case AccountInfoEvent:
     {
-        acc = Account(&(ev.accInfo));
+        pfValue = PortfolioValue(&(ev.accInfo));
         break;
     }
-
     case ContractInfoEvent:
     {
-        string sym = ev.contractInfo.InstrumentID;
-        if (symList1.keys().contains(sym))
-            symList1[sym].info = ev.contractInfo;
-        else
-        {
-            Symbol1 s(CThostFtdcDepthMarketDataField{}, ev.contractInfo);  // insert new
-            symList1.insert(sym, s);
-        }
+//        string sym = ev.contractInfo.InstrumentID;
+//        if (symList1.keys().contains(sym))
+//            symList1[sym].info = ev.contractInfo;
+//        else
+//        {
+//            Symbol1 s(CThostFtdcDepthMarketDataField{}, ev.contractInfo);  // insert new
+//            symList1.insert(sym, s);
+//        }
         break;
     }
-//    case MarketEvent:
-//    {
-//        string sym = myev->mkt->InstrumentID;
-////        symList[sym].mkt = myev->feed;
-//        if (!symList.contains(sym)) {
-//            auto nmkt = new CThostFtdcDepthMarketDataField;
-//            auto ninfo = new CThostFtdcInstrumentField;
-//            symList.insert(sym, Symbol(nmkt, ninfo));
-//        }
-//        memcpy(symList[sym].mkt, myev->mkt, sizeof(CThostFtdcDepthMarketDataField));
+    case MarketEvent:
+    {
+        string sym = ev.mkt.InstrumentID;
+//        symList[sym].mkt = myev->feed;
+        if (!symList1.contains(sym)) {
+            symList1.insert(sym, Symbol1{});
+        }
+        symList1[sym].mkt = ev.mkt;
 
-//        evalAccount(acc, aggPosList, symList);	// Choose which price to MTM
-//        time = myev->mkt->UpdateTime;
-//        millisec = myev->mkt->UpdateMillisec;
+        evalAccount(pfValue, aggPosList, dataHub->symMktTable);	// Choose which price to MTM
+        time = ev.mkt.UpdateTime;
+        millisec = ev.mkt.UpdateMillisec;
 
 //        auto accEvent = new MyEvent(AccountUpdateEvent, &acc);
 //        QCoreApplication::postEvent(dispatcher, accEvent);
-//        printAcc();
-//        printNetPos();
-//        updatePosTable();
-//        //postableview->update();
-//        //qDebug() << QThread::currentThreadId() << "++++++++++++++++++++++ pf";
+        printAcc();
+        printNetPos();
+        updatePosTable();
+        //postableview->update();
+        //qDebug() << QThread::currentThreadId() << "++++++++++++++++++++++ pf";
 
+        //TODO: move these to dispatcher
 //        kf->onFeed(myev);
-//        oms->handleTargets();
+        oms->handleTargets();
 
-//        break;
-//    }
-//    case TradeEvent:
-//    {
-//        updatePosOnTrade(aggPosList, posList, myev->trade, symList);
-//        netPosList.clear();
-//        netPosList = constructNetPosList(aggPosList);
-//        oms->onEvent(ev);
-//        break;
-//    }
-//    case OrderEvent:
-//    {
-//        oms->onEvent(ev);
-//        break;
-//    }
+        break;
+    }
+    case TradeEvent:
+    {
+//        updatePosOnTrade(aggPosList, posList, &ev.trade, symList1);
+        netPosList.clear();
+        netPosList = constructNetPosList(aggPosList);
+
+        //TODO: move to dispatcher
+        oms->onCtpEvent(ev);
+        break;
+    }
+    case OrderEvent:
+    {
+        //TODO: move to dispatcher
+        oms->onCtpEvent(ev);
+        break;
+    }
     default:
         break;
     }
@@ -379,8 +380,9 @@ void Portfolio::printNetPos()
 {
     QString msg;
     int fw = -12; // field width left-aligned
-    msg = QString("%1%2%3%4%5%6\n")
+    msg = QString("%1%2%3%4%5%6%7\n")
             .arg("Symbol", fw)
+            .arg("LastPx", fw)
             .arg("NetPos", fw)
             .arg("AvgCost", fw)
             .arg("PosPnL", fw)
@@ -388,8 +390,9 @@ void Portfolio::printNetPos()
             .arg("Time");
     for (auto sym : netPosList.keys()) {
         auto pos = netPosList[sym];
-        msg += QString("%1%2%3%4%5%6\n")
+        msg += QString("%1%2%3%4%5%6%7\n")
                 .arg(sym, fw)
+                .arg(dataHub->symMktTable.at(sym.toStdString()).LastPrice, fw)
                 .arg(pos.netPos, fw)
                 .arg(pos.avgCostPrice, fw)
                 .arg(pos.positionProfit, fw)
@@ -412,12 +415,12 @@ void Portfolio::printAcc()
             .arg("Comm", fw)
             .arg("Time");
     msg += QString("%1%2%3%4%5%6%7\n")
-            .arg(acc.balance, fw, 'f', 0)
-            .arg(acc.netPnl, fw)
-            .arg(acc.closeProfit, fw)
-            .arg(acc.positionProfit, fw)
-            .arg(acc.margin, fw)
-            .arg(acc.commission, fw)
+            .arg(pfValue.balance, fw, 'f', 0)
+            .arg(pfValue.netPnl, fw)
+            .arg(pfValue.closeProfit, fw)
+            .arg(pfValue.positionProfit, fw)
+            .arg(pfValue.margin, fw)
+            .arg(pfValue.commission, fw)
             .arg(getTimeMsec(time, millisec));
     emit sendToAccMonitor(msg);
 }
@@ -448,13 +451,13 @@ NetPosList Portfolio::constructNetPosList(AggPosList apList)
     return npList;
 }
 
-void Portfolio::updatePosOnTrade(AggPosList &al, PosList &pl, CThostFtdcTradeField *td, SymbolList &sl)
+void Portfolio::updatePosOnTrade(AggPosList &al, PosList &pl, CThostFtdcTradeField *td, SymInfoTable &sinfo)
 {
     switch (td->OffsetFlag)
     {
     case THOST_FTDC_OF_Open:
     {
-        auto p = Position(td, sl);
+        auto p = Position(td, sinfo);
         pl.insert(p.positionID, p);
         auto id = p.aggPositionID;
         if (!al.keys().contains(id))
@@ -476,8 +479,8 @@ void Portfolio::updatePosOnTrade(AggPosList &al, PosList &pl, CThostFtdcTradeFie
                 p.direction != mymap::direction_char.at(tdcpy->Direction) &&
                 p.pos > 0 &&
                 (td->OffsetFlag == THOST_FTDC_OF_Close ||
-                    (td->OffsetFlag == THOST_FTDC_OF_CloseToday && p.positionDate == 'T') ||
-                    (td->OffsetFlag == THOST_FTDC_OF_CloseYesterday && p.positionDate == 'H')))
+                    (td->OffsetFlag == THOST_FTDC_OF_CloseToday && p.positionDateCategory == 'T') ||
+                    (td->OffsetFlag == THOST_FTDC_OF_CloseYesterday && p.positionDateCategory == 'H')))
             {
                 auto deltaPos = min(p.pos, tdcpy->Volume);
                 if (deltaPos != 0)
@@ -521,7 +524,7 @@ void Portfolio::updatePosOnTrade(AggPosList &al, PosList &pl, CThostFtdcTradeFie
     }
 }
 
-void Portfolio::evalAccount(Account &acc, AggPosList &aplist, SymbolList &sl)
+void Portfolio::evalAccount(PortfolioValue &acc, AggPosList &aplist, SymMktTable &smkt)
 {
     acc.positionProfit = 0;
     acc.closeProfit = 0;
@@ -529,12 +532,12 @@ void Portfolio::evalAccount(Account &acc, AggPosList &aplist, SymbolList &sl)
     acc.netPnl = 0;
     for (auto &ap : aplist)
     {
-        if (sl[ap.sym].mkt != nullptr)
+        if (smkt.find(ap.sym) != smkt.end())
         {
-            if (sl[ap.sym].mkt->Volume == 0)	// TODO: get proper way for night session
-                ap.mtm(sl[ap.sym].mkt->PreSettlementPrice);
+            if (smkt[ap.sym].Volume == 0)	// TODO: get proper way for night session
+                ap.mtm(smkt[ap.sym].PreSettlementPrice);
             else
-                ap.mtm(sl[ap.sym].mkt->LastPrice);
+                ap.mtm(smkt[ap.sym].LastPrice);
         }
         acc.positionProfit += ap.positionProfit;
         acc.closeProfit += ap.dailyCloseProfit;
@@ -548,14 +551,44 @@ void Portfolio::evalAccount(Account &acc, AggPosList &aplist, SymbolList &sl)
     acc.available = acc.balance - acc.margin; //TODO: add frozen margin etc.
 }
 
-Account::Account()
+void Portfolio::evalOnTick(PortfolioValue &acc, AggPosList &aplist, CThostFtdcDepthMarketDataField &mkt)
+{
+    for (auto &ap : aplist) {
+        if (ap.sym == mkt.InstrumentID)
+        {
+            acc.positionProfit -= ap.positionProfit;
+            acc.closeProfit -= ap.dailyCloseProfit;
+            acc.grossPnl -= ap.grossPnl;
+            acc.netPnl -= ap.netPnl;
+
+            if (mkt.Volume == 0)	// TODO: get proper way for night session
+                ap.mtm(mkt.PreSettlementPrice);
+            else
+                ap.mtm(mkt.LastPrice);
+
+            acc.positionProfit += ap.positionProfit;
+            acc.closeProfit += ap.dailyCloseProfit;
+            acc.grossPnl += ap.grossPnl;
+            acc.netPnl += ap.netPnl;
+        }
+    }
+
+    netPosList.clear();
+    netPosList = constructNetPosList(aggPosList);
+    //acc.balance = acc.cashBalance + acc.netPnl;
+    acc.balance = acc.cashBalance + acc.grossPnl - acc.commission;
+    acc.available = acc.balance - acc.margin; //TODO: add frozen margin etc.
+}
+
+PortfolioValue::PortfolioValue()
 {
 }
 
-Account::Account(CThostFtdcTradingAccountField *af)
+PortfolioValue::PortfolioValue(CThostFtdcTradingAccountField *af)
 {
     brokerID = af->BrokerID;
     accountID = af->AccountID;
+    tradingDay = af->TradingDay;
     preDeposit = af->PreDeposit;
     preBalance = af->PreBalance;
     preMargin = af->PreMargin;
@@ -565,9 +598,10 @@ Account::Account(CThostFtdcTradingAccountField *af)
     withdraw = af->Withdraw;
     margin = af->CurrMargin;
     commission = af->Commission;
-    cashBalance = preBalance - withdraw + deposit;
     closeProfit = af->CloseProfit;
     positionProfit = af->PositionProfit;
+
+    cashBalance = preBalance - withdraw + deposit;
     grossPnl = closeProfit + positionProfit;
-    netPnl = grossPnl - commission;
+    netPnl = grossPnl - commission;  // balance = cashBalance + netPnl
 }

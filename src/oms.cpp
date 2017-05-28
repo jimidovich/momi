@@ -22,6 +22,65 @@ OMS::~OMS()
 {
 }
 
+void OMS::onCtpEvent(CtpEvent ev)
+{
+    switch (ev.type)
+    {
+    case TradeEvent:
+    {
+        Trade td(&(ev.trade));
+        tradeList.insert(td.tradeID, td);
+        // updating targetPos, now after portfolio::onEvent position updated
+        if (targetList.contains(td.tradeInfo->InstrumentID))
+            updatePosTarget(targetList[td.tradeInfo->InstrumentID]);
+        break;
+    }
+    case OrderEvent:
+    {
+        Order od(&(ev.order));
+        bool isOrderWithTrade{ false };
+        if (workingOrderList.contains(od.orderID)) {
+            isOrderWithTrade = od.orderInfo.VolumeTraded > workingOrderList[od.orderID].lastVolumeTraded;
+        }
+        // then might overwrite old order
+        orderList.insert(od.orderID, od);
+
+        // logic: delete old working volume, then update new if isWorking.
+        //TODO: add global working volume.
+        if (workingOrderList.contains(od.orderID)) {
+            if (targetList.contains(od.sym.c_str())) {
+                if (od.longShortSide == 'L')
+                    targetList[od.sym.c_str()].workingLong -= workingOrderList[od.orderID].workingVolume;
+                if (od.longShortSide == 'S')
+                    targetList[od.sym.c_str()].workingShort -= workingOrderList[od.orderID].workingVolume;
+            }
+        }
+        workingOrderList.insert(od.orderID, od);
+        if (od.isWorking) {
+            if (targetList.contains(od.sym.c_str())) {
+                if (od.longShortSide == 'L')
+                    targetList[od.sym.c_str()].workingLong += od.workingVolume;
+                if (od.longShortSide == 'S')
+                    targetList[od.sym.c_str()].workingShort += od.workingVolume;
+            }
+        }
+        else {
+            workingOrderList.erase(workingOrderList.find(od.orderID));
+        }
+
+        // Notice: logic, only update target for "non-trading" order feedback
+        if (!isOrderWithTrade)
+            updatePosTarget(targetList[od.sym.c_str()]);
+
+        break;
+    }
+    default:
+        break;
+    }
+
+}
+
+
 void OMS::onEvent(QEvent *ev)
 {
     auto myev = (MyEvent*)ev;
@@ -41,7 +100,7 @@ void OMS::onEvent(QEvent *ev)
         Order od(myev->order);
         bool isOrderWithTrade{ false };
         if (workingOrderList.contains(od.orderID)) {
-            isOrderWithTrade = od.orderInfo->VolumeTraded > workingOrderList[od.orderID].lastVolumeTraded;
+            isOrderWithTrade = od.orderInfo.VolumeTraded > workingOrderList[od.orderID].lastVolumeTraded;
         }
         // then might overwrite old order
         orderList.insert(od.orderID, od);
@@ -149,12 +208,20 @@ void OMS::handleTargets()
 void OMS::switchOn() 
 { 
     isWorking = true; 
-    console->critical("OMS switched ON");
+    console->warn("OMS switched ON");
 }
 
 void OMS::switchOff() { 
     isWorking = false;
-    console->critical("OMS switched OFF");
+    console->warn("OMS switched OFF");
+}
+
+void OMS::cancelAllWorking()
+{
+   for (auto od : workingOrderList) {
+       trader->ReqOrderAction(od.orderInfo.InstrumentID, 0, 0, "", od.orderInfo.ExchangeID, od.orderInfo.OrderSysID);
+//       trader->ReqOrderAction(od.orderInfo.InstrumentID, od.orderInfo.FrontID, od.orderInfo.SessionID, od.orderInfo.OrderRef);
+   }
 }
 
 
@@ -280,27 +347,27 @@ void OMS::orderInsertWithOffsetFlag(std::string &sym, EnumOpenClose o_c, EnumDir
 bool priorInOrderQueue(const Order &od1, const Order &od2)
 {
     if (od1.direction == EnumDirectionType::Buy) {
-        if (od1.orderInfo->LimitPrice > od2.orderInfo->LimitPrice) { return true; }
-        else if (od1.orderInfo->LimitPrice < od2.orderInfo->LimitPrice) { return false; }
+        if (od1.orderInfo.LimitPrice > od2.orderInfo.LimitPrice) { return true; }
+        else if (od1.orderInfo.LimitPrice < od2.orderInfo.LimitPrice) { return false; }
         else {
             if (abs(od1.workingVolume) < abs(od2.workingVolume)) { return true; }
             else if (abs(od1.workingVolume) > abs(od2.workingVolume)) { return false; }
             else {
                 // TODO: is there pitfall for OrderRef as char[]?
-                if (od1.orderInfo->OrderRef < od2.orderInfo->OrderRef) return true;
+                if (od1.orderInfo.OrderRef < od2.orderInfo.OrderRef) return true;
                 else return false;
             }
         }
     }
     else {
-        if (od1.orderInfo->LimitPrice < od2.orderInfo->LimitPrice) { return true; }
-        else if (od1.orderInfo->LimitPrice > od2.orderInfo->LimitPrice) { return false; }
+        if (od1.orderInfo.LimitPrice < od2.orderInfo.LimitPrice) { return true; }
+        else if (od1.orderInfo.LimitPrice > od2.orderInfo.LimitPrice) { return false; }
         else {
             if (abs(od1.workingVolume) < abs(od2.workingVolume)) { return true; }
             else if (abs(od1.workingVolume) > abs(od2.workingVolume)) { return false; }
             else {
                 // TODO: is there pitfall for OrderRef as char[]?
-                if (od1.orderInfo->OrderRef < od2.orderInfo->OrderRef) return true;
+                if (od1.orderInfo.OrderRef < od2.orderInfo.OrderRef) return true;
                 else return false;
             }
         }
@@ -321,7 +388,7 @@ void OMS::cancelWorkingOrder(std::string & sym, EnumDirectionType direction, int
         int res_vol = abs(volume);
         for (auto wkod : wkOrderQueue) {
             if (abs(wkod.workingVolume) <= res_vol) {
-                trader->ReqOrderAction(wkod.sym, 0, 0, "", wkod.orderInfo->ExchangeID, wkod.orderInfo->OrderSysID);
+                trader->ReqOrderAction(wkod.sym, 0, 0, "", wkod.orderInfo.ExchangeID, wkod.orderInfo.OrderSysID);
                 res_vol -= abs(wkod.workingVolume);
 
                 if (res_vol == 0)
@@ -329,11 +396,11 @@ void OMS::cancelWorkingOrder(std::string & sym, EnumDirectionType direction, int
             }
             else {
                 // Cancel larger order and re-insert the compensate.
-                trader->ReqOrderAction(wkod.sym, 0, 0, "", wkod.orderInfo->ExchangeID, wkod.orderInfo->OrderSysID);
+                trader->ReqOrderAction(wkod.sym, 0, 0, "", wkod.orderInfo.ExchangeID, wkod.orderInfo.OrderSysID);
                 if (wkod.workingVolume > 0)
                     trader->ReqOrderInsert(wkod.sym, EnumOffsetFlagType::Open, direction, wkod.workingVolume - res_vol);
                 else
-                    trader->ReqOrderInsert(wkod.sym, mymap::offsetFlag_enum.at(wkod.orderInfo->CombOffsetFlag[0]), direction, abs(wkod.workingVolume) - abs(res_vol));
+                    trader->ReqOrderInsert(wkod.sym, mymap::offsetFlag_enum.at(wkod.orderInfo.CombOffsetFlag[0]), direction, abs(wkod.workingVolume) - abs(res_vol));
                 break;
             }
         }
@@ -406,6 +473,8 @@ void OMS::execCmdLine(QString cmdLine)
                 setPosTarget(sym, pos, px);
             }
         }
+        else if (argv.at(1) == "ca")
+            cancelAllWorking();
         else {
             emit sendToTraderMonitor("Invalid cmd");
         }
@@ -453,5 +522,5 @@ Order::Order(CThostFtdcOrderField *of)
     //orderID = QString("%1-%2").arg(of->ExchangeID).arg(of->OrderSysID);
     //orderID = QString("%1-%2").arg(of->BrokerID).arg(of->BrokerOrderSeq);
     orderID = QString("%1-%2-%3").arg(of->FrontID).arg(of->SessionID).arg(of->OrderRef);
-    orderInfo = of;
+    orderInfo = *of;
 }

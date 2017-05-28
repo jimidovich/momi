@@ -107,9 +107,9 @@ void MdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtd
 //        logger(info, "Subscribe market data:");
 
         // wait for trader req all contracts info, then can initialize symList
-        QThread::sleep(5);
+//        QThread::sleep(5);
         std::string instruments = {
-            "IF1705;IH1705;IC1705;TF1706;T1706;"
+            "IF1706;IH1706;IC1706;TF1712;T1712;"
             "rb1710;ru1709;cu1706;zn1706;au1706;ag1706;sn1709;al1706;hc1710;bu1709;pb1706;sn1709;"
             "i1709;p1709;m1709;y1709;j1709;l1709;c1709;jm1709;cs1709;pp1709;jd1709;a1709;"
             "SR709;TA709;MA709;CF709;OI709;RM709;ZC709;FG709;SM709"
@@ -162,14 +162,14 @@ void MdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDat
 
     //Manually delay for testing
 //    this_thread::sleep_for(chrono::milliseconds(100));
-    cout <<"i " << chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count()%1000000 <<
-           "ctptime= " << pDepthMarketData->UpdateTime << pDepthMarketData->UpdateMillisec << endl;
+//    cout <<"i " << chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count()%1000000 <<
+//           "ctptime= " << pDepthMarketData->UpdateTime << pDepthMarketData->UpdateMillisec << endl;
 //    auto fcpy = new CThostFtdcDepthMarketDataField;
 //    memcpy(fcpy, pDepthMarketData, sizeof(CThostFtdcDepthMarketDataField));
 
-    double lastpx = pDepthMarketData->LastPrice;
-    dataHub->feedQueue.post(lastpx);
-//    cout << "\r" << dataHub->count << flush;
+//    double lastpx = pDepthMarketData->LastPrice;
+//    dataHub->feedQueue.post(lastpx);
+    cout << "\r" << dataHub->eventQueue.count << flush;
 
     //CtpDataEvent ev;
     //ev.type = MarketEvent;

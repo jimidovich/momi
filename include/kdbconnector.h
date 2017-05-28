@@ -16,7 +16,7 @@
 #include "k.h"
 
 class QObject;
-class Account;
+class PortfolioValue;
 
 class KdbConnector : public QObject {
     Q_OBJECT
@@ -39,7 +39,7 @@ protected:
     void createInfoTable();
     void insertContractInfo(CThostFtdcInstrumentField *info);
     void insertFeed(CThostFtdcDepthMarketDataField *feed);
-    void insertAccount(const Account &acc);
+    void insertAccount(const PortfolioValue &acc);
 
     template<typename ...Args>
     inline void logger(spdlog::level::level_enum lvl, const char * fmt, const Args & ...args)

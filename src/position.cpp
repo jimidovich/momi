@@ -9,7 +9,7 @@ Position::Position()
 {
 }
 
-Position::Position(CThostFtdcInvestorPositionDetailField *df, const SymbolList &sl)
+Position::Position(CThostFtdcInvestorPositionDetailField *df, const SymInfoTable &info)
 {
 	sym = df->InstrumentID;
 	brokerID = df->BrokerID;
@@ -19,34 +19,34 @@ Position::Position(CThostFtdcInvestorPositionDetailField *df, const SymbolList &
 	//direction = direction_char['0'];
 	openDate = df->OpenDate;
 	tradeID = df->TradeID;
-	pos = df->Volume;
+    pos = df->Volume;
 	entryPrice = df->OpenPrice;
 	tradingDay = df->TradingDay;
 	exchangeID = df->ExchangeID;
 	//dailyCloseProfit = df->CloseProfitByDate;
 	tradeCloseProfit = df->CloseProfitByTrade;	// CHECK when need, not sure correct
-	dailyPositionProfit = df->PositionProfitByDate;
-	tradePositionProfit = df->PositionProfitByTrade;
+    dailyUnrProfit = df->PositionProfitByDate;
+    cumulUnrProfit = df->PositionProfitByTrade;
 	margin = df->Margin;
 	marginRate = df->MarginRateByMoney;
 	lastSttlPrice = df->LastSettlementPrice;
 	sttlPrice = df->SettlementPrice;
 	closeVolume = df->CloseVolume;
 
-	multiple = sl[sym].info->VolumeMultiple;
-	positionDate = (openDate == tradingDay ? 'T' : 'H');
+    multiple = info.at(sym).VolumeMultiple;
+    positionDateCategory = (openDate == tradingDay ? 'T' : 'H');
 
-	aggPositionID = QString("%1-%2-%3").arg(sym.c_str()).arg(direction).arg(positionDate);
-	positionID = QString("%1-%2-%3-%4-%5").arg(sym.c_str()).arg(direction).arg(positionDate)
+    aggPositionID = QString("%1-%2-%3").arg(sym.c_str()).arg(direction).arg(positionDateCategory);
+    positionID = QString("%1-%2-%3-%4-%5").arg(sym.c_str()).arg(direction).arg(positionDateCategory)
 		.arg(openDate.c_str()).arg(tradeID.c_str());
 	side = (direction == 'L' ? 1 : -1);
-	dailyCloseProfit = side*(df->CloseAmount - closeVolume*multiple*(positionDate == 'H' ? lastSttlPrice : entryPrice));
-	grossPnl = dailyCloseProfit + dailyPositionProfit;
+    dailyCloseProfit = side*(df->CloseAmount - closeVolume*multiple*(positionDateCategory == 'H' ? lastSttlPrice : entryPrice));
+    grossPnl = dailyCloseProfit + dailyUnrProfit;
 	commission = 0; // TODO: calc
 	netPnl = grossPnl - commission;
 }
 
-Position::Position(CThostFtdcTradeField *td, const SymbolList &sl)
+Position::Position(CThostFtdcTradeField *td, const SymInfoTable &info)
 {
 	sym = td->InstrumentID;
 	brokerID = td->BrokerID;
@@ -55,27 +55,27 @@ Position::Position(CThostFtdcTradeField *td, const SymbolList &sl)
 	direction = mymap::direction_char.at(td->Direction);
 	openDate = td->TradingDay;
 	tradeID = td->TradeID;
-	pos = td->Volume;
+    pos = td->Volume;
 	entryPrice = td->Price;
 	tradingDay = td->TradingDay;
 	exchangeID = td->ExchangeID;
 	dailyCloseProfit = 0;
 	tradeCloseProfit = 0;
-	dailyPositionProfit = 0;
-	tradePositionProfit = 0;
+    dailyUnrProfit = 0;
+    cumulUnrProfit = 0;
 	margin = 0;
 	marginRate = 0;
 	lastSttlPrice = 0;
 	sttlPrice = 0;
 	closeVolume = 0;
 
-	multiple = sl[sym].info->VolumeMultiple;
-	positionDate = (openDate == tradingDay ? 'T' : 'H');
-	aggPositionID = QString("%1-%2-%3").arg(sym.c_str()).arg(direction).arg(positionDate);
-	positionID = QString("%1-%2-%3-%4-%5").arg(sym.c_str()).arg(direction).arg(positionDate)
+    multiple = info.at(sym).VolumeMultiple;
+    positionDateCategory = (openDate == tradingDay ? 'T' : 'H');
+    aggPositionID = QString("%1-%2-%3").arg(sym.c_str()).arg(direction).arg(positionDateCategory);
+    positionID = QString("%1-%2-%3-%4-%5").arg(sym.c_str()).arg(direction).arg(positionDateCategory)
 		.arg(openDate.c_str()).arg(tradeID.c_str());
 	side = (direction == 'L' ? 1 : -1);
-	grossPnl = dailyCloseProfit + dailyPositionProfit;
+    grossPnl = dailyCloseProfit + dailyUnrProfit;
 	commission = 0; // TODO: calc
 	netPnl = grossPnl - commission;
 }
@@ -93,11 +93,11 @@ void Position::updateOnTrade(CThostFtdcTradeField *td)
 		case '0': // TODO:can trade add to new position??
 			break;
 		default: // close old
-			auto deltaPos = std::min(pos, td->Volume);
-			pos -= deltaPos;
+            auto deltaPos = std::min(pos, td->Volume);
+            pos -= deltaPos;
 			closeVolume += deltaPos;
 			tradeCloseProfit += deltaPos*multiple*(direction == 'L' ? 1 : -1) * (td->Price - entryPrice);
-			dailyCloseProfit += deltaPos*multiple*(direction == 'L' ? 1 : -1) * (td->Price - (positionDate == 'T' ? entryPrice : lastSttlPrice));
+            dailyCloseProfit += deltaPos*multiple*(direction == 'L' ? 1 : -1) * (td->Price - (positionDateCategory == 'T' ? entryPrice : lastSttlPrice));
 			break;
 		}
 	}
@@ -105,10 +105,10 @@ void Position::updateOnTrade(CThostFtdcTradeField *td)
 
 void Position::mtm(double price)
 {
-	dailyPositionProfit = side*pos*multiple*(price - (positionDate == 'H' ? lastSttlPrice : entryPrice));
-	tradePositionProfit = side*pos*multiple*(price - entryPrice);
-	margin = pos*multiple*price*marginRate;
-	grossPnl = dailyCloseProfit + dailyPositionProfit;
+    dailyUnrProfit = side*pos*multiple*(price - (positionDateCategory == 'H' ? lastSttlPrice : entryPrice));
+    cumulUnrProfit = side*pos*multiple*(price - entryPrice);
+    margin = pos*multiple*price*marginRate;
+    grossPnl = dailyCloseProfit + dailyUnrProfit;
 	netPnl = grossPnl - commission;
 }
 
@@ -116,14 +116,14 @@ AggPosition::AggPosition()
 {
 }
 
-AggPosition::AggPosition(CThostFtdcInvestorPositionField *pf, const SymbolList &sl)
+AggPosition::AggPosition(CThostFtdcInvestorPositionField *pf, const SymInfoTable &info)
 {
 	sym = pf->InstrumentID;
 	brokerID = pf->BrokerID;
 	investorID = pf->InvestorID;
 	direction = mymap::posiDirection_char.at(pf->PosiDirection);
 	hedgeFlag = mymap::hedgeFlag_char.at(pf->HedgeFlag);
-	positionDate = mymap::positionDate_char.at(pf->PositionDate);
+    positionDateCategory = mymap::positionDate_char.at(pf->PositionDate);
 	ydPos = pf->YdPosition;
 	tdPos = pf->TodayPosition;
 	pos = pf->Position;
@@ -143,9 +143,9 @@ AggPosition::AggPosition(CThostFtdcInvestorPositionField *pf, const SymbolList &
 	dailyCloseProfit = pf->CloseProfitByDate;
 	tradeCloseProfit = pf->CloseProfitByTrade;
 
-	multiple = sl[sym].info->VolumeMultiple;
+    multiple = info.at(sym).VolumeMultiple;
 	avgCostPrice = (pos == 0 ? 0 : positionCost / pos / multiple);
-	aggPositionID = QString("%1-%2-%3").arg(sym.c_str()).arg(direction).arg(positionDate);
+    aggPositionID = QString("%1-%2-%3").arg(sym.c_str()).arg(direction).arg(positionDateCategory);
 	side = (direction == 'L' ? 1 : -1);
 	grossPnl = closeProfit + positionProfit;
 	netPnl = grossPnl - commission;
@@ -158,11 +158,11 @@ AggPosition::AggPosition(const Position &p)
 	investorID = p.investorID;
 	direction = p.direction;
 	hedgeFlag = p.hedgeFlag;
-	positionDate = p.positionDate;
-	pos = p.pos;
-	ydPos = (positionDate == 'H' ? pos : 0);
-	tdPos = (positionDate == 'T' ? pos : 0);
-	openVolume = p.pos + p.closeVolume;
+    positionDateCategory = p.positionDateCategory;
+    pos = p.pos;
+    ydPos = (positionDateCategory == 'H' ? pos : 0);
+    tdPos = (positionDateCategory == 'T' ? pos : 0);
+    openVolume = p.pos + p.closeVolume;
 	closVolume = p.closeVolume;
 	openAmount = 0;
 	closeAmount = 0;
@@ -178,9 +178,9 @@ AggPosition::AggPosition(const Position &p)
 	tradeCloseProfit = p.tradeCloseProfit;
 
 	multiple = p.multiple;
-	positionCost = p.pos * multiple * (positionDate == 'H' ? p.lastSttlPrice : p.entryPrice);
+    positionCost = p.pos * multiple * (positionDateCategory == 'H' ? p.lastSttlPrice : p.entryPrice);
 	avgCostPrice = (pos == 0 ? 0 : positionCost / pos / multiple);
-	aggPositionID = QString("%1-%2-%3").arg(sym.c_str()).arg(direction).arg(positionDate);
+    aggPositionID = QString("%1-%2-%3").arg(sym.c_str()).arg(direction).arg(positionDateCategory);
 	side = (direction == 'L' ? 1 : -1);
 	grossPnl = closeProfit + positionProfit;
 	netPnl = grossPnl - commission;
@@ -193,23 +193,23 @@ AggPosition::~AggPosition()
 
 void AggPosition::addPosition(const Position &p, int addsub /*= 1*/)
 {
-	if (p.sym == sym && p.direction == direction && p.positionDate == positionDate)
+    if (p.sym == sym && p.direction == direction && p.positionDateCategory == positionDateCategory) // this should always be true by identical aggPositionID
 	{
-		pos += addsub * p.pos;
+        pos += addsub * p.pos;
 		closeProfit += addsub * p.dailyCloseProfit;  // bydate or bytrade??
 		dailyCloseProfit += addsub * p.dailyCloseProfit;
-		tradeCloseProfit += addsub * p.tradeCloseProfit;
+        tradeCloseProfit += addsub * p.tradeCloseProfit;
+        margin += addsub * p.margin;
 
-		if (positionDate == 'H')
+        if (positionDateCategory == 'H')
 		{
-			ydPos += addsub * p.pos;
-			positionCost += addsub * p.pos * p.lastSttlPrice * multiple;
-
+            ydPos += addsub * p.pos;
+            positionCost += addsub * p.pos * p.lastSttlPrice * multiple;
 		}
 		else
 		{
-			tdPos += addsub * p.pos;
-			positionCost += addsub * p.pos * p.entryPrice * multiple;
+            tdPos += addsub * p.pos;
+            positionCost += addsub * p.pos * p.entryPrice * multiple;
 		}
 		avgCostPrice = (pos == 0 ? 0 : positionCost / pos / multiple);
 	}

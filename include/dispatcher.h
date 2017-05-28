@@ -60,7 +60,7 @@ public:
     Reader *r2;
     Portfolio *pf;
 
-    DataHub* dataHub;
+    DataHub *dataHub;
 private:
     std::string name;
     std::thread myThread;

@@ -8,8 +8,8 @@
 class Position {
 public:
 	Position();
-	Position(CThostFtdcInvestorPositionDetailField *df, const SymbolList &sl);
-	Position(CThostFtdcTradeField *td, const SymbolList &sl);
+    Position(CThostFtdcInvestorPositionDetailField *df, const SymInfoTable &info);
+    Position(CThostFtdcTradeField *td, const SymInfoTable &info);
 	~Position();
 
 	void updateOnTrade(CThostFtdcTradeField *td);
@@ -25,14 +25,14 @@ public:
 	char direction{ 0 };
 	std::string openDate;
 	std::string tradeID;
-	int pos{ 0 };
+    int pos{ 0 };
 	double entryPrice{ 0 };
 	std::string tradingDay;
 	std::string exchangeID;
 	double dailyCloseProfit{ 0 };
 	double tradeCloseProfit{ 0 };
-	double dailyPositionProfit{ 0 };
-	double tradePositionProfit{ 0 };
+    double dailyUnrProfit{ 0 };
+    double cumulUnrProfit{ 0 };
 	double margin{ 0 };
 	double marginRate{ 0 };
 	double lastSttlPrice{ 0 };
@@ -40,7 +40,7 @@ public:
 	int closeVolume{ 0 };
 
 	int multiple{ 0 };
-	char positionDate{ 0 };
+    char positionDateCategory{ 0 };
 	int side{ 0 };
 	double commission{ 0 };
 	double grossPnl{ 0 };
@@ -53,7 +53,7 @@ typedef QMap<QString, Position> PosList;
 class AggPosition {
 public:
 	AggPosition();
-	AggPosition(CThostFtdcInvestorPositionField *pf, const SymbolList &sl);
+    AggPosition(CThostFtdcInvestorPositionField *pf, const SymInfoTable &info);
 	AggPosition(const Position &p);
 	~AggPosition();
 
@@ -68,7 +68,7 @@ public:
 	std::string investorID;
 	char direction{ 0 };
 	char hedgeFlag{ 0 };
-	char positionDate{ 0 };
+    char positionDateCategory{ 0 };
 	int ydPos{ 0 };
 	int tdPos{ 0 };
 	int pos{ 0 };

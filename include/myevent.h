@@ -8,7 +8,7 @@
 #include "ThostFtdcUserApiDataType.h"
 
 #include "struct.h"
-#include "portfolio.h"
+//#include "portfolio.h"
 
 const QEvent::Type MY_CUSTOM_EVENT = static_cast<QEvent::Type>(QEvent::User + 100);
 
@@ -33,7 +33,7 @@ public:
 	MyEvent(EnumMyEventType type, CThostFtdcInvestorPositionDetailField *posDetail);
 	MyEvent(EnumMyEventType type, CThostFtdcTradeField *trade);
 	MyEvent(EnumMyEventType type, CThostFtdcOrderField *order);
-	MyEvent(EnumMyEventType type, Account *acc);
+//    MyEvent(EnumMyEventType type, TotalAccount *acc);
 	~MyEvent();
 
 	EnumMyEventType myType;
@@ -44,7 +44,7 @@ public:
 	CThostFtdcInvestorPositionDetailField *posDetail{ nullptr };
 	CThostFtdcTradeField *trade{ nullptr };
 	CThostFtdcOrderField *order{ nullptr };
-	Account *acc{ nullptr };
+//    TotalAccount *acc{ nullptr };
 	bool isLast{ true };
 };
 
@@ -58,7 +58,7 @@ public:
     MyEvent1(EnumMyEventType type, CThostFtdcInvestorPositionDetailField *posDetail);
     MyEvent1(EnumMyEventType type, CThostFtdcTradeField *trade);
     MyEvent1(EnumMyEventType type, CThostFtdcOrderField *order);
-    MyEvent1(EnumMyEventType type, Account *acc);
+//    MyEvent1(EnumMyEventType type, TotalAccount *acc);
     ~MyEvent1();
 
     EnumMyEventType eventType;
@@ -69,7 +69,7 @@ public:
     CThostFtdcInvestorPositionDetailField *posDetail{ nullptr };
     CThostFtdcTradeField *trade{ nullptr };
     CThostFtdcOrderField *order{ nullptr };
-    Account *acc{ nullptr };
+//    TotalAccount *acc{ nullptr };
     bool isLast{ true };
 };
 

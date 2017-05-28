@@ -6,6 +6,7 @@
 #include <QTableView>
 
 #include "position.h"
+#include "datahub.h"
 
 class position;
 class RM;
@@ -16,10 +17,10 @@ class Kalman;
 
 struct CtpEvent;
 
-struct Account {
+struct PortfolioValue {
 public:
-    Account();
-	Account(CThostFtdcTradingAccountField *af);
+    PortfolioValue();
+    PortfolioValue(CThostFtdcTradingAccountField *af);
 
 	std::string brokerID;
 	std::string accountID;
@@ -54,9 +55,9 @@ public:
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
 	void updatePosTable();
 
-	void setDispatcher(Dispatcher *ee);
-	void setOMS(OMS *oms);
-	void setPosTableView(QTableView *ptv);
+    void setDispatcher(Dispatcher *ee);
+    void setOMS(OMS *oms);
+    void setPosTableView(QTableView *ptv);
 	Trader* getTrader();
 
     void onCtpEvent(CtpEvent ev);
@@ -66,8 +67,9 @@ public:
 	AggPosList aggPosList;
 	NetPosList netPosList;
 
-
     SymbolList1 symList1;
+    DataHub *dataHub;
+
 
 signals:
 	void sendToPosMonitor(QString msg);
@@ -81,8 +83,8 @@ private:
 	//QMap<string, NetPos> netPosList;
 	AggPosList constructAggPosList(PosList pList);
 	NetPosList constructNetPosList(AggPosList apList);
-	void updatePosOnTrade(AggPosList &al, PosList &pl, CThostFtdcTradeField *td, SymbolList &sl);
-	void evalAccount(Account &acc, AggPosList &aplist, SymbolList &sl);
+    void updatePosOnTrade(AggPosList &al, PosList &pl, CThostFtdcTradeField *td, SymInfoTable &sinfo);
+    void evalAccount(PortfolioValue &pfValue, AggPosList &aplist, SymMktTable &smkt);
 	void printNetPos();
 	void printAcc();
 
@@ -92,14 +94,14 @@ private:
 	std::string tradingDay;
 	std::string time;
 	int millisec{ 0 };
-    Account acc;
+    PortfolioValue pfValue;
 
 	int lastRowCount{ 0 };  // for tableview
 	QTableView *postableview;
 
 	//CThostFtdcTradingAccountField accInfo;
 	bool beginUpdate{ true };
-	bool isInPosStream{ false };
+    bool isInPosStream{ false };
 
 	//RM rm;
 	OMS *oms{ nullptr };
@@ -112,6 +114,8 @@ private:
 	void updateNetPosList(const Position& apos);*/
 	//void updateNetPosList(const PosDetail& pd);
 	//void addPnl(double rp, double rcp, double p, double cp);
-	//void addPnl(NetPos& np, double rp, double rcp, double p, double cp);
+    //void addPnl(NetPos& np, double rp, double rcp, double p, double cp);
+
+    void evalOnTick(PortfolioValue &pfValue, AggPosList &aplist, CThostFtdcDepthMarketDataField &mkt);
 };
 #endif // !PORTFOLIO_H

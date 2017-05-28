@@ -50,12 +50,12 @@ MyEvent::MyEvent(EnumMyEventType type, CThostFtdcOrderField *order)
 {
 }
 
-MyEvent::MyEvent(EnumMyEventType type, Account *acc)
-	: QEvent(MY_CUSTOM_EVENT),
-	myType(type),
-	acc(acc)
-{
-}
+//MyEvent::MyEvent(EnumMyEventType type, TotalAccount *acc)
+//	: QEvent(MY_CUSTOM_EVENT),
+//	myType(type),
+//	acc(acc)
+//{
+//}
 
 MyEvent::~MyEvent()
 {
@@ -129,11 +129,11 @@ MyEvent1::MyEvent1(EnumMyEventType type, CThostFtdcOrderField *order)
     memcpy(this->order, order, sizeof(CThostFtdcOrderField));
 }
 
-MyEvent1::MyEvent1(EnumMyEventType type, Account *acc)
-{
-    this->acc = new Account;
-    memcpy(this->acc, acc, sizeof(Account));
-}
+//MyEvent1::MyEvent1(EnumMyEventType type, TotalAccount *acc)
+//{
+//    this->acc = new TotalAccount;
+//    memcpy(this->acc, acc, sizeof(TotalAccount));
+//}
 
 MyEvent1::~MyEvent1()
 {
