@@ -10,6 +10,7 @@
 #include <condition_variable>
 #include <queue>
 #include <chrono>
+#include <functional>
 
 //typedef void(msgHandlerClass::*MyEventHandler)(QEvent*);
 
@@ -56,11 +57,10 @@ public:
     ~Dispatcher1() {myThread.join();}
     void waitForTick();
     void runThread();
-    Reader *r1;
-    Reader *r2;
-    Portfolio *pf;
 
     DataHub *dataHub;
+    std::vector<std::function<void(CtpEvent)>> subscribers;
+
 private:
     std::string name;
     std::thread myThread;

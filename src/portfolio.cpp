@@ -38,16 +38,6 @@ Portfolio::Portfolio()
 {
 }
 
-Portfolio::Portfolio(Trader *td, OMS *oms, Kalman *kf)
-{
-    this->trader = td;
-    this->oms = oms;
-    this->kf = kf;
-    tradingDay = td->getTradingDay();
-    //QTimer::singleShot(5000, this->trader, SLOT(Trader::ReqQryInvestorPositionDetail()));
-    //TODO: need workflow to set commission rate
-}
-
 Portfolio::~Portfolio()
 {
 }
@@ -132,136 +122,10 @@ void Portfolio::updatePosTable()
     //emit dataChanged(topleft, bottomright);
 }
 
-void Portfolio::setDispatcher(Dispatcher *ee)
-{
-    dispatcher = ee;
-}
-
-void Portfolio::setOMS(OMS *oms)
-{
-    this->oms = oms;
-}
-
 void Portfolio::setPosTableView(QTableView *ptv)
 {
     postableview = ptv;
 }
-
-Trader * Portfolio::getTrader()
-{
-    return trader;
-}
-
-void Portfolio::onEvent(QEvent *ev)
-{
-    auto myev = (MyEvent*)ev;
-    switch (myev->myType)
-    {
-    case PositionEvent:
-    {
-        /*if (myev->pos->BrokerID[0] != 0)
-        {
-            isInPosStream = true;
-            if (beginUpdate)
-            {
-            }
-        }
-        else
-        {
-            isInPosStream = false;
-            beginUpdate = true;
-        }*/
-        break;
-    }
-    case PositionDetailEvent:
-    {
-        if (myev->posDetail->BrokerID[0] != 0)
-        {
-            isInPosStream = true;
-            if (beginUpdate)
-            {
-                Position p(myev->posDetail, dataHub->symInfoTable);
-                posList.insert(p.positionID, p);
-            }
-        }
-        else
-        {
-            aggPosList = constructAggPosList(posList);
-            netPosList = constructNetPosList(aggPosList);
-            isInPosStream = false;
-            beginUpdate = true;
-            // Reset Tableview rows
-            beginResetModel();
-            endResetModel();
-        }
-        break;
-    }
-    case AccountInfoEvent:
-    {
-        pfValue = PortfolioValue(myev->accInfo);
-        break;
-    }
-    case ContractInfoEvent:
-    {
-        string sym = myev->contractInfo->InstrumentID;
-        if (symList.keys().contains(sym))
-        {
-            symList[sym].info = myev->contractInfo;
-        }
-        else
-        {
-            Symbol s = { new CThostFtdcDepthMarketDataField, myev->contractInfo };
-            symList.insert(sym, s);
-        }
-        break;
-    }
-    case MarketEvent:
-    {
-        string sym = myev->mkt->InstrumentID;
-//        symList[sym].mkt = myev->feed;
-        if (!symList.contains(sym)) {
-            auto nmkt = new CThostFtdcDepthMarketDataField;
-            auto ninfo = new CThostFtdcInstrumentField;
-            symList.insert(sym, Symbol(nmkt, ninfo));
-        }
-        memcpy(symList[sym].mkt, myev->mkt, sizeof(CThostFtdcDepthMarketDataField));
-
-        evalAccount(pfValue, aggPosList, dataHub->symMktTable);	// Choose which price to MTM
-        time = myev->mkt->UpdateTime;
-        millisec = myev->mkt->UpdateMillisec;
-
-//        auto accEvent = new MyEvent(AccountUpdateEvent, &acc);
-//        QCoreApplication::postEvent(dispatcher, accEvent);
-        printAcc();
-        printNetPos();
-        updatePosTable();
-        //postableview->update();
-        //qDebug() << QThread::currentThreadId() << "++++++++++++++++++++++ pf";
-
-        kf->onFeed(myev);
-        oms->handleTargets();
-
-        break;
-    }
-    case TradeEvent:
-    {
-        updatePosOnTrade(aggPosList, posList, myev->trade, dataHub->symInfoTable);
-        netPosList.clear();
-        netPosList = constructNetPosList(aggPosList);
-        oms->onEvent(ev);
-        break;
-    }
-    case OrderEvent:
-    {
-        oms->onEvent(ev);
-        break;
-    }
-    default:
-        break;
-    }
-}
-
-
 
 void Portfolio::onCtpEvent(CtpEvent ev)
 {
@@ -288,7 +152,7 @@ void Portfolio::onCtpEvent(CtpEvent ev)
 //        if (ev.posDetail.BrokerID[0] != 0)
         if (pfValue.brokerID == ev.posDetail.BrokerID)
         {
-            isInPosStream = true;
+//            isInPosStream = true;
             if (beginUpdate)
             {
                 Position p(&(ev.posDetail), dataHub->symInfoTable);
@@ -299,7 +163,7 @@ void Portfolio::onCtpEvent(CtpEvent ev)
         {
             aggPosList = constructAggPosList(posList);
             netPosList = constructNetPosList(aggPosList);
-            isInPosStream = false;
+//            isInPosStream = false;
             beginUpdate = true;
             // Reset Tableview rows
             beginResetModel();
@@ -327,11 +191,6 @@ void Portfolio::onCtpEvent(CtpEvent ev)
     case MarketEvent:
     {
         string sym = ev.mkt.InstrumentID;
-//        symList[sym].mkt = myev->feed;
-        if (!symList1.contains(sym)) {
-            symList1.insert(sym, Symbol1{});
-        }
-        symList1[sym].mkt = ev.mkt;
 
         evalAccount(pfValue, aggPosList, dataHub->symMktTable);	// Choose which price to MTM
         time = ev.mkt.UpdateTime;
@@ -347,24 +206,17 @@ void Portfolio::onCtpEvent(CtpEvent ev)
 
         //TODO: move these to dispatcher
 //        kf->onFeed(myev);
-        oms->handleTargets();
-
         break;
     }
     case TradeEvent:
     {
-//        updatePosOnTrade(aggPosList, posList, &ev.trade, symList1);
+        updatePosOnTrade(aggPosList, posList, &(ev.trade), dataHub->symInfoTable);
         netPosList.clear();
         netPosList = constructNetPosList(aggPosList);
-
-        //TODO: move to dispatcher
-        oms->onCtpEvent(ev);
         break;
     }
     case OrderEvent:
     {
-        //TODO: move to dispatcher
-        oms->onCtpEvent(ev);
         break;
     }
     default:
@@ -389,15 +241,17 @@ void Portfolio::printNetPos()
             .arg("NetPnL", fw)
             .arg("Time");
     for (auto sym : netPosList.keys()) {
-        auto pos = netPosList[sym];
-        msg += QString("%1%2%3%4%5%6%7\n")
-                .arg(sym, fw)
-                .arg(dataHub->symMktTable.at(sym.toStdString()).LastPrice, fw)
-                .arg(pos.netPos, fw)
-                .arg(pos.avgCostPrice, fw)
-                .arg(pos.positionProfit, fw)
-                .arg(pos.netPnl, fw)
-                .arg(getTimeMsec(time, millisec));
+        if (dataHub->symMktTable.find(sym.toStdString()) != dataHub->symMktTable.end()) {
+            auto pos = netPosList[sym];
+            msg += QString("%1%2%3%4%5%6%7\n")
+                    .arg(sym, fw)
+                    .arg(dataHub->symMktTable.at(sym.toStdString()).LastPrice, fw) //todo: to Subscribe if not in MD..
+                    .arg(pos.netPos, fw)
+                    .arg(pos.avgCostPrice, fw)
+                    .arg(pos.positionProfit, fw)
+                    .arg(pos.netPnl, fw)
+                    .arg(getTimeMsec(time, millisec));
+        }
     }
     emit sendToPosMonitor(msg);
 }
@@ -451,13 +305,13 @@ NetPosList Portfolio::constructNetPosList(AggPosList apList)
     return npList;
 }
 
-void Portfolio::updatePosOnTrade(AggPosList &al, PosList &pl, CThostFtdcTradeField *td, SymInfoTable &sinfo)
+void Portfolio::updatePosOnTrade(AggPosList &al, PosList &pl, CThostFtdcTradeField *td, SymInfoTable &info)
 {
     switch (td->OffsetFlag)
     {
     case THOST_FTDC_OF_Open:
     {
-        auto p = Position(td, sinfo);
+        auto p = Position(td, info);
         pl.insert(p.positionID, p);
         auto id = p.aggPositionID;
         if (!al.keys().contains(id))

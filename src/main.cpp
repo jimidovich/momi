@@ -28,6 +28,7 @@
 #include <condition_variable>
 #include <queue>
 #include <chrono>
+#include <functional>
 
 using namespace std;
 
@@ -116,10 +117,9 @@ int main(int argc, char *argv[])
 
     Kalman kf;
     OMS oms;
-    Portfolio pf(&trader, &oms, &kf);
+    Portfolio pf;
 
-//    kf.setOMS(&oms);
-//    kf.setPortfolio(&pf);
+    kf.setOMS(&oms);
     oms.setTrader(&trader);
     oms.setPortfolio(&pf);
 //    pf.setDispatcher(&dispatcher);
@@ -141,8 +141,15 @@ int main(int argc, char *argv[])
     mdspi.dataHub = &dataHub;
     trader.dataHub = &dataHub;
     pf.dataHub = &dataHub;
-    Dispatcher1 d("d1");
-    d.dataHub = &dataHub;
+    kf.dataHub = &dataHub;
+    Dispatcher1 d1("d1");
+    d1.dataHub = &dataHub;
+
+    using namespace std::placeholders;
+    d1.subscribers.push_back(std::bind(&DataHub::onCtpEvent, &dataHub, _1));
+    d1.subscribers.push_back(std::bind(&Portfolio::onCtpEvent, &pf, _1));
+    d1.subscribers.push_back(std::bind(&OMS::onCtpEvent, &oms, _1));
+    d1.subscribers.push_back(std::bind(&Kalman::onCtpEvent, &kf, _1));
 
     Strategy strategy;
     strategy.trader = &trader;
@@ -155,9 +162,8 @@ int main(int argc, char *argv[])
 //    Reader reader2("r");
 //    d.r1 = &reader1;
 //    d.r2 = &reader2;
-    d.pf = &pf;
 
-    d.runThread();
+    d1.runThread();
 
 //    for (int i=0; i<10; ++i) {
 //        CThostFtdcDepthMarketDataField f = {};

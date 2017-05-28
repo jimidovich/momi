@@ -46,7 +46,6 @@ class Portfolio : public QAbstractTableModel {
 
 public:
 	Portfolio();
-	Portfolio(Trader *td, OMS *oms, Kalman *kf);
 	~Portfolio();
 
 	int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
@@ -54,29 +53,19 @@ public:
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const Q_DECL_OVERRIDE;
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
 	void updatePosTable();
-
-    void setDispatcher(Dispatcher *ee);
-    void setOMS(OMS *oms);
     void setPosTableView(QTableView *ptv);
-	Trader* getTrader();
 
     void onCtpEvent(CtpEvent ev);
 
-	SymbolList symList;
 	PosList posList;
 	AggPosList aggPosList;
 	NetPosList netPosList;
 
-    SymbolList1 symList1;
     DataHub *dataHub;
-
 
 signals:
 	void sendToPosMonitor(QString msg);
 	void sendToAccMonitor(QString msg);
-
-public slots:
-	void onEvent(QEvent *ev);
 
 private:
 	//QMap<string, double> commRateList;
@@ -85,7 +74,9 @@ private:
 	NetPosList constructNetPosList(AggPosList apList);
     void updatePosOnTrade(AggPosList &al, PosList &pl, CThostFtdcTradeField *td, SymInfoTable &sinfo);
     void evalAccount(PortfolioValue &pfValue, AggPosList &aplist, SymMktTable &smkt);
-	void printNetPos();
+    void evalOnTick(PortfolioValue &pfValue, AggPosList &aplist, CThostFtdcDepthMarketDataField &mkt);
+
+    void printNetPos();
 	void printAcc();
 
     QTime initTime();
@@ -104,10 +95,6 @@ private:
     bool isInPosStream{ false };
 
 	//RM rm;
-	OMS *oms{ nullptr };
-	Trader *trader{ nullptr };
-    Dispatcher *dispatcher{ nullptr };
-	Kalman *kf{ nullptr };
 
 	/*void updateOnFeed(string sym, double price);
 	void updatePosList(const Position& apos);
@@ -116,6 +103,5 @@ private:
 	//void addPnl(double rp, double rcp, double p, double cp);
     //void addPnl(NetPos& np, double rp, double rcp, double p, double cp);
 
-    void evalOnTick(PortfolioValue &pfValue, AggPosList &aplist, CThostFtdcDepthMarketDataField &mkt);
 };
 #endif // !PORTFOLIO_H

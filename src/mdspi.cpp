@@ -110,7 +110,7 @@ void MdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtd
 //        QThread::sleep(5);
         std::string instruments = {
             "IF1706;IH1706;IC1706;TF1712;T1712;"
-            "rb1710;ru1709;cu1706;zn1706;au1706;ag1706;sn1709;al1706;hc1710;bu1709;pb1706;sn1709;"
+            "rb1710;ru1709;cu1706;zn1706;au1706;ag1706;au1712;ag1712;sn1709;al1706;hc1710;bu1709;pb1706;sn1709;"
             "i1709;p1709;m1709;y1709;j1709;l1709;c1709;jm1709;cs1709;pp1709;jd1709;a1709;"
             "SR709;TA709;MA709;CF709;OI709;RM709;ZC709;FG709;SM709"
         };
@@ -143,9 +143,6 @@ void MdSpi::OnRspUnSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificIns
 
 void MdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData)
 {
-    //qDebug() << "Depth Market Data:" << endl;
-    //qDebug() << this->thread();
-
 //    QString msg;
 //    msg.append(QString::number(++countTick)).append("\t");
 //    msg.append(pDepthMarketData->InstrumentID).append("\t");
@@ -155,25 +152,16 @@ void MdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDat
 ////    msg.append(QString::number(pDepthMarketData->UpdateMillisec));
 //    msg.append(QString("%1").arg(pDepthMarketData->UpdateMillisec, 3, 10, QChar('0')));
 //    emit sendToMdMonitor(msg);
-//    auto fcpy = new CThostFtdcDepthMarketDataField;
-//    memcpy(fcpy, pDepthMarketData, sizeof(CThostFtdcDepthMarketDataField));
-//    auto feedEvent = new MyEvent(FeedEvent, fcpy);
-//    QCoreApplication::postEvent(dispatcher, feedEvent);
 
     //Manually delay for testing
 //    this_thread::sleep_for(chrono::milliseconds(100));
 //    cout <<"i " << chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count()%1000000 <<
 //           "ctptime= " << pDepthMarketData->UpdateTime << pDepthMarketData->UpdateMillisec << endl;
-//    auto fcpy = new CThostFtdcDepthMarketDataField;
-//    memcpy(fcpy, pDepthMarketData, sizeof(CThostFtdcDepthMarketDataField));
 
 //    double lastpx = pDepthMarketData->LastPrice;
 //    dataHub->feedQueue.post(lastpx);
-    cout << "\r" << dataHub->eventQueue.count << flush;
+//    cout << "\r" << dataHub->eventQueue.count << "\tqueue size: " << dataHub->eventQueue.q.size() << flush;
 
-    //CtpDataEvent ev;
-    //ev.type = MarketEvent;
-    //ev.mkt = *pDepthMarketData;
     dataHub->eventQueue.post(CtpEvent(pDepthMarketData));
 }
 

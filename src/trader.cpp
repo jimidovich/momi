@@ -203,15 +203,6 @@ void Trader::OnRspQrySettlementInfo(CThostFtdcSettlementInfoField *pSettlementIn
             }
 
             // login workflow #2
-//            QtConcurrent::run([=](){
-//                QEventLoop el;
-//                auto timer = new QTimer;
-//                QObject::connect(timer, SIGNAL(timeout()), this, SLOT(ReqQrySettlementInfoConfirm()));
-//                QObject::connect(timer, SIGNAL(timeout()), &el, SLOT(quit()));
-//                timer->setSingleShot(true);
-//                timer->start(100000);
-//                el.exec();
-//            });
             if (isLoginWorkflow)
                 QtConcurrent::run(timerReq, this, SLOT(ReqQrySettlementInfoConfirm()));
         }
@@ -271,10 +262,6 @@ void Trader::OnRspQryOrder(CThostFtdcOrderField *pOrder, CThostFtdcRspInfoField 
             //msg.append(" ActiveTime=").append(pOrder->ActiveTime);
             emit sendToTraderMonitor(msg);
 
-//            auto fcpy = new CThostFtdcOrderField;
-//            memcpy(fcpy, pOrder, sizeof(CThostFtdcOrderField));
-//            auto orderEvent = new MyEvent(OrderEvent, fcpy);
-//            QCoreApplication::postEvent(dispatcher, orderEvent);
             dataHub->eventQueue.post(CtpEvent(pOrder));
         }
         if (bIsLast)
@@ -318,24 +305,13 @@ void Trader::OnRspQryInvestorPosition(CThostFtdcInvestorPositionField *pInvestor
             msg.append(" Margin=").append(QString::number(pInvestorPosition->UseMargin));
             emit sendToTraderMonitor(msg);
 
-//            auto fcpy = new CThostFtdcInvestorPositionField;
-//            memcpy(fcpy, pInvestorPosition, sizeof(CThostFtdcInvestorPositionField));
-//            auto posEvent = new MyEvent(PositionEvent, fcpy);
-//            QCoreApplication::postEvent(dispatcher, posEvent);
-            dataHub->eventQueue.post(CtpEvent(pInvestorPosition));
+            CtpEvent ev(pInvestorPosition);
+            ev.isLast = bIsLast;
+            dataHub->eventQueue.post(ev);
         }
         if (bIsLast) {
             logger(info, "Qry InvestorPosition Finished");
             emit sendToTraderMonitor("Qry InvestorPosition Finished.");
-
-            // Send isLast signal event
-//            auto fcpy = new CThostFtdcInvestorPositionField;
-//            memset(fcpy, 0, sizeof(CThostFtdcInvestorPositionField));
-//            auto posEvent = new MyEvent(PositionEvent, fcpy);
-//            QCoreApplication::postEvent(dispatcher, posEvent);
-            CtpEvent ev;
-            ev.isLast = true;
-            dataHub->eventQueue.post(ev);
         }
     }
 }
@@ -353,10 +329,6 @@ void Trader::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDetailFiel
             msg.append(" Margin=").append(QString::number(pInvestorPositionDetail->Margin));
             emit sendToTraderMonitor(msg);
 
-//            auto fcpy = new CThostFtdcInvestorPositionDetailField;
-//            memcpy(fcpy, pInvestorPositionDetail, sizeof(CThostFtdcInvestorPositionDetailField));
-//            auto posDetailEvent = new MyEvent(PositionDetailEvent, fcpy);
-//            QCoreApplication::postEvent(dispatcher, posDetailEvent);
             CtpEvent ev(pInvestorPositionDetail);
             ev.isLast = bIsLast;
             dataHub->eventQueue.post(ev);
@@ -364,12 +336,6 @@ void Trader::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDetailFiel
         if (bIsLast) {
             logger(info, "Qry InvestorPositionDetail Finished");
             emit sendToTraderMonitor("Qry InvestorPositionDetail Finished.");
-
-            // Send isLast signal event
-//            auto fcpy = new CThostFtdcInvestorPositionDetailField;
-//            memset(fcpy, 0, sizeof(CThostFtdcInvestorPositionDetailField));
-//            auto posDetailEvent = new MyEvent(PositionDetailEvent, fcpy);
-//            QCoreApplication::postEvent(dispatcher, posDetailEvent);
         }
     }
 }
@@ -387,10 +353,6 @@ void Trader::OnRspQryTradingAccount(CThostFtdcTradingAccountField *pTradingAccou
             logger(info, msg.toStdString().c_str());
             emit sendToTraderMonitor(msg);
 
-//            auto fcpy = new CThostFtdcTradingAccountField;
-//            memcpy(fcpy, pTradingAccount, sizeof(CThostFtdcTradingAccountField));
-//            auto accInfoEvent = new MyEvent(AccountInfoEvent, fcpy);
-//            QCoreApplication::postEvent(dispatcher, accInfoEvent);
             dataHub->eventQueue.post(CtpEvent(pTradingAccount));
 
             // login workflow #5
@@ -411,10 +373,6 @@ void Trader::OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument, CThostFt
             //msg.append(" ").append(pInstrument->ExchangeID);
             //msg.append(" ").append(pInstrument->ExpireDate);
             //emit sendToTraderMonitor(msg);
-//            auto fcpy = new CThostFtdcInstrumentField;
-//            memcpy(fcpy, pInstrument, sizeof(CThostFtdcInstrumentField));
-//            auto contractInfoEvent = new MyEvent(ContractInfoEvent, fcpy);
-//            QCoreApplication::postEvent(dispatcher, contractInfoEvent);
             dataHub->eventQueue.post(CtpEvent(pInstrument));
 
             if (bIsLast) {
@@ -434,10 +392,6 @@ void Trader::OnRspQryInstrumentCommissionRate(CThostFtdcInstrumentCommissionRate
 void Trader::OnRspQryDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
     if (!isErrorRspInfo(pRspInfo, "RspQryDepthMarketData: ")) {
-//        auto fcpy = new CThostFtdcDepthMarketDataField;
-//        memcpy(fcpy, pDepthMarketData, sizeof(CThostFtdcDepthMarketDataField));
-//        auto feedEvent = new MyEvent(MarketEvent, fcpy);
-//        QCoreApplication::postEvent(dispatcher, feedEvent);
         dataHub->eventQueue.post(CtpEvent(pDepthMarketData));
     }
 }
@@ -447,23 +401,11 @@ void Trader::OnRtnOrder(CThostFtdcOrderField *pOrder)
     if (pOrder != nullptr) {
         QString msg;
         msg += QString("OnRtnOrder: OrderRef=%1, %2, StatusMsg=%3").arg(pOrder->OrderRef, pOrder->InstrumentID, QString::fromLocal8Bit(pOrder->StatusMsg));
-        //msg.append(" ExchangeID=").append(pOrder->ExchangeID);
-        //msg.append(" InsertTime=").append(pOrder->InsertTime);
-        //msg.append(" FrontID=").append(QString::number(pOrder->FrontID));
-        //msg.append(" SessionID=").append(QString::number(pOrder->SessionID));
-        //msg.append(" TraderID=").append(pOrder->TraderID);
-        //msg.append(" OrderLocalID=").append(pOrder->OrderLocalID);
-        //msg.append(" OrderSysID=").append(pOrder->OrderSysID);
         emit sendToTraderMonitor(msg);
 
-        //qDebug() << QString(pOrder->StatusMsg).toStdString().c_str();
         //logger(info, "OnRtnOrder: OrderRef={}, Status={}, Status Msg={}", pOrder->OrderRef, pOrder->OrderStatus, pOrder->StatusMsg);
         logger(info, msg.toStdString().c_str());
 
-//        auto fcpy = new CThostFtdcOrderField;
-//        memcpy(fcpy, pOrder, sizeof(CThostFtdcOrderField));
-//        auto orderEvent = new MyEvent(OrderEvent, fcpy);
-//        QCoreApplication::postEvent(dispatcher, orderEvent);
         dataHub->eventQueue.post(CtpEvent(pOrder));
     }
     else
@@ -489,13 +431,7 @@ void Trader::OnRtnTrade(CThostFtdcTradeField *pTrade)
         logger(info, msg.toStdString().c_str());
         emit sendToTraderMonitor(msg);
 
-//        auto fcpy = new CThostFtdcTradeField;
-//        memcpy(fcpy, pTrade, sizeof(CThostFtdcTradeField));
-//        auto tradeEvent = new MyEvent(TradeEvent, fcpy);
-//        QCoreApplication::postEvent(dispatcher, tradeEvent);
-        CtpEvent ev(pTrade);
-//        dataHub->eventQueue.post(CtpDataEvent(pTrade));
-        dataHub->eventQueue.post(ev);
+        dataHub->eventQueue.post(CtpEvent(pTrade));
 
     }
     else
@@ -662,10 +598,11 @@ int Trader::ReqOrderAction(string InstrumentID, string OrderRef)
     // TODO: check self set orderRef's format!
     if (OrderRef != "")
     {
-        // OrderRef has format "     xxxxx", length set 12 here.
+        // OrderRef has format "       xxxxx", length set 12 here.
+        // Shit this turns to  "xxx         " char[12]
         if (OrderRef.length() > 12) return -100;
 //        strcpy(action->OrderRef, QString::fromStdString(OrderRef).rightJustified(12, ' ').toStdString().c_str());
-            strcpy(action->OrderRef, OrderRef.c_str());
+        strcpy(action->OrderRef, OrderRef.c_str());
     }
     return ReqOrderAction(action);
 }
@@ -684,17 +621,18 @@ int Trader::ReqOrderAction(string InstrumentID, int FrontID, int SessionID, stri
         action->SessionID = SessionID;
     if (OrderRef != "")
     {
-        // OrderRef has format "     xxxxx", length set 12 here.
+        // OrderRef has format "       xxxxx", length set 12 here.
+        // Shit this turns to  "xxx         " char[12]
         if (OrderRef.length() > 12) return -100;
 //        strcpy(action->OrderRef, QString::fromStdString(OrderRef).rightJustified(12, ' ').toStdString().c_str());
-            strcpy(action->OrderRef, OrderRef.c_str());
+        strcpy(action->OrderRef, OrderRef.c_str());
     }
     if (ExchangeID != "")
         strcpy(action->ExchangeID, ExchangeID.c_str());
     if (OrderSysID != "")
     {
         // OrderSysID has format "     xxxxx", length set 20 here.  //Holy shit, 12 or 20? sample feedback shows "     xxxx" 12 length in char[20]
-//        if (OrderRef.length() > 20) return -101;
+        if (OrderRef.length() > 20) return -101;
 //        strcpy(action->OrderRef, QString::fromStdString(OrderRef).rightJustified(20, ' ').toStdString().c_str());
         strcpy(action->OrderSysID, OrderSysID.c_str());
     }

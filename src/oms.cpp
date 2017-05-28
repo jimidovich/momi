@@ -134,6 +134,11 @@ void OMS::onEvent(QEvent *ev)
 
         break;
     }
+    case MarketEvent:
+    {
+        handleTargets();
+        break;
+    }
     default:
         break;
     }

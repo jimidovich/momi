@@ -19,8 +19,8 @@ Kalman::Kalman()
     C = Matrix2d::Zero();
     R = Matrix2d::Zero();
 
-    pair.yname = "au1706";
-    pair.xname = "ag1706";
+    pair.yname = "au1712";
+    pair.xname = "ag1712";
     pair.ymulti = 1000;
     pair.xmulti = 15;
 }
@@ -48,34 +48,27 @@ void Kalman::setOMS(OMS *oms)
     oms->addPosTarget(pair.xname.c_str());
 }
 
-void Kalman::setPortfolio(Portfolio *pf)
+void Kalman::onCtpEvent(CtpEvent ev)
 {
-    this->pf = pf;
-}
+    if (ev.type == MarketEvent) {
+        string sym = ev.mkt.InstrumentID;
+        if (((sym == pair.yname) || (sym == pair.xname))
+            && (dataHub->symMktTable.find(pair.yname) != dataHub->symMktTable.end())
+            && (dataHub->symMktTable.find(pair.xname) != dataHub->symMktTable.end())) {
+                // time freq filter:
+                if (string(dataHub->symMktTable.at(sym).UpdateTime).substr(3, 2) != lastTime.substr(3, 2)) {
+//                    string(dataHub->symMktTable.at(pair.xname).UpdateTime).substr(3, 2) != lastTime.substr(3, 2)) {
 
+                    updateLastTime(ev.mkt.UpdateTime);
+                    updateXY(dataHub->symMktTable.at(pair.yname).LastPrice, dataHub->symMktTable.at(pair.xname).LastPrice);
+                    progress();
 
-void Kalman::onFeed(MyEvent *myev)
-{
-    string sym = myev->mkt->InstrumentID;
-    if (((sym == pair.yname) || (sym == pair.xname))
-        && (pf->symList[pair.yname].mkt != nullptr)
-        && (pf->symList[pair.xname].mkt != nullptr)) {
-        if ((string(pf->symList[pair.yname].mkt->InstrumentID) == pair.yname)
-            && (string(pf->symList[pair.xname].mkt->InstrumentID) == pair.xname)) {
-            // time freq filter:
-            if ((string(pf->symList[pair.yname].mkt->UpdateTime).substr(3, 2) != lastTime.substr(3, 2)) &&
-                string(pf->symList[pair.xname].mkt->UpdateTime).substr(3, 2) != lastTime.substr(3, 2)) {
+                    //oms->setPosTarget(pair.yname.c_str(), pair.targetYpos, pair.targetYprice);
+                    //oms->setPosTarget(pair.xname.c_str(), pair.targetXpos, pair.targetXprice);
 
-                updateLastTime(pf->symList[sym].mkt->UpdateTime);
-                updateXY(pf->symList[pair.yname].mkt->LastPrice, pf->symList[pair.xname].mkt->LastPrice);
-                progress();
-
-                //oms->setPosTarget(pair.yname.c_str(), pair.targetYpos, pair.targetYprice);
-                //oms->setPosTarget(pair.xname.c_str(), pair.targetXpos, pair.targetXprice);
-
-                oms->setPosTarget(pair.yname.c_str(), 0, y_t);
-                oms->setPosTarget(pair.xname.c_str(), 0, x_t);
-            }
+                    oms->setPosTarget(pair.yname.c_str(), 0, y_t);
+                    oms->setPosTarget(pair.xname.c_str(), 0, x_t);
+                }
         }
     }
 }

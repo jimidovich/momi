@@ -15,21 +15,23 @@ public:
     DataQueue(){}
     ~DataQueue(){}
 
-    void post(T data) {
-        std::unique_lock<std::mutex> locker(mu);
-        q.push(data);
-        count++;
-        locker.unlock();
+    void post(T const& data) {
+        {
+            std::unique_lock<std::mutex> locker(mu);
+            q.push(data);
+            count++;
+//            locker.unlock();
+        }
         newDataPosted.notify_one();
     }
 
     T fetch() {
         std::unique_lock<std::mutex> locker(mu);
-        if (q.empty())
+        while (q.empty())
             newDataPosted.wait(locker);
         auto data = q.front();
         q.pop();
-        locker.unlock();
+//        locker.unlock();
         return data;
     }
 

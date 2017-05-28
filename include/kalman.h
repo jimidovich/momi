@@ -6,6 +6,7 @@
 
 #include "myevent.h"
 #include "struct.h"
+#include "datahub.h"
 
 class OMS;
 class Portfolio;
@@ -27,15 +28,16 @@ public:
     Kalman();
     ~Kalman();
     void setLogger();
-    void onFeed(MyEvent *myev);
+    void onCtpEvent(CtpEvent ev);
+
     void updateXY(double y, double x);
     void updateLastTime(char *newTime);
     void progress();
     void setOMS(OMS *oms);
-    void setPortfolio(Portfolio *pf);
 
     std::string lastTime{ "nn:nn:nn" };
     Pair pair;
+    DataHub *dataHub;
 
 private:
     void updatePos();
@@ -56,7 +58,6 @@ private:
     Eigen::VectorXd ezArray;
 
     OMS *oms;
-    Portfolio *pf;
 
     std::shared_ptr<spdlog::logger> console;
     std::shared_ptr<spdlog::logger> g_logger;
