@@ -84,7 +84,6 @@ public:
 
     void onCtpEvent(CtpEvent ev);
 
-    void onEvent(QEvent *ev);
     void setTrader(Trader *trader);
     void setPortfolio(Portfolio *pf);
     void addPosTarget(QString targetID);

@@ -1,16 +1,13 @@
 #ifndef MYEVENT_H
 #define MYEVENT_H
 
-#include <QObject>
-#include <QEvent>
+#include <chrono>
 
 #include "ThostFtdcUserApiStruct.h"
 #include "ThostFtdcUserApiDataType.h"
 
 #include "struct.h"
 //#include "portfolio.h"
-
-const QEvent::Type MY_CUSTOM_EVENT = static_cast<QEvent::Type>(QEvent::User + 100);
 
 enum EnumMyEventType
 {
@@ -22,55 +19,6 @@ enum EnumMyEventType
 	OrderEvent,
 	TradeEvent,
 	AccountUpdateEvent
-};
-
-class MyEvent : public QEvent {
-public:
-	MyEvent(EnumMyEventType type, CThostFtdcDepthMarketDataField *mkt);
-	MyEvent(EnumMyEventType type, CThostFtdcTradingAccountField *accInfo);
-	MyEvent(EnumMyEventType type, CThostFtdcInstrumentField *contractInfo);
-	MyEvent(EnumMyEventType type, CThostFtdcInvestorPositionField *pos);
-	MyEvent(EnumMyEventType type, CThostFtdcInvestorPositionDetailField *posDetail);
-	MyEvent(EnumMyEventType type, CThostFtdcTradeField *trade);
-	MyEvent(EnumMyEventType type, CThostFtdcOrderField *order);
-//    MyEvent(EnumMyEventType type, TotalAccount *acc);
-	~MyEvent();
-
-	EnumMyEventType myType;
-    CThostFtdcDepthMarketDataField *mkt{ nullptr };
-	CThostFtdcTradingAccountField *accInfo{ nullptr };
-	CThostFtdcInstrumentField *contractInfo{ nullptr };
-	CThostFtdcInvestorPositionField *pos{ nullptr };
-	CThostFtdcInvestorPositionDetailField *posDetail{ nullptr };
-	CThostFtdcTradeField *trade{ nullptr };
-	CThostFtdcOrderField *order{ nullptr };
-//    TotalAccount *acc{ nullptr };
-	bool isLast{ true };
-};
-
-
-class MyEvent1 {
-public:
-    MyEvent1(EnumMyEventType type, CThostFtdcDepthMarketDataField *mkt);
-    MyEvent1(EnumMyEventType type, CThostFtdcTradingAccountField *accInfo);
-    MyEvent1(EnumMyEventType type, CThostFtdcInstrumentField *contractInfo);
-    MyEvent1(EnumMyEventType type, CThostFtdcInvestorPositionField *pos);
-    MyEvent1(EnumMyEventType type, CThostFtdcInvestorPositionDetailField *posDetail);
-    MyEvent1(EnumMyEventType type, CThostFtdcTradeField *trade);
-    MyEvent1(EnumMyEventType type, CThostFtdcOrderField *order);
-//    MyEvent1(EnumMyEventType type, TotalAccount *acc);
-    ~MyEvent1();
-
-    EnumMyEventType eventType;
-    CThostFtdcDepthMarketDataField *mkt{ nullptr };
-    CThostFtdcTradingAccountField *accInfo{ nullptr };
-    CThostFtdcInstrumentField *contractInfo{ nullptr };
-    CThostFtdcInvestorPositionField *pos{ nullptr };
-    CThostFtdcInvestorPositionDetailField *posDetail{ nullptr };
-    CThostFtdcTradeField *trade{ nullptr };
-    CThostFtdcOrderField *order{ nullptr };
-//    TotalAccount *acc{ nullptr };
-    bool isLast{ true };
 };
 
 
@@ -87,6 +35,8 @@ struct CtpEvent {
 //        Account acc;
     };
     bool isLast{ false };
+    std::chrono::steady_clock::time_point ts = std::chrono::steady_clock::now();
+
 
     CtpEvent() {}
     CtpEvent(CThostFtdcDepthMarketDataField *p) {type = MarketEvent; mkt = *p;}

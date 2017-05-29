@@ -1,74 +1,7 @@
-#include <QDebug>
-#include <QCoreApplication>
-#include <QElapsedTimer>
-#include <QTimeZone>
-
 #include <iostream>
 #include "include/dispatcher.h"
-#include "include/portfolio.h"
 
 using namespace std;
-
-Dispatcher::Dispatcher()
-{
-}
-
-Dispatcher::~Dispatcher()
-{
-}
-
-void Dispatcher::registerHandler(const QObject *receiver, const char *signal, const char *handler)
-{
-	QObject::connect(this, signal, receiver, handler);
-}
-
-void Dispatcher::customEvent(QEvent *ev)
-{
-	QElapsedTimer t;
-	t.start();
-	//qDebug() << "receive EVENT" << ++count << QTime::currentTime();
-
-	//TODO: compare performance for two ways when delay not negligible
-	//emit dispatch(ev);
-	//dbc->onEvent(ev);
-
-	//TODO: Create base class MsgHandlerClass, virtual function void onEvent(MyEvent*)
-	//sendToHandler(ev, (msgHandlerClass::*)(MyEvent*) h);
-	switch (((MyEvent*)ev)->myType)
-	{
-    case MarketEvent:
-		emit dispatchFeed(ev);
-		break;
-	case AccountInfoEvent:
-		emit dispatchAccInfo(ev);
-		break;
-	case ContractInfoEvent:
-		emit dispatchContractInfo(ev);
-		break;
-	case OrderEvent:
-		emit dispatchOrder(ev);
-		break;
-	case TradeEvent:
-		emit dispatchTrade(ev);
-		break;
-	case PositionEvent:
-		emit dispatchPos(ev);
-		break;
-	case PositionDetailEvent:
-		emit dispatchPosDetail(ev);
-		break;
-	case AccountUpdateEvent:
-		emit dispatchAccUpdate(ev);
-		break;
-	default:
-
-		break;
-	}
-
-	//qDebug() << "dispatcher" << t.elapsed() << "ms";
-}
-
-
 
 class Reader
 {
@@ -115,6 +48,8 @@ void Dispatcher1::waitForTick() {
 
         for (auto sub : subscribers) {
             sub(ev);
+//            auto t = thread(sub, ev);
+//            t.detach();
         }
 //        auto us2 = chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count()%1000000;
 //        cout << "o " << us1 << " elapsed " << us2-us1 << endl;

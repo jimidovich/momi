@@ -133,24 +133,11 @@ void Portfolio::onCtpEvent(CtpEvent ev)
     {
     case PositionEvent:
     {
-        /*if (myev->pos->BrokerID[0] != 0)
-        {
-            isInPosStream = true;
-            if (beginUpdate)
-            {
-            }
-        }
-        else
-        {
-            isInPosStream = false;
-            beginUpdate = true;
-        }*/
         break;
     }
     case PositionDetailEvent:
     {
-//        if (ev.posDetail.BrokerID[0] != 0)
-        if (pfValue.brokerID == ev.posDetail.BrokerID)
+        if (pfValue.brokerID == ev.posDetail.BrokerID)  // or more pricise condition
         {
 //            isInPosStream = true;
             if (beginUpdate)
@@ -178,20 +165,13 @@ void Portfolio::onCtpEvent(CtpEvent ev)
     }
     case ContractInfoEvent:
     {
-//        string sym = ev.contractInfo.InstrumentID;
-//        if (symList1.keys().contains(sym))
-//            symList1[sym].info = ev.contractInfo;
-//        else
-//        {
-//            Symbol1 s(CThostFtdcDepthMarketDataField{}, ev.contractInfo);  // insert new
-//            symList1.insert(sym, s);
-//        }
         break;
     }
     case MarketEvent:
     {
         string sym = ev.mkt.InstrumentID;
 
+        //TODO: if sym in positions then do
         evalAccount(pfValue, aggPosList, dataHub->symMktTable);	// Choose which price to MTM
         time = ev.mkt.UpdateTime;
         millisec = ev.mkt.UpdateMillisec;
@@ -201,11 +181,6 @@ void Portfolio::onCtpEvent(CtpEvent ev)
         printAcc();
         printNetPos();
         updatePosTable();
-        //postableview->update();
-        //qDebug() << QThread::currentThreadId() << "++++++++++++++++++++++ pf";
-
-        //TODO: move these to dispatcher
-//        kf->onFeed(myev);
         break;
     }
     case TradeEvent:
@@ -223,10 +198,6 @@ void Portfolio::onCtpEvent(CtpEvent ev)
         break;
     }
 }
-
-
-
-
 
 void Portfolio::printNetPos()
 {

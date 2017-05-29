@@ -2,6 +2,7 @@
 #define MDSPI_H
 
 #include <QColor>
+#include <QObject>
 
 #include "spdlog/spdlog.h"
 #include "ThostFtdcMdApi.h"
@@ -9,7 +10,6 @@
 #include "datahub.h"
 #include "dispatcher.h"
 
-class QObject;
 
 class MdSpi : public QObject, public CThostFtdcMdSpi {
     Q_OBJECT
@@ -24,7 +24,7 @@ public:
 
     void init();
     void reqConnect();
-    void setDispatcher(Dispatcher *ee);
+//    void setDispatcher(Dispatcher *ee);
     void subscribeMd(std::string instruments);
     void showApiReturn(int ret, QString outputIfSuccess = "", QString outputIfError = "MdApi sent Error.");
     bool isErrorRspInfo(CThostFtdcRspInfoField *pRspInfo, const char *msg = "");
@@ -40,7 +40,7 @@ public:
     void OnRspUnSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
     void OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData);
 
-    Dispatcher *getDispatcher();
+//    Dispatcher *getDispatcher();
 
     DataHub* dataHub;
 
@@ -62,7 +62,7 @@ private:
     }
 
     CThostFtdcMdApi *mdapi{ nullptr };
-    Dispatcher *dispatcher{ nullptr };
+//    Dispatcher *dispatcher{ nullptr };
     /*char *FrontAddress{ "tcp://122.224.98.87:27225" };
     const string BROKER_ID{ "3010" };
     const string USER_ID{ "10101847" };

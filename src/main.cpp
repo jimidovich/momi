@@ -107,8 +107,6 @@ int main(int argc, char *argv[])
     }
 
     KdbConnector kdbConnector("kdbconn");
-    Dispatcher dispatcher;
-    dispatcher.setKdbConnector(&kdbConnector);
 
     Trader trader("tcp://180.168.146.187:10030", "9999", "063669", "1qaz2wsx");
     //Trader trader("tcp://222.66.235.70:21205", "66666", "00008218", "183488");
@@ -122,19 +120,7 @@ int main(int argc, char *argv[])
     kf.setOMS(&oms);
     oms.setTrader(&trader);
     oms.setPortfolio(&pf);
-//    pf.setDispatcher(&dispatcher);
-//    trader.setDispatcher(&dispatcher);
-//    mdspi.setDispatcher(&dispatcher);
 
-//    dispatcher.registerHandler(&pf, SIGNAL(dispatchPos(QEvent*)), SLOT(onEvent(QEvent*)));
-//    dispatcher.registerHandler(&pf, SIGNAL(dispatchPosDetail(QEvent*)), SLOT(onEvent(QEvent*)));
-//    dispatcher.registerHandler(&pf, SIGNAL(dispatchAccInfo(QEvent*)), SLOT(onEvent(QEvent*)));
-//    dispatcher.registerHandler(&pf, SIGNAL(dispatchContractInfo(QEvent*)), SLOT(onEvent(QEvent*)));
-//    dispatcher.registerHandler(&pf, SIGNAL(dispatchFeed(QEvent*)), SLOT(onEvent(QEvent*)));
-//    dispatcher.registerHandler(&pf, SIGNAL(dispatchTrade(QEvent*)), SLOT(onEvent(QEvent*)));
-//    dispatcher.registerHandler(&pf, SIGNAL(dispatchOrder(QEvent*)), SLOT(onEvent(QEvent*)));
-    dispatcher.registerHandler(&kdbConnector, SIGNAL(dispatchFeed(QEvent*)), SLOT(onEvent(QEvent*)));
-    dispatcher.registerHandler(&kdbConnector, SIGNAL(dispatchAccUpdate(QEvent*)), SLOT(onEvent(QEvent*)));
 
 //    TESTING
     DataHub dataHub;
@@ -150,6 +136,7 @@ int main(int argc, char *argv[])
     d1.subscribers.push_back(std::bind(&Portfolio::onCtpEvent, &pf, _1));
     d1.subscribers.push_back(std::bind(&OMS::onCtpEvent, &oms, _1));
     d1.subscribers.push_back(std::bind(&Kalman::onCtpEvent, &kf, _1));
+    d1.subscribers.push_back(std::bind(&KdbConnector::onCtpEvent, &kdbConnector, _1));
 
     Strategy strategy;
     strategy.trader = &trader;
@@ -171,9 +158,9 @@ int main(int argc, char *argv[])
 //        f.LastPrice = 90.0+i;
 //        mdspi.OnRtnDepthMarketData(&f);
 
-//        CThostFtdcTradeField td = {};
-//        td.Price = 1000+i;
-//        trader.OnRtnTrade(&td);
+    CThostFtdcTradeField td = {};
+    td.Price = 1000;
+    trader.OnRtnTrade(&td);
 //    }
 //    CThostFtdcTradingAccountField f = {};
 //    f.Available = 888;
@@ -189,18 +176,18 @@ int main(int argc, char *argv[])
 
 
 
-    QThread thread;
+//    QThread thread;
     //QThread thread1;
     // TODO: Check connector operating in other thread.
     // use direct call or func pointer of base class for other thread.
-    kdbConnector.moveToThread(&thread);
+//    kdbConnector.moveToThread(&thread);
 //    dispatcher.moveToThread(&thread);
-    pf.moveToThread(&thread);
+//    pf.moveToThread(&thread);
 
     TickSubscriber tickSub("kdbsub");
     //tickSub.moveToThread(&thread1);
 
-    thread.start();
+//    thread.start();
 
     //if (std::string(argv[1]) == "--nogui")
     if (argc == 1) {
@@ -223,7 +210,7 @@ int main(int argc, char *argv[])
 
         w->show();
         auto ret = a.exec();
-        thread.exit();
+//        thread.exit();
         delete w;
         return ret;
     } else {

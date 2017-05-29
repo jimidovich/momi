@@ -2,7 +2,6 @@
 
 #include <QDebug>
 #include <QThread>
-#include <QApplication>
 #include <QElapsedTimer>
 #include <QTimeZone>
 
@@ -13,50 +12,42 @@
 using namespace std;
 using namespace spdlog::level;
 
-KdbConnector::KdbConnector(QObject *parent)
-    : QObject(parent)
+KdbConnector::KdbConnector()
 {
     setLogger("kdbconn");
     handle = khp((S)hostname, (I)port);
-    //checkTableExist();
+//    checkTableExist();
 }
 
-KdbConnector::KdbConnector(std::string consoleName, QObject * parent)
-    : QObject(parent)
+KdbConnector::KdbConnector(std::string consoleName)
 {
     setLogger(consoleName);
     handle = khp((S)hostname, (I)port);
+//    checkTableExist();
 }
 
 KdbConnector::~KdbConnector()
 {
 }
 
-//void KdbConnector::onFeedEvent(CThostFtdcDepthMarketDataField * feed)
-//{
-//	insertFeed(feed);
-//}
-
-void KdbConnector::onEvent(QEvent *ev)
+void KdbConnector::onCtpEvent(CtpEvent ev)
 {
-    auto myev = (MyEvent*)ev;
-    switch (myev->myType)
-    {
+    switch (ev.type) {
     case MarketEvent:
-        //insertFeed(ev->getFeed());
-        //qDebug() << QThread::currentThreadId() << "+++++++++++++kdb";
-        insertFeed(myev->mkt);
+    {
+        insertFeed(ev.mkt);
         break;
+    }
     case ContractInfoEvent:
-        //writeContractInfo(ev->getContractInfo());
-        insertContractInfo(myev->contractInfo);
+    {
+        insertContractInfo(ev.contractInfo);
         break;
-    case AccountUpdateEvent:
-//        insertAccount(*myev->acc);
+    }
     default:
         break;
     }
 }
+//TODO: insert portfolioValue
 
 void KdbConnector::setTradingDay(const char *tday)
 {
@@ -90,35 +81,33 @@ void KdbConnector::createInfoTable()
     k(-handle, (S)qStatementToCreateTable(cinfoName).c_str(), (K)0);
 }
 
-void KdbConnector::insertContractInfo(CThostFtdcInstrumentField *info)
+void KdbConnector::insertContractInfo(CThostFtdcInstrumentField& info)
 {
-    mutex.lock();
-    //K Date = date2qDate("20160722");
-    K Contract = ks(info->InstrumentID);
-    K Exchange = ks(info->ExchangeID);
-    K Name = ks(info->InstrumentName);
-    K Product = ks(info->ProductID);
-    K ProductClass = ks((S)mymap::productClass_string.at(info->ProductClass).c_str());
-    K DelivYear = ki(info->DeliveryYear);
-    K DelivMonth = ki(info->DeliveryMonth);
-    K MaxMktOrderVolume = ki(info->MaxMarketOrderVolume);
-    K MinMktOrderVolume = ki(info->MinMarketOrderVolume);
-    K MaxLmtOrderVolume = ki(info->MaxLimitOrderVolume);
-    K MinLmtOrderVolume = ki(info->MinLimitOrderVolume);
-    K VolumeMultiples = ki(info->VolumeMultiple);
-    K PriceTick = kf(info->PriceTick);
-    K CreateDate = date2qDate(info->CreateDate);
-    K OpenDate = date2qDate(info->OpenDate);
-    K ExpireDate = date2qDate(info->ExpireDate);
-    K StartDelivDate = date2qDate(info->StartDelivDate);
-    K EndDelivDate = date2qDate(info->EndDelivDate);
-    K LifePhase = ks((S)mymap::instLiftPhase_string.at(info->InstLifePhase).c_str());
-    K IsTrading = ki(info->IsTrading);
-    K PositionType = ks((S)mymap::positionType_string.at(info->PositionType).c_str());
-    K PositionDateType = kc(mymap::positionDate_char.at(info->PositionDateType));
-    K LongMarginRatio = kf(info->LongMarginRatio);
-    K ShortMarginRatio = kf(info->ShortMarginRatio);
-    K MMSA = kc(mymap::maxMarginSideAlgo_char.at(info->MaxMarginSideAlgorithm));
+    K Contract = ks(info.InstrumentID);
+    K Exchange = ks(info.ExchangeID);
+    K Name = ks(info.InstrumentName);
+    K Product = ks(info.ProductID);
+    K ProductClass = ks((S)mymap::productClass_string.at(info.ProductClass).c_str());
+    K DelivYear = ki(info.DeliveryYear);
+    K DelivMonth = ki(info.DeliveryMonth);
+    K MaxMktOrderVolume = ki(info.MaxMarketOrderVolume);
+    K MinMktOrderVolume = ki(info.MinMarketOrderVolume);
+    K MaxLmtOrderVolume = ki(info.MaxLimitOrderVolume);
+    K MinLmtOrderVolume = ki(info.MinLimitOrderVolume);
+    K VolumeMultiples = ki(info.VolumeMultiple);
+    K PriceTick = kf(info.PriceTick);
+    K CreateDate = date2qDate(info.CreateDate);
+    K OpenDate = date2qDate(info.OpenDate);
+    K ExpireDate = date2qDate(info.ExpireDate);
+    K StartDelivDate = date2qDate(info.StartDelivDate);
+    K EndDelivDate = date2qDate(info.EndDelivDate);
+    K LifePhase = ks((S)mymap::instLiftPhase_string.at(info.InstLifePhase).c_str());
+    K IsTrading = ki(info.IsTrading);
+    K PositionType = ks((S)mymap::positionType_string.at(info.PositionType).c_str());
+    K PositionDateType = kc(mymap::positionDate_char.at(info.PositionDateType));
+    K LongMarginRatio = kf(info.LongMarginRatio);
+    K ShortMarginRatio = kf(info.ShortMarginRatio);
+    K MMSA = kc(mymap::maxMarginSideAlgo_char.at(info.MaxMarginSideAlgorithm));
 
     K data = knk(25, Contract, Exchange, Name, Product, ProductClass, DelivYear, DelivMonth,
         MaxMktOrderVolume, MinMktOrderVolume, MaxLmtOrderVolume, MinLmtOrderVolume,
@@ -127,57 +116,46 @@ void KdbConnector::insertContractInfo(CThostFtdcInstrumentField *info)
 
     //self-maintained table
     //k(-handle, "insert", ks("ContractsInfo"), data, (K)0);
-    k(-handle, (S)"insert", ks((S)"ContractsInfo"), data, (K)0);
+//    k(-handle, (S)"insert", ks((S)"ContractsInfo"), data, (K)0);
 
     //kdb+tick
     k(-handle, (S)".u.upd", ks((S)cinfoName), data, (K)0);
-
-    //qDebug() << info->InstrumentID;
-    mutex.unlock();
 }
 
-void KdbConnector::insertFeed(CThostFtdcDepthMarketDataField * feed)
+void KdbConnector::insertFeed(CThostFtdcDepthMarketDataField& feed)
 {
-    QElapsedTimer t;
-    t.start();
-    mutex.lock();
     K data, Contract, Date, Time, Last, Bid1, BidSize1, \
         Ask1, AskSize1, Volume, Turnover, OpenInterest, AvgPrice, Open, High, Low;
         //UpperLimit, LowerLimit, PreSettlement, PreClose, PreOpenInterest, Close, Settlement;
     //K tspan = k(handle, (S)".z.N", (K)0);
-    Contract = ks(feed->InstrumentID);
-    //K Exchange = ks(feed->ExchangeID);
-    Date = date2qDate(feed->TradingDay);
-    Time = qMakeTime(feed->UpdateTime, feed->UpdateMillisec);
-    Last = kf(feed->LastPrice);
-    Bid1 = kf(feed->BidPrice1);
-    BidSize1 = ki(feed->BidVolume1);
-    Ask1 = kf(feed->AskPrice1);
-    AskSize1 = ki(feed->AskVolume1);
-    Volume = ki(feed->Volume);
-    Turnover = kf(feed->Turnover);
-    OpenInterest = kf(feed->OpenInterest);
-    AvgPrice = kf(feed->AveragePrice);
-    Open = kf(feed->OpenPrice);
-    High = kf(feed->HighestPrice);
-    Low = kf(feed->LowestPrice);
-    /*UpperLimit = kf(feed->UpperLimitPrice);
-    LowerLimit = kf(feed->LowerLimitPrice);
-    PreSettlement = kf(feed->PreSettlementPrice);
-    PreClose = kf(feed->PreClosePrice);
-    PreOpenInterest = kf(feed->PreOpenInterest);
-    Close = kf(feed->ClosePrice);
-    Settlement = kf(feed->SettlementPrice);*/
+    Contract = ks(feed.InstrumentID);
+    //K Exchange = ks(feed.ExchangeID);
+    Date = date2qDate(feed.TradingDay);
+    Time = qMakeTime(feed.UpdateTime, feed.UpdateMillisec);
+    Last = kf(feed.LastPrice);
+    Bid1 = kf(feed.BidPrice1);
+    BidSize1 = ki(feed.BidVolume1);
+    Ask1 = kf(feed.AskPrice1);
+    AskSize1 = ki(feed.AskVolume1);
+    Volume = ki(feed.Volume);
+    Turnover = kf(feed.Turnover);
+    OpenInterest = kf(feed.OpenInterest);
+    AvgPrice = kf(feed.AveragePrice);
+    Open = kf(feed.OpenPrice);
+    High = kf(feed.HighestPrice);
+    Low = kf(feed.LowestPrice);
+    /*UpperLimit = kf(feed.UpperLimitPrice);
+    LowerLimit = kf(feed.LowerLimitPrice);
+    PreSettlement = kf(feed.PreSettlementPrice);
+    PreClose = kf(feed.PreClosePrice);
+    PreOpenInterest = kf(feed.PreOpenInterest);
+    Close = kf(feed.ClosePrice);
+    Settlement = kf(feed.SettlementPrice);*/
 
     data = knk(15, Contract, Date, Time, Last, Bid1, BidSize1, Ask1, AskSize1,
         Volume, Turnover, OpenInterest, AvgPrice, Open, High, Low);
     k(-handle, (S)".u.upd", ks((S)tableName), data, (K)0);
     //k(handle, "", (K)0); // flush
-    //qDebug() << ++countTick << QTime::currentTime();
-    //QApplication::processEvents();
-    //QApplication::sendPostedEvents(this);
-    mutex.unlock();
-    //qDebug() << "kdb" << t.elapsed() << "ms";
 }
 
 void KdbConnector::insertAccount(const PortfolioValue &acc)

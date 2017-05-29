@@ -4,9 +4,8 @@
 #include <memory>
 
 //#include <QCoreApplication>
-//#include <QObject>
-//#include <QTimer>
 #include <QColor>
+#include <QObject>
 
 #include "spdlog/spdlog.h"
 #include "ThostFtdcTraderApi.h"
@@ -14,7 +13,6 @@
 #include "struct.h"
 #include "dispatcher.h"
 
-class QObject;
 class QString;
 
 
@@ -54,10 +52,7 @@ public:
 
     void showApiReturn(int ret, QString outputIfSuccess = "", QString outputIfError = "TraderApi sent Error.");
     std::string getTradingDay();
-    void setDispatcher(Dispatcher *ee);
     void handleDispatch(int tt);
-
-    Dispatcher* getDispatcher();
 
     DataHub *dataHub;
 
@@ -145,8 +140,6 @@ public:
     const std::string BROKER_ID;
     const std::string USER_ID;
     const std::string PASSWORD;
-
-    Dispatcher *dispatcher;
 
     std::shared_ptr<spdlog::logger> console;
     std::shared_ptr<spdlog::logger> g_logger;

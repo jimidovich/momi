@@ -3,7 +3,6 @@
 
 #include <string>
 
-//#include <QObject>
 #include <QMutex>
 
 #include "spdlog/spdlog.h"
@@ -15,30 +14,30 @@
 #define KXVER 3
 #include "k.h"
 
-class QObject;
 class PortfolioValue;
 
-class KdbConnector : public QObject {
-    Q_OBJECT
-
+class KdbConnector
+{
 public:
-    KdbConnector(QObject *parent = nullptr);
-    KdbConnector(std::string consoleName, QObject *parent = nullptr);
+    KdbConnector();
+    KdbConnector(std::string consoleName);
     ~KdbConnector();
     
     void setTradingDay(const char *tday);
     void setLogger(std::string consoleName);
 
+    void onCtpEvent(CtpEvent ev);
+
     public slots:
     //void onFeedEvent(CThostFtdcDepthMarketDataField * feed);
-    void onEvent(QEvent *ev);
+//    void onEvent(QEvent *ev);
 
 protected:
     void checkTableExist();
     void createMktTable();
     void createInfoTable();
-    void insertContractInfo(CThostFtdcInstrumentField *info);
-    void insertFeed(CThostFtdcDepthMarketDataField *feed);
+    void insertContractInfo(CThostFtdcInstrumentField& info);
+    void insertFeed(CThostFtdcDepthMarketDataField& feed);
     void insertAccount(const PortfolioValue &acc);
 
     template<typename ...Args>

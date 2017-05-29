@@ -163,6 +163,7 @@ void MdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDat
 //    cout << "\r" << dataHub->eventQueue.count << "\tqueue size: " << dataHub->eventQueue.q.size() << flush;
 
     dataHub->eventQueue.post(CtpEvent(pDepthMarketData));
+    emit sendToMdMonitor(QString("%1").arg(dataHub->eventQueue.q.size()));
 }
 
 void MdSpi::subscribeMd(std::string instruments)
@@ -235,15 +236,6 @@ void MdSpi::setLogger()
     mdspi_logger->flush_on(spdlog::level::info);
 }
 
-Dispatcher * MdSpi::getDispatcher()
-{
-    return dispatcher;
-}
-
-void MdSpi::setDispatcher(Dispatcher *ee)
-{
-    dispatcher = ee;
-}
 
 void MdSpi::execCmdLine(QString cmdLine)
 {

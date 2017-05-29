@@ -768,16 +768,6 @@ void Trader::timerReq(Trader *trader, const char *req)
     el.exec();
 }
 
-Dispatcher* Trader::getDispatcher()
-{
-    return dispatcher;
-}
-
-void Trader::setDispatcher(Dispatcher *ee)
-{
-    dispatcher = ee;
-}
-
 string Trader::getTradingDay()
 {
     return tradingDay;

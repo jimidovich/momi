@@ -1,3 +1,5 @@
+#include <chrono>
+#include <iostream>
 #include <QDebug>
 
 #include "include/kalman.h"
@@ -50,6 +52,7 @@ void Kalman::setOMS(OMS *oms)
 
 void Kalman::onCtpEvent(CtpEvent ev)
 {
+
     if (ev.type == MarketEvent) {
         string sym = ev.mkt.InstrumentID;
         if (((sym == pair.yname) || (sym == pair.xname))
@@ -71,6 +74,8 @@ void Kalman::onCtpEvent(CtpEvent ev)
                 }
         }
     }
+    auto end = std::chrono::steady_clock::now();
+    std::cout << "kal " << std::chrono::duration_cast<std::chrono::microseconds>(end - ev.ts).count() << std::endl;
 }
 
 void Kalman::updateXY(double y, double x)
