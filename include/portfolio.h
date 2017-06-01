@@ -7,6 +7,7 @@
 
 #include "position.h"
 #include "datahub.h"
+#include "ctpmonitor.h"
 
 class position;
 class RM;
@@ -63,16 +64,21 @@ public:
 
     DataHub *dataHub;
 
+    std::string tradingDay;
+    std::string time;
+    int millisec{ 0 };
+    PortfolioValue pfValue;
+
 signals:
-	void sendToPosMonitor(QString msg);
-	void sendToAccMonitor(QString msg);
+    void sendToPosMonitor();
+    void sendToAccMonitor();
 
 private:
 	//QMap<string, double> commRateList;
 	//QMap<string, NetPos> netPosList;
 	AggPosList constructAggPosList(PosList pList);
 	NetPosList constructNetPosList(AggPosList apList);
-    void updatePosOnTrade(AggPosList &al, PosList &pl, CThostFtdcTradeField *td, SymInfoTable &sinfo);
+    void updatePosOnTrade(AggPosList &al, PosList &pl, CThostFtdcTradeField &td, SymInfoTable &sinfo);
     void evalAccount(PortfolioValue &pfValue, AggPosList &aplist, SymMktTable &smkt);
     void evalOnTick(PortfolioValue &pfValue, AggPosList &aplist, CThostFtdcDepthMarketDataField &mkt);
 
@@ -82,10 +88,6 @@ private:
     QTime initTime();
     QTime updateTime();
 
-	std::string tradingDay;
-	std::string time;
-	int millisec{ 0 };
-    PortfolioValue pfValue;
 
 	int lastRowCount{ 0 };  // for tableview
 	QTableView *postableview;

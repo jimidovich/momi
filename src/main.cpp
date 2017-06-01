@@ -108,9 +108,9 @@ int main(int argc, char *argv[])
 
     KdbConnector kdbConnector("kdbconn");
 
-    Trader trader("tcp://180.168.146.187:10030", "9999", "063669", "1qaz2wsx");
+    Trader trader("tcp://180.168.146.187:10000", "9999", "063669", "1qaz2wsx");
     //Trader trader("tcp://222.66.235.70:21205", "66666", "00008218", "183488");
-    MdSpi mdspi("tcp://180.168.146.187:10031", "9999", "063669", "1qaz2wsx");
+    MdSpi mdspi("tcp://180.168.146.187:10010", "9999", "063669", "1qaz2wsx");
     //MdSpi mdspi("tcp://222.66.235.70:21214", "66666", "00008218", "183488");
 
     Kalman kf;
@@ -120,6 +120,7 @@ int main(int argc, char *argv[])
     kf.setOMS(&oms);
     oms.setTrader(&trader);
     oms.setPortfolio(&pf);
+    w->pf = &pf;
 
 
 //    TESTING
@@ -128,6 +129,7 @@ int main(int argc, char *argv[])
     trader.dataHub = &dataHub;
     pf.dataHub = &dataHub;
     kf.dataHub = &dataHub;
+    w->dataHub = &dataHub;
     Dispatcher1 d1("d1");
     d1.dataHub = &dataHub;
 
@@ -158,9 +160,9 @@ int main(int argc, char *argv[])
 //        f.LastPrice = 90.0+i;
 //        mdspi.OnRtnDepthMarketData(&f);
 
-    CThostFtdcTradeField td = {};
-    td.Price = 1000;
-    trader.OnRtnTrade(&td);
+//    CThostFtdcTradeField td = {};
+//    td.Price = 1000;
+//    trader.OnRtnTrade(&td);
 //    }
 //    CThostFtdcTradingAccountField f = {};
 //    f.Available = 888;
@@ -196,7 +198,7 @@ int main(int argc, char *argv[])
         QObject::connect(&trader, &Trader::sendToTraderCmdMonitor, w, &CtpMonitor::printToTraderCmdMonitor);
         QObject::connect(w, &CtpMonitor::sendCmdLineToTrader, &trader, &Trader::execCmdLine);
         QObject::connect(&mdspi, &MdSpi::sendToTraderMonitor, w, &CtpMonitor::printTraderMsg);
-        QObject::connect(&mdspi, &MdSpi::sendToMdMonitor, w, &CtpMonitor::printMdSpiMsg);
+//        QObject::connect(&mdspi, &MdSpi::sendToMdMonitor, w, &CtpMonitor::printMdSpiMsg);
         QObject::connect(w, &CtpMonitor::sendCmdLineToMdspi, &mdspi, &MdSpi::execCmdLine);
         QObject::connect(&pf, &Portfolio::sendToPosMonitor, w, &CtpMonitor::printPosMsg);
         QObject::connect(&pf, &Portfolio::sendToAccMonitor, w, &CtpMonitor::printAccMsg);

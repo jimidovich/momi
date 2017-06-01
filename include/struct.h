@@ -322,6 +322,18 @@ namespace mymap
         {THOST_FTDC_OST_Touched, Touched}
     };
 
+    const std::map<TThostFtdcOrderStatusType, std::string> orderStatus_string{
+        {THOST_FTDC_OST_AllTraded, "AllTraded"},
+        {THOST_FTDC_OST_PartTradedQueueing, "PartTradedQueueing"},
+        {THOST_FTDC_OST_PartTradedNotQueueing, "PartTradedNotQueueing"},
+        {THOST_FTDC_OST_NoTradeQueueing, "NoTradeQueueing"},
+        {THOST_FTDC_OST_NoTradeNotQueueing, "NoTradeNotQueueing"},
+        {THOST_FTDC_OST_Canceled, "Canceled"},
+        {THOST_FTDC_OST_Unknown, "Unknown"},
+        {THOST_FTDC_OST_NotTouched, "NotTouched"},
+        {THOST_FTDC_OST_Touched, "Touched"}
+    };
+
     const std::map<std::string, EnumOffsetFlagType> string_offsetFlag{
         {"open", EnumOffsetFlagType::Open},                       // Speculation
         {"o", EnumOffsetFlagType::Open},                          // Speculation
@@ -330,7 +342,9 @@ namespace mymap
         {"forceclose", EnumOffsetFlagType::ForceClose},           // Arbitrage
         {"fclose", EnumOffsetFlagType::ForceClose},               // Arbitrage
         {"closetoday", EnumOffsetFlagType::CloseToday},           // Hedge
+        {"ct", EnumOffsetFlagType::CloseToday},                   // Hedge
         {"closeyesterday", EnumOffsetFlagType::CloseYesterday},   // MarketMaker
+        {"cy", EnumOffsetFlagType::CloseYesterday},               // MarketMaker
         {"forceoff", EnumOffsetFlagType::ForceOff},               // MarketMaker
         {"localforceclose", EnumOffsetFlagType::LocalForceClose}  // MarketMaker
     };

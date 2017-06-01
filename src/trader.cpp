@@ -59,7 +59,7 @@ void Trader::reqConnect()
     tdapi = CThostFtdcTraderApi::CreateFtdcTraderApi();
     tdapi->RegisterSpi(this);
     tdapi->SubscribePublicTopic(THOST_TERT_RESTART);
-    tdapi->SubscribePrivateTopic(THOST_TERT_RESUME);
+    tdapi->SubscribePrivateTopic(THOST_TERT_QUICK);  //Shit RESUME mode cannot get OnRtnOrder and OnRtnTrade
     char *front = new char[FrontAddress.length() + 1];
     strcpy(front, FrontAddress.c_str());
     tdapi->RegisterFront(front);
@@ -247,14 +247,20 @@ void Trader::OnRspQryOrder(CThostFtdcOrderField *pOrder, CThostFtdcRspInfoField 
         if (pOrder != nullptr) {
             QString msg;
             msg.append("OrderRef=").append(pOrder->OrderRef);
+            msg.append(" sessID=").append(QString::number(pOrder->SessionID));
+            msg.append(" frtID=").append(QString::number(pOrder->FrontID));
+            msg.append(" exch=").append(pOrder->ExchangeID);
+            msg.append(" sysID=").append(pOrder->OrderSysID);
             msg.append(" ").append(pOrder->InstrumentID);
-            msg.append(" Status=").append(pOrder->OrderStatus);
-            msg.append(" Offset=").append(pOrder->CombOffsetFlag[0]);
-            msg.append(" Direction=").append(pOrder->Direction);
+            msg.append(" S=").append(mymap::orderStatus_string.at(pOrder->OrderStatus).c_str());
+            msg.append(" O=").append(mymap::offsetFlag_string.at(pOrder->CombOffsetFlag[0]).c_str());
+            msg.append(" D=").append(mymap::direction_char.at(pOrder->Direction));
             //msg.append(" PriceType=").append(pOrder->OrderPriceType);
             msg.append(" LmtPx=").append(QString::number(pOrder->LimitPrice));
             msg.append(" Total=").append(QString::number(pOrder->VolumeTotal));
-            msg.append(" Original=").append(QString::number(pOrder->VolumeTotalOriginal));
+            msg.append(" Orig=").append(QString::number(pOrder->VolumeTotalOriginal));
+            msg.append(" ").append(QString::fromLocal8Bit(pOrder->StatusMsg));
+
             //msg.append(" SessionID=").append(QString::number(pOrder->SessionID));
             //msg.append(" OrderSysID=").append(pOrder->OrderSysID);
             //msg.append(" TraderID=").append(pOrder->TraderID);
@@ -278,11 +284,12 @@ void Trader::OnRspQryTrade(CThostFtdcTradeField *pTrade, CThostFtdcRspInfoField 
         if (pTrade != nullptr) {
             QString msg;
             msg.append(pTrade->InstrumentID);
-            msg.append(" Offset=").append(pTrade->OffsetFlag);
-            msg.append(" Direction=").append(pTrade->Direction);
+            msg.append(" TradeID=").append(pTrade->TradeID);
+            msg.append(" Dir=").append(mymap::direction_char.at(pTrade->Direction));
+            msg.append(" Offset=").append(mymap::offsetFlag_string.at(pTrade->OffsetFlag).c_str());
             msg.append(" Price=").append(QString::number(pTrade->Price));
             msg.append(" Volume=").append(QString::number(pTrade->Volume));
-            msg.append(" TradeTime=").append(pTrade->TradeTime);
+            msg.append(" T=").append(pTrade->TradeTime);
             emit sendToTraderMonitor(msg);
         }
         if (bIsLast) {
@@ -347,7 +354,7 @@ void Trader::OnRspQryTradingAccount(CThostFtdcTradingAccountField *pTradingAccou
             QString msg = "Trading Account";
             QString preSpaces = "\n" + QString(" ").repeated(31);
             msg.append(preSpaces).append("Available  = ").append(QString::number(pTradingAccount->Available));
-            msg.append(preSpaces).append("Balance    = ").append(QString::number(pTradingAccount->Balance));
+            msg.append(preSpaces).append("Balance    = ").append(QString::number(pTradingAccount->Balance, 'f', 0));
             msg.append(preSpaces).append("CurrMargin = ").append(QString::number(pTradingAccount->CurrMargin));
             msg.append(preSpaces).append("Reserve    = ").append(QString::number(pTradingAccount->Reserve));
             logger(info, msg.toStdString().c_str());
@@ -417,17 +424,17 @@ void Trader::OnRtnTrade(CThostFtdcTradeField *pTrade)
     if (pTrade != nullptr) {
         QString msg;
         msg += QString("OnRtnTrade: OrderRef=%1, %2").arg(pTrade->OrderRef, pTrade->InstrumentID);
-        //msg.append("\nExchangeID=").append(pTrade->ExchangeID);
-        //msg.append(" TraderID=").append(pTrade->TraderID);
-        //msg.append(" OrderSysID=").append(pTrade->OrderSysID);
-        //msg.append(" OrderRef=").append(pTrade->OrderRef);
-        //msg.append("\n").append(pTrade->InstrumentID);
+//        msg.append("\nExchangeID=").append(pTrade->ExchangeID);
+//        msg.append(" TraderID=").append(pTrade->TraderID);
+//        msg.append(" OrderSysID=").append(pTrade->OrderSysID);
+//        msg.append(" OrderRef=").append(pTrade->OrderRef);
+//        msg.append("\n").append(pTrade->InstrumentID);
 
-//        msg.append(" Dir=").append(mymap::direction_char.at(pTrade->Direction));
-//        msg.append(" Offset=").append(mymap::offsetFlag_string.at(pTrade->OffsetFlag).c_str());
-//        msg.append(" Price=").append(QString::number(pTrade->Price));
-//        msg.append(" Volume=").append(QString::number(pTrade->Volume));
-//        msg.append(" T=").append(pTrade->TradeTime);
+        msg.append(" Dir=").append(mymap::direction_char.at(pTrade->Direction));
+        msg.append(" Offset=").append(mymap::offsetFlag_string.at(pTrade->OffsetFlag).c_str());
+        msg.append(" Price=").append(QString::number(pTrade->Price));
+        msg.append(" Volume=").append(QString::number(pTrade->Volume));
+        msg.append(" T=").append(pTrade->TradeTime);
         logger(info, msg.toStdString().c_str());
         emit sendToTraderMonitor(msg);
 
@@ -837,7 +844,7 @@ void Trader::execCmdLine(QString cmdLine)
             if (n == 6) {
                 string InstrumentID{ argv.at(1).toStdString() };
                 //EnumOffsetFlagType OffsetFlag{ str2OffsetFlagType(argv.at(2).toStdString()) };
-                std::set<string> ofStrSet = { "open", "o", "close", "c" };
+                std::set<string> ofStrSet = { "open", "o", "close", "c", "ct", "cy" };
                 std::set<string> dirStrSet = { "buy", "b", "sell", "s" };
                 EnumOffsetFlagType OffsetFlag;
                 EnumDirectionType Direction;

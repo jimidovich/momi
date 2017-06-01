@@ -1,13 +1,14 @@
 #include <QTime>
 #include <QSplitter>
 
-#include "include/ctpmonitor.h"
+#include <mutex>
 
-QString getCurrentTimeMsec()
+#include "include/ctpmonitor.h"
+#include "include/portfolio.h"
+
+QString getTimeMsec(std::string time, int ms)
 {
-    QTime t(QTime::currentTime());
-    QString currentTime(t.toString());
-    QString msec(QString::number(t.msec()));
+    QString msec(QString::number(ms));
     switch (msec.length())
     {
     case 1:
@@ -19,7 +20,27 @@ QString getCurrentTimeMsec()
     default:
         break;
     }
-    return currentTime + "." + msec;
+    return QString(time.c_str()) + "." + msec;
+}
+
+QString getCurrentTimeMsec()
+{
+    QTime t(QTime::currentTime());
+    QString currentTime(t.toString());
+//    QString msec(QString::number(t.msec()));
+//    switch (msec.length())
+//    {
+//    case 1:
+//        msec = "00" + msec;
+//        break;
+//    case 2:
+//        msec = "0" + msec;
+//        break;
+//    default:
+//        break;
+//    }
+//    return currentTime + "." + msec;
+    return getTimeMsec(currentTime.toStdString(), t.msec());
 }
 
 void stringToHtml(QString &str, QColor crl)
@@ -90,16 +111,67 @@ void CtpMonitor::printMdSpiMsg(QString msg)
     ui.mdOutput->appendPlainText(msg);
 }
 
-void CtpMonitor::printPosMsg(QString msg)
+void CtpMonitor::printPosMsg()
 {
-    ui.posOutput->clear();
-    ui.posOutput->appendPlainText(msg);
+//    QString msg;
+//    int fw = -12; // field width left-aligned
+//    msg = QString("%1%2%3%4%5%6%7\n")
+//            .arg("Symbol", fw)
+//            .arg("LastPx", fw)
+//            .arg("NetPos", fw)
+//            .arg("AvgCost", fw)
+//            .arg("PosPnL", fw)
+//            .arg("NetPnL", fw)
+//            .arg("Time");
+//    std::mutex mu;
+//    mu.lock();
+//    auto cpy = pf->netPosList;
+//    mu.unlock();
+//    for (auto sym : cpy.keys()) {
+//        if (dataHub->symMktTable.find(sym.toStdString()) != dataHub->symMktTable.end()) {
+//            auto pos = cpy[sym];
+//            msg += QString("%1%2%3%4%5%6%7\n")
+//                    .arg(sym, fw)
+//                    .arg(dataHub->symMktTable.at(sym.toStdString()).LastPrice, fw) //todo: to Subscribe if not in MD..
+//                    .arg(pos.netPos, fw)
+//                    .arg(pos.avgCostPrice, fw)
+//                    .arg(pos.positionProfit, fw)
+//                    .arg(pos.netPnl, fw)
+//                    .arg(getTimeMsec(pf->time, pf->millisec));
+//        }
+//    }
+
+//    ui.posOutput->clear();
+//    ui.posOutput->appendPlainText(msg);
 }
 
-void CtpMonitor::printAccMsg(QString msg)
+void CtpMonitor::printAccMsg()
 {
-    ui.accOutput->clear();
-    ui.accOutput->appendPlainText(msg);
+//    QString msg;
+//    int fw = -12; // field width left-aligned
+//    msg = QString("%1%2%3%4%5%6%7\n")
+//            .arg("Balance", fw)
+//            .arg("Grs.PnL", fw)
+//            .arg("R.PnL", fw)
+//            .arg("Unr.PnL", fw)
+//            .arg("Margin", fw)
+//            .arg("Comm", fw)
+//            .arg("Time");
+//    std::mutex mu;
+//    mu.lock();
+//    auto cpy = pf->pfValue;
+//    mu.unlock();
+//    msg += QString("%1%2%3%4%5%6%7\n")
+//            .arg(cpy.balance, fw, 'f', 0)
+//            .arg(cpy.netPnl, fw)
+//            .arg(cpy.closeProfit, fw)
+//            .arg(cpy.positionProfit, fw)
+//            .arg(cpy.margin, fw)
+//            .arg(cpy.commission, fw)
+//            .arg(getTimeMsec(pf->time, pf->millisec));
+
+//    ui.accOutput->clear();
+//    ui.accOutput->appendPlainText(msg);
 }
 
 void CtpMonitor::echoToTraderCmdMonitor()

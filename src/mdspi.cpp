@@ -163,7 +163,7 @@ void MdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDat
 //    cout << "\r" << dataHub->eventQueue.count << "\tqueue size: " << dataHub->eventQueue.q.size() << flush;
 
     dataHub->eventQueue.post(CtpEvent(pDepthMarketData));
-    emit sendToMdMonitor(QString("%1").arg(dataHub->eventQueue.q.size()));
+//    emit sendToMdMonitor(QString("%1").arg(dataHub->eventQueue.q.size()));
 }
 
 void MdSpi::subscribeMd(std::string instruments)

@@ -2,6 +2,10 @@
 #define CTPMONITOR_H
 
 #include "ui_ctpmonitor.h"
+//#include "portfolio.h"
+#include "datahub.h"
+
+class Portfolio;
 
 class CtpMonitor : public QMainWindow {
 	Q_OBJECT
@@ -12,6 +16,11 @@ public:
 
 	Ui::CtpMonitorClass getui();
 
+    void printMdSpiMsg(QString msg);
+
+    Portfolio *pf;
+    DataHub *dataHub;
+
 signals:
 	void sendCmdLineToTrader(QString cmdLine);
 	void sendCmdLineToMdspi(QString cmdLine);
@@ -20,11 +29,12 @@ signals:
 public slots:
     void recCmdLine();
     void printTraderMsg(QString msg, QColor clr);
-	void printMdSpiMsg(QString msg);
-	void printPosMsg(QString msg);
-	void printAccMsg(QString msg);
     void echoToTraderCmdMonitor();
     void printToTraderCmdMonitor(QString msg, QColor clr = Qt::white);
+
+    void printPosMsg();
+    void printAccMsg();
+
 
 private slots:
 

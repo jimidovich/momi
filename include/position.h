@@ -8,11 +8,11 @@
 class Position {
 public:
 	Position();
-    Position(CThostFtdcInvestorPositionDetailField *df, const SymInfoTable &info);
-    Position(CThostFtdcTradeField *td, const SymInfoTable &info);
+    Position(CThostFtdcInvestorPositionDetailField &df, const SymInfoTable &info);
+    Position(CThostFtdcTradeField &td, const SymInfoTable &info);
 	~Position();
 
-	void updateOnTrade(CThostFtdcTradeField *td);
+    void updateOnTrade(CThostFtdcTradeField &td);
 	void mtm(double price);
 
 	QString positionID;
@@ -53,7 +53,7 @@ typedef QMap<QString, Position> PosList;
 class AggPosition {
 public:
 	AggPosition();
-    AggPosition(CThostFtdcInvestorPositionField *pf, const SymInfoTable &info);
+    AggPosition(CThostFtdcInvestorPositionField &pf, const SymInfoTable &info);
 	AggPosition(const Position &p);
 	~AggPosition();
 

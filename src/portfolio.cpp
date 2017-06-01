@@ -17,23 +17,6 @@
 
 using namespace std;
 
-QString getTimeMsec(string time, int ms)
-{
-    QString msec(QString::number(ms));
-    switch (msec.length())
-    {
-    case 1:
-        msec = "00" + msec;
-        break;
-    case 2:
-        msec = "0" + msec;
-        break;
-    default:
-        break;
-    }
-    return QString(time.c_str()) + "." + msec;
-}
-
 Portfolio::Portfolio()
 {
 }
@@ -142,7 +125,7 @@ void Portfolio::onCtpEvent(CtpEvent ev)
 //            isInPosStream = true;
             if (beginUpdate)
             {
-                Position p(&(ev.posDetail), dataHub->symInfoTable);
+                Position p(ev.posDetail, dataHub->symInfoTable);
                 posList.insert(p.positionID, p);
             }
         }
@@ -180,12 +163,12 @@ void Portfolio::onCtpEvent(CtpEvent ev)
 //        QCoreApplication::postEvent(dispatcher, accEvent);
         printAcc();
         printNetPos();
-        updatePosTable();
+//        updatePosTable();
         break;
     }
     case TradeEvent:
     {
-        updatePosOnTrade(aggPosList, posList, &(ev.trade), dataHub->symInfoTable);
+        updatePosOnTrade(aggPosList, posList, ev.trade, dataHub->symInfoTable);
         netPosList.clear();
         netPosList = constructNetPosList(aggPosList);
         break;
@@ -201,53 +184,53 @@ void Portfolio::onCtpEvent(CtpEvent ev)
 
 void Portfolio::printNetPos()
 {
-    QString msg;
-    int fw = -12; // field width left-aligned
-    msg = QString("%1%2%3%4%5%6%7\n")
-            .arg("Symbol", fw)
-            .arg("LastPx", fw)
-            .arg("NetPos", fw)
-            .arg("AvgCost", fw)
-            .arg("PosPnL", fw)
-            .arg("NetPnL", fw)
-            .arg("Time");
-    for (auto sym : netPosList.keys()) {
-        if (dataHub->symMktTable.find(sym.toStdString()) != dataHub->symMktTable.end()) {
-            auto pos = netPosList[sym];
-            msg += QString("%1%2%3%4%5%6%7\n")
-                    .arg(sym, fw)
-                    .arg(dataHub->symMktTable.at(sym.toStdString()).LastPrice, fw) //todo: to Subscribe if not in MD..
-                    .arg(pos.netPos, fw)
-                    .arg(pos.avgCostPrice, fw)
-                    .arg(pos.positionProfit, fw)
-                    .arg(pos.netPnl, fw)
-                    .arg(getTimeMsec(time, millisec));
-        }
-    }
-    emit sendToPosMonitor(msg);
+//    QString msg;
+//    int fw = -12; // field width left-aligned
+//    msg = QString("%1%2%3%4%5%6%7\n")
+//            .arg("Symbol", fw)
+//            .arg("LastPx", fw)
+//            .arg("NetPos", fw)
+//            .arg("AvgCost", fw)
+//            .arg("PosPnL", fw)
+//            .arg("NetPnL", fw)
+//            .arg("Time");
+//    for (auto sym : netPosList.keys()) {
+//        if (dataHub->symMktTable.find(sym.toStdString()) != dataHub->symMktTable.end()) {
+//            auto pos = netPosList[sym];
+//            msg += QString("%1%2%3%4%5%6%7\n")
+//                    .arg(sym, fw)
+//                    .arg(dataHub->symMktTable.at(sym.toStdString()).LastPrice, fw) //todo: to Subscribe if not in MD..
+//                    .arg(pos.netPos, fw)
+//                    .arg(pos.avgCostPrice, fw)
+//                    .arg(pos.positionProfit, fw)
+//                    .arg(pos.netPnl, fw)
+//                    .arg(getTimeMsec(time, millisec));
+//        }
+//    }
+    emit sendToPosMonitor();
 }
 
 void Portfolio::printAcc()
 {
-    QString msg;
-    int fw = -12; // field width left-aligned
-    msg = QString("%1%2%3%4%5%6%7\n")
-            .arg("Balance", fw)
-            .arg("Grs.PnL", fw)
-            .arg("R.PnL", fw)
-            .arg("Unr.PnL", fw)
-            .arg("Margin", fw)
-            .arg("Comm", fw)
-            .arg("Time");
-    msg += QString("%1%2%3%4%5%6%7\n")
-            .arg(pfValue.balance, fw, 'f', 0)
-            .arg(pfValue.netPnl, fw)
-            .arg(pfValue.closeProfit, fw)
-            .arg(pfValue.positionProfit, fw)
-            .arg(pfValue.margin, fw)
-            .arg(pfValue.commission, fw)
-            .arg(getTimeMsec(time, millisec));
-    emit sendToAccMonitor(msg);
+//    QString msg;
+//    int fw = -12; // field width left-aligned
+//    msg = QString("%1%2%3%4%5%6%7\n")
+//            .arg("Balance", fw)
+//            .arg("Grs.PnL", fw)
+//            .arg("R.PnL", fw)
+//            .arg("Unr.PnL", fw)
+//            .arg("Margin", fw)
+//            .arg("Comm", fw)
+//            .arg("Time");
+//    msg += QString("%1%2%3%4%5%6%7\n")
+//            .arg(pfValue.balance, fw, 'f', 0)
+//            .arg(pfValue.netPnl, fw)
+//            .arg(pfValue.closeProfit, fw)
+//            .arg(pfValue.positionProfit, fw)
+//            .arg(pfValue.margin, fw)
+//            .arg(pfValue.commission, fw)
+//            .arg(getTimeMsec(time, millisec));
+    emit sendToAccMonitor();
 }
 
 AggPosList Portfolio::constructAggPosList(PosList pList)
@@ -276,9 +259,9 @@ NetPosList Portfolio::constructNetPosList(AggPosList apList)
     return npList;
 }
 
-void Portfolio::updatePosOnTrade(AggPosList &al, PosList &pl, CThostFtdcTradeField *td, SymInfoTable &info)
+void Portfolio::updatePosOnTrade(AggPosList &al, PosList &pl, CThostFtdcTradeField &td, SymInfoTable &info)
 {
-    switch (td->OffsetFlag)
+    switch (td.OffsetFlag)
     {
     case THOST_FTDC_OF_Open:
     {
@@ -295,26 +278,25 @@ void Portfolio::updatePosOnTrade(AggPosList &al, PosList &pl, CThostFtdcTradeFie
     case THOST_FTDC_OF_CloseToday:
     case THOST_FTDC_OF_CloseYesterday:
     {
-        auto tdcpy = new CThostFtdcTradeField;
-        memcpy(tdcpy, td, sizeof(CThostFtdcTradeField));
+        auto tdcpy = td;
         // QMap is sorted by key
         for (auto &p : pl) {
             //Position& p = pos;
-            if (p.sym == string(tdcpy->InstrumentID) &&
-                p.direction != mymap::direction_char.at(tdcpy->Direction) &&
+            if (p.sym == string(tdcpy.InstrumentID) &&
+                p.direction != mymap::direction_char.at(tdcpy.Direction) &&
                 p.pos > 0 &&
-                (td->OffsetFlag == THOST_FTDC_OF_Close ||
-                    (td->OffsetFlag == THOST_FTDC_OF_CloseToday && p.positionDateCategory == 'T') ||
-                    (td->OffsetFlag == THOST_FTDC_OF_CloseYesterday && p.positionDateCategory == 'H')))
+                (td.OffsetFlag == THOST_FTDC_OF_Close ||
+                    (td.OffsetFlag == THOST_FTDC_OF_CloseToday && p.positionDateCategory == 'T') ||
+                    (td.OffsetFlag == THOST_FTDC_OF_CloseYesterday && p.positionDateCategory == 'H')))
             {
-                auto deltaPos = min(p.pos, tdcpy->Volume);
+                auto deltaPos = min(p.pos, tdcpy.Volume);  //check whether seperated to more than 1 trade? no. OnRtnTrade once.
                 if (deltaPos != 0)
                 {
                     al[p.aggPositionID].delPosition(p);
                     p.updateOnTrade(tdcpy);
                     al[p.aggPositionID].addPosition(p);
                 }
-                tdcpy->Volume -= deltaPos;
+                tdcpy.Volume -= deltaPos;  //can add: if Volume == 0, break
             }
         }
         break;
@@ -349,12 +331,14 @@ void Portfolio::updatePosOnTrade(AggPosList &al, PosList &pl, CThostFtdcTradeFie
     }
 }
 
-void Portfolio::evalAccount(PortfolioValue &acc, AggPosList &aplist, SymMktTable &smkt)
+void Portfolio::evalAccount(PortfolioValue &pfValue, AggPosList &aplist, SymMktTable &smkt)
 {
-    acc.positionProfit = 0;
-    acc.closeProfit = 0;
-    acc.grossPnl = 0;
-    acc.netPnl = 0;
+//    std::mutex mu;
+//    mu.lock();
+    pfValue.positionProfit = 0;
+    pfValue.closeProfit = 0;
+    pfValue.grossPnl = 0;
+    pfValue.netPnl = 0;
     for (auto &ap : aplist)
     {
         if (smkt.find(ap.sym) != smkt.end())
@@ -364,16 +348,17 @@ void Portfolio::evalAccount(PortfolioValue &acc, AggPosList &aplist, SymMktTable
             else
                 ap.mtm(smkt[ap.sym].LastPrice);
         }
-        acc.positionProfit += ap.positionProfit;
-        acc.closeProfit += ap.dailyCloseProfit;
-        acc.grossPnl += ap.grossPnl;
-        acc.netPnl += ap.netPnl;
+        pfValue.positionProfit += ap.positionProfit;
+        pfValue.closeProfit += ap.dailyCloseProfit;
+        pfValue.grossPnl += ap.grossPnl;
+        pfValue.netPnl += ap.netPnl;
     }
     netPosList.clear();
     netPosList = constructNetPosList(aggPosList);
     //acc.balance = acc.cashBalance + acc.netPnl;
-    acc.balance = acc.cashBalance + acc.grossPnl - acc.commission;
-    acc.available = acc.balance - acc.margin; //TODO: add frozen margin etc.
+    pfValue.balance = pfValue.cashBalance + pfValue.grossPnl - pfValue.commission;
+    pfValue.available = pfValue.balance - pfValue.margin; //TODO: add frozen margin etc.
+//    mu.unlock();
 }
 
 void Portfolio::evalOnTick(PortfolioValue &acc, AggPosList &aplist, CThostFtdcDepthMarketDataField &mkt)

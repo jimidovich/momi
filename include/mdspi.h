@@ -9,6 +9,7 @@
 
 #include "datahub.h"
 #include "dispatcher.h"
+#include "ctpmonitor.h"
 
 
 class MdSpi : public QObject, public CThostFtdcMdSpi {

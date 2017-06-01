@@ -9,29 +9,29 @@ Position::Position()
 {
 }
 
-Position::Position(CThostFtdcInvestorPositionDetailField *df, const SymInfoTable &info)
+Position::Position(CThostFtdcInvestorPositionDetailField &df, const SymInfoTable &info)
 {
-	sym = df->InstrumentID;
-	brokerID = df->BrokerID;
-	investorID = df->InvestorID;
-	hedgeFlag = mymap::hedgeFlag_char.at(df->HedgeFlag);
-	direction = mymap::direction_char.at(df->Direction);
+    sym = df.InstrumentID;
+    brokerID = df.BrokerID;
+    investorID = df.InvestorID;
+    hedgeFlag = mymap::hedgeFlag_char.at(df.HedgeFlag);
+    direction = mymap::direction_char.at(df.Direction);
 	//direction = direction_char['0'];
-	openDate = df->OpenDate;
-	tradeID = df->TradeID;
-    pos = df->Volume;
-	entryPrice = df->OpenPrice;
-	tradingDay = df->TradingDay;
-	exchangeID = df->ExchangeID;
-	//dailyCloseProfit = df->CloseProfitByDate;
-	tradeCloseProfit = df->CloseProfitByTrade;	// CHECK when need, not sure correct
-    dailyUnrProfit = df->PositionProfitByDate;
-    cumulUnrProfit = df->PositionProfitByTrade;
-	margin = df->Margin;
-	marginRate = df->MarginRateByMoney;
-	lastSttlPrice = df->LastSettlementPrice;
-	sttlPrice = df->SettlementPrice;
-	closeVolume = df->CloseVolume;
+    openDate = df.OpenDate;
+    tradeID = df.TradeID;
+    pos = df.Volume;
+    entryPrice = df.OpenPrice;
+    tradingDay = df.TradingDay;
+    exchangeID = df.ExchangeID;
+    //dailyCloseProfit = df.CloseProfitByDate;
+    tradeCloseProfit = df.CloseProfitByTrade;	// CHECK when need, not sure correct
+    dailyUnrProfit = df.PositionProfitByDate;
+    cumulUnrProfit = df.PositionProfitByTrade;
+    margin = df.Margin;
+    marginRate = df.MarginRateByMoney;
+    lastSttlPrice = df.LastSettlementPrice;
+    sttlPrice = df.SettlementPrice;
+    closeVolume = df.CloseVolume;
 
     multiple = info.at(sym).VolumeMultiple;
     positionDateCategory = (openDate == tradingDay ? 'T' : 'H');
@@ -40,25 +40,25 @@ Position::Position(CThostFtdcInvestorPositionDetailField *df, const SymInfoTable
     positionID = QString("%1-%2-%3-%4-%5").arg(sym.c_str()).arg(direction).arg(positionDateCategory)
 		.arg(openDate.c_str()).arg(tradeID.c_str());
 	side = (direction == 'L' ? 1 : -1);
-    dailyCloseProfit = side*(df->CloseAmount - closeVolume*multiple*(positionDateCategory == 'H' ? lastSttlPrice : entryPrice));
+    dailyCloseProfit = side*(df.CloseAmount - closeVolume*multiple*(positionDateCategory == 'H' ? lastSttlPrice : entryPrice));
     grossPnl = dailyCloseProfit + dailyUnrProfit;
 	commission = 0; // TODO: calc
 	netPnl = grossPnl - commission;
 }
 
-Position::Position(CThostFtdcTradeField *td, const SymInfoTable &info)
+Position::Position(CThostFtdcTradeField &td, const SymInfoTable &info)
 {
-	sym = td->InstrumentID;
-	brokerID = td->BrokerID;
-	investorID = td->InvestorID;
-	hedgeFlag = mymap::hedgeFlag_char.at(td->HedgeFlag);
-	direction = mymap::direction_char.at(td->Direction);
-	openDate = td->TradingDay;
-	tradeID = td->TradeID;
-    pos = td->Volume;
-	entryPrice = td->Price;
-	tradingDay = td->TradingDay;
-	exchangeID = td->ExchangeID;
+    sym = td.InstrumentID;
+    brokerID = td.BrokerID;
+    investorID = td.InvestorID;
+    hedgeFlag = mymap::hedgeFlag_char.at(td.HedgeFlag);
+    direction = mymap::direction_char.at(td.Direction);
+    openDate = td.TradingDay;
+    tradeID = td.TradeID;
+    pos = td.Volume;
+    entryPrice = td.Price;
+    tradingDay = td.TradingDay;
+    exchangeID = td.ExchangeID;
 	dailyCloseProfit = 0;
 	tradeCloseProfit = 0;
     dailyUnrProfit = 0;
@@ -84,20 +84,20 @@ Position::~Position()
 {
 }
 
-void Position::updateOnTrade(CThostFtdcTradeField *td)
+void Position::updateOnTrade(CThostFtdcTradeField &td)
 {
-	if (sym == std::string(td->InstrumentID))
+    if (sym == std::string(td.InstrumentID))
 	{
-		switch (td->OffsetFlag)
+        switch (td.OffsetFlag)
 		{
 		case '0': // TODO:can trade add to new position??
 			break;
 		default: // close old
-            auto deltaPos = std::min(pos, td->Volume);
+            auto deltaPos = std::min(pos, td.Volume);
             pos -= deltaPos;
 			closeVolume += deltaPos;
-			tradeCloseProfit += deltaPos*multiple*(direction == 'L' ? 1 : -1) * (td->Price - entryPrice);
-            dailyCloseProfit += deltaPos*multiple*(direction == 'L' ? 1 : -1) * (td->Price - (positionDateCategory == 'T' ? entryPrice : lastSttlPrice));
+            tradeCloseProfit += deltaPos*multiple*(direction == 'L' ? 1 : -1) * (td.Price - entryPrice);
+            dailyCloseProfit += deltaPos*multiple*(direction == 'L' ? 1 : -1) * (td.Price - (positionDateCategory == 'T' ? entryPrice : lastSttlPrice));
 			break;
 		}
 	}
@@ -116,32 +116,32 @@ AggPosition::AggPosition()
 {
 }
 
-AggPosition::AggPosition(CThostFtdcInvestorPositionField *pf, const SymInfoTable &info)
+AggPosition::AggPosition(CThostFtdcInvestorPositionField &pf, const SymInfoTable &info)
 {
-	sym = pf->InstrumentID;
-	brokerID = pf->BrokerID;
-	investorID = pf->InvestorID;
-	direction = mymap::posiDirection_char.at(pf->PosiDirection);
-	hedgeFlag = mymap::hedgeFlag_char.at(pf->HedgeFlag);
-    positionDateCategory = mymap::positionDate_char.at(pf->PositionDate);
-	ydPos = pf->YdPosition;
-	tdPos = pf->TodayPosition;
-	pos = pf->Position;
-	openVolume = pf->OpenVolume;
-	closVolume = pf->CloseVolume;
-	openAmount = pf->OpenAmount;
-	closeAmount = pf->CloseAmount;
-	positionCost = pf->PositionCost;
-	margin = pf->UseMargin;
-	marginRate = pf->MarginRateByMoney;
-	commission = pf->Commission;
-	closeProfit = pf->CloseProfit;
-	positionProfit = pf->PositionProfit;
-	preSttlPrice = pf->PreSettlementPrice;
-	sttlPrice = pf->SettlementPrice;
-	tradingDay = pf->TradingDay;
-	dailyCloseProfit = pf->CloseProfitByDate;
-	tradeCloseProfit = pf->CloseProfitByTrade;
+    sym = pf.InstrumentID;
+    brokerID = pf.BrokerID;
+    investorID = pf.InvestorID;
+    direction = mymap::posiDirection_char.at(pf.PosiDirection);
+    hedgeFlag = mymap::hedgeFlag_char.at(pf.HedgeFlag);
+    positionDateCategory = mymap::positionDate_char.at(pf.PositionDate);
+    ydPos = pf.YdPosition;
+    tdPos = pf.TodayPosition;
+    pos = pf.Position;
+    openVolume = pf.OpenVolume;
+    closVolume = pf.CloseVolume;
+    openAmount = pf.OpenAmount;
+    closeAmount = pf.CloseAmount;
+    positionCost = pf.PositionCost;
+    margin = pf.UseMargin;
+    marginRate = pf.MarginRateByMoney;
+    commission = pf.Commission;
+    closeProfit = pf.CloseProfit;
+    positionProfit = pf.PositionProfit;
+    preSttlPrice = pf.PreSettlementPrice;
+    sttlPrice = pf.SettlementPrice;
+    tradingDay = pf.TradingDay;
+    dailyCloseProfit = pf.CloseProfitByDate;
+    tradeCloseProfit = pf.CloseProfitByTrade;
 
     multiple = info.at(sym).VolumeMultiple;
 	avgCostPrice = (pos == 0 ? 0 : positionCost / pos / multiple);
