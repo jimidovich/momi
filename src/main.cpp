@@ -32,48 +32,6 @@
 
 using namespace std;
 
-//string greencolor = "\033[32m";
-//string yellowcolor = "\033[33m";
-//string resetcolor = "\033[00m";
-
-// TESTING
-class Reader
-{
-public:
-    Reader(string name):name(name){}
-    Reader(){}
-    ~Reader(){}
-    void onTick(double data, string color);
-    void onEvent(CtpEvent ev);
-private:
-    string name;
-    thread myThread;
-    unique_lock<mutex> locker;
-};
-
-void Reader::onTick(double data, string color) {
-//    cout << name << " px=" << data << endl;
-}
-
-void Reader::onEvent(CtpEvent ev) {
-    switch (ev.type) {
-    case MarketEvent:
-        cout << name << " " << chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count()%1000000 <<
-            " sym=" << ev.mkt.InstrumentID << " px=" << ev.mkt.LastPrice << endl;
-        break;
-    case TradeEvent:
-        cout << name << " rtntrade" << chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count()%1000000 <<
-            " sym=" << ev.trade.InstrumentID << " px=" << ev.trade.Price << endl;
-    case AccountInfoEvent:
-        cout << name << " AccountInfo" << chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count()%1000000 <<
-            " avail" << ev.accInfo.Available << endl;
-    default:
-        break;
-    }
-}
-// end TESTING class
-
-
 int main(int argc, char *argv[])
 {
     QTextCodec *codec = QTextCodec::codecForName("GB2312");
@@ -99,37 +57,26 @@ int main(int argc, char *argv[])
     console->info("Enter Program");
     file_logger->info("Enter Program");
 
-    QApplication a(argc, argv);
-    CtpMonitor *w = nullptr;
-    if (argc == 1) {
-        w = new CtpMonitor;
-        w->show();
-    }
-
-    KdbConnector kdbConnector("kdbconn");
-
+    // Begin making real shit
     Trader trader("tcp://180.168.146.187:10000", "9999", "063669", "1qaz2wsx");
     //Trader trader("tcp://222.66.235.70:21205", "66666", "00008218", "183488");
     MdSpi mdspi("tcp://180.168.146.187:10010", "9999", "063669", "1qaz2wsx");
     //MdSpi mdspi("tcp://222.66.235.70:21214", "66666", "00008218", "183488");
 
-    Kalman kf;
-    OMS oms;
     Portfolio pf;
+    OMS oms;
+    KdbConnector kdbConnector("kdbconn");
+    Kalman kf;
 
     kf.setOMS(&oms);
     oms.setTrader(&trader);
     oms.setPortfolio(&pf);
-    w->pf = &pf;
 
-
-//    TESTING
     DataHub dataHub;
     mdspi.dataHub = &dataHub;
     trader.dataHub = &dataHub;
     pf.dataHub = &dataHub;
     kf.dataHub = &dataHub;
-    w->dataHub = &dataHub;
     Dispatcher1 d1("d1");
     d1.dataHub = &dataHub;
 
@@ -146,77 +93,42 @@ int main(int argc, char *argv[])
     strategy.oms = &oms;
 //    strategy.rm = &rm;
 
-
-//    Reader reader1("reader1");
-//    Reader reader2("r");
-//    d.r1 = &reader1;
-//    d.r2 = &reader2;
-
     d1.runThread();
 
-//    for (int i=0; i<10; ++i) {
-//        CThostFtdcDepthMarketDataField f = {};
-//        strcpy(f.InstrumentID, "aaaabbbbccccddddeeeeffffgggghhhhiiiijjjj");
-//        f.LastPrice = 90.0+i;
-//        mdspi.OnRtnDepthMarketData(&f);
-
-//    CThostFtdcTradeField td = {};
-//    td.Price = 1000;
-//    trader.OnRtnTrade(&td);
-//    }
-//    CThostFtdcTradingAccountField f = {};
-//    f.Available = 888;
-//    trader.OnRspQryTradingAccount(&f,nullptr,1,true);
-
-//    CThostFtdcInstrumentField f1{};
-//    strcpy(f1.InstrumentID, "aa111");
-//    trader.OnRspQryInstrument(&f1,nullptr,2,true);
-
-
-
-//    END TESTING
-
-
-
-//    QThread thread;
-    //QThread thread1;
-    // TODO: Check connector operating in other thread.
-    // use direct call or func pointer of base class for other thread.
-//    kdbConnector.moveToThread(&thread);
-//    dispatcher.moveToThread(&thread);
-//    pf.moveToThread(&thread);
-
-    TickSubscriber tickSub("kdbsub");
+//    TickSubscriber tickSub("kdbsub");
     //tickSub.moveToThread(&thread1);
 
-//    thread.start();
-
-    //if (std::string(argv[1]) == "--nogui")
+    QApplication a(argc, argv);
     if (argc == 1) {
-//        CtpMonitor w;
+        auto w = new CtpMonitor;
+        w->dataHub = &dataHub;
+        auto posTV = new PosTableModel(w, &pf, &dataHub);
+        auto accTV = new AccTableModel(w, &pf);
+        w->posTableModel = posTV;
+        w->accTableModel = accTV;
+        w->getui().posTableView->setModel(w->posTableModel);
+        w->getui().accTableView->setModel(w->accTableModel);
+        w->getui().posTableView->setColumnWidth(6, 120);
+        w->getui().accTableView->setColumnWidth(6, 120);
+
         QObject::connect(&trader, &Trader::sendToTraderMonitor, w, &CtpMonitor::printTraderMsg);
         QObject::connect(&trader, &Trader::sendToTraderCmdMonitor, w, &CtpMonitor::printToTraderCmdMonitor);
-        QObject::connect(w, &CtpMonitor::sendCmdLineToTrader, &trader, &Trader::execCmdLine);
         QObject::connect(&mdspi, &MdSpi::sendToTraderMonitor, w, &CtpMonitor::printTraderMsg);
-//        QObject::connect(&mdspi, &MdSpi::sendToMdMonitor, w, &CtpMonitor::printMdSpiMsg);
-        QObject::connect(w, &CtpMonitor::sendCmdLineToMdspi, &mdspi, &MdSpi::execCmdLine);
-        QObject::connect(&pf, &Portfolio::sendToPosMonitor, w, &CtpMonitor::printPosMsg);
-        QObject::connect(&pf, &Portfolio::sendToAccMonitor, w, &CtpMonitor::printAccMsg);
         QObject::connect(&oms, &OMS::sendToTraderMonitor, w, &CtpMonitor::printTraderMsg);
+//        QObject::connect(&mdspi, &MdSpi::sendToMdMonitor, w, &CtpMonitor::printMdSpiMsg);
+        QObject::connect(w, &CtpMonitor::sendCmdLineToTrader, &trader, &Trader::execCmdLine);
+        QObject::connect(w, &CtpMonitor::sendCmdLineToMdspi, &mdspi, &MdSpi::execCmdLine);
         QObject::connect(w, &CtpMonitor::sendCmdLineToOms, &oms, &OMS::execCmdLine);
-        //mythread.kdbConnector.setTradingDay(trader.getTradingDay().c_str());
+        QObject::connect(&pf, &Portfolio::updatePosTable, w, &CtpMonitor::updatePosTable);
+        QObject::connect(&pf, &Portfolio::updateAccTable, w, &CtpMonitor::updateAccTable);
 
-        // posTableView i may not doing it right
-//        w->getui().posTableView->setModel(&pf);
-//        pf.setPosTableView(w->getui().posTableView);
+        //mythread.kdbConnector.setTradingDay(trader.getTradingDay().c_str());
 
         w->show();
         auto ret = a.exec();
-//        thread.exit();
         delete w;
         return ret;
     } else {
         return a.exec();
     }
-
 }

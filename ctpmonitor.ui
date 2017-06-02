@@ -3033,6 +3033,22 @@ QProgressBar::chunk {
      </font>
     </property>
    </widget>
+   <widget class="QTableView" name="accTableView">
+    <property name="geometry">
+     <rect>
+      <x>830</x>
+      <y>210</y>
+      <width>256</width>
+      <height>192</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>xos4 Terminess Powerline</family>
+      <pointsize>11</pointsize>
+     </font>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

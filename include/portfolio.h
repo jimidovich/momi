@@ -7,7 +7,6 @@
 
 #include "position.h"
 #include "datahub.h"
-#include "ctpmonitor.h"
 
 class position;
 class RM;
@@ -26,6 +25,7 @@ public:
 	std::string brokerID;
 	std::string accountID;
 	std::string tradingDay;
+    std::string lastUpdateTime;
 	double preDeposit{ 0 };
 	double preBalance{ 0 };
 	double preMargin{ 0 };
@@ -42,36 +42,32 @@ public:
 	double netPnl{ 0 };
 };
 
-class Portfolio : public QAbstractTableModel {
+class Portfolio : public QObject
+{
 	Q_OBJECT
 
 public:
 	Portfolio();
 	~Portfolio();
 
-	int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
-	int columnCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
-	QVariant headerData(int section, Qt::Orientation orientation, int role) const Q_DECL_OVERRIDE;
-	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
-	void updatePosTable();
-    void setPosTableView(QTableView *ptv);
-
     void onCtpEvent(CtpEvent ev);
 
 	PosList posList;
 	AggPosList aggPosList;
 	NetPosList netPosList;
+    PortfolioValue pfValue;
 
     DataHub *dataHub;
 
     std::string tradingDay;
     std::string time;
     int millisec{ 0 };
-    PortfolioValue pfValue;
+    int numNetPosRows = 0;
+
 
 signals:
-    void sendToPosMonitor();
-    void sendToAccMonitor();
+    void updatePosTable();
+    void updateAccTable();
 
 private:
 	//QMap<string, double> commRateList;

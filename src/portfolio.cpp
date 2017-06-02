@@ -17,97 +17,29 @@
 
 using namespace std;
 
+QString getTimeMsec(std::string time, int ms)
+{
+    QString msec(QString::number(ms));
+    switch (msec.length())
+    {
+    case 1:
+        msec = "00" + msec;
+        break;
+    case 2:
+        msec = "0" + msec;
+        break;
+    default:
+        break;
+    }
+    return QString(time.c_str()) + "." + msec;
+}
+
 Portfolio::Portfolio()
 {
 }
 
 Portfolio::~Portfolio()
 {
-}
-
-int Portfolio::rowCount(const QModelIndex &parent /*= QModelIndex()*/) const
-{
-    return netPosList.size();
-    //return 5;
-}
-
-int Portfolio::columnCount(const QModelIndex &parent /*= QModelIndex()*/) const
-{
-    return 4;
-}
-
-QVariant Portfolio::headerData(int section, Qt::Orientation orientation, int role) const
-{
-    if (role == Qt::DisplayRole)
-    {
-        if (orientation == Qt::Horizontal) {
-            switch (section)
-            {
-            case 0: return QString("Instrument");
-            case 1: return QString("Price");
-            case 2: return QString("Net Pos");
-            case 3: return QString("Net PnL");
-            }
-        }
-    }
-    return QVariant();
-}
-
-QVariant Portfolio::data(const QModelIndex &index, int role /*= Qt::DisplayRole*/) const
-{
-    if (role == Qt::DisplayRole) {
-        int row = index.row();
-        int col = index.column();
-        if (row < netPosList.size()) {
-            auto i = netPosList.begin();
-            auto curr_sym = (i + row).value().sym;
-            switch (col)
-            {
-            case 0: return QString(curr_sym.c_str());
-            case 1:
-                if (dataHub->symMktTable.find(curr_sym) != dataHub->symMktTable.end())
-                {
-                    return QString::number(dataHub->symMktTable.at(curr_sym).LastPrice);
-                }
-                else
-                    return "";
-                //case 1: return "test";
-            case 2: return QString::number((i + row).value().netPos);
-            case 3: return QString::number((i + row).value().netPnl, 'f', 2);
-            default:
-                break;
-            }
-        }
-        else
-            return "test";
-    }
-    return QVariant();
-}
-
-void Portfolio::updatePosTable()
-{
-    //auto i = netPosList.begin();
-    //auto role = Qt::EditRole;
-    //for (int row = 0; row < netPosList.size(); ++row) {
-    //	for (int col = 0; col < 3; ++col) {
-    //		switch (col)
-    //		{
-    //		case 0: setData(index(row, col), QString((i + row).value().sym.c_str()), role);
-    //		case 1: setData(index(row, col), QString::number((i + row).value().netPos), role);
-    //		case 2: setData(index(row, col), QString::number((i + row).value().netPos), role);
-    //		}
-    //	}
-    //}
-    beginResetModel();
-    endResetModel();
-    //auto topleft = createIndex(0, 0);
-    //auto bottomright = createIndex(netPosList.size(), 2);
-    //emit dataChanged(topleft, bottomright);
-}
-
-void Portfolio::setPosTableView(QTableView *ptv)
-{
-    postableview = ptv;
 }
 
 void Portfolio::onCtpEvent(CtpEvent ev)
@@ -135,9 +67,8 @@ void Portfolio::onCtpEvent(CtpEvent ev)
             netPosList = constructNetPosList(aggPosList);
 //            isInPosStream = false;
             beginUpdate = true;
-            // Reset Tableview rows
-            beginResetModel();
-            endResetModel();
+            numNetPosRows = netPosList.size();  // just for posTableView behavior use
+            emit updatePosTable();
         }
         break;
     }
@@ -154,16 +85,19 @@ void Portfolio::onCtpEvent(CtpEvent ev)
     {
         string sym = ev.mkt.InstrumentID;
 
-        //TODO: if sym in positions then do
-        evalAccount(pfValue, aggPosList, dataHub->symMktTable);	// Choose which price to MTM
-        time = ev.mkt.UpdateTime;
-        millisec = ev.mkt.UpdateMillisec;
+        for (auto i : aggPosList) {
+            if (i.sym == sym) {
+                evalAccount(pfValue, aggPosList, dataHub->symMktTable);	// Choose which price to MTM
+                time = ev.mkt.UpdateTime;
+                millisec = ev.mkt.UpdateMillisec;
 
-//        auto accEvent = new MyEvent(AccountUpdateEvent, &acc);
-//        QCoreApplication::postEvent(dispatcher, accEvent);
-        printAcc();
-        printNetPos();
-//        updatePosTable();
+//                auto accEvent = new MyEvent(AccountUpdateEvent, &acc);
+//                QCoreApplication::postEvent(dispatcher, accEvent);
+
+                emit updateAccTable();
+                emit updatePosTable();
+            }
+        }
         break;
     }
     case TradeEvent:
@@ -180,57 +114,6 @@ void Portfolio::onCtpEvent(CtpEvent ev)
     default:
         break;
     }
-}
-
-void Portfolio::printNetPos()
-{
-//    QString msg;
-//    int fw = -12; // field width left-aligned
-//    msg = QString("%1%2%3%4%5%6%7\n")
-//            .arg("Symbol", fw)
-//            .arg("LastPx", fw)
-//            .arg("NetPos", fw)
-//            .arg("AvgCost", fw)
-//            .arg("PosPnL", fw)
-//            .arg("NetPnL", fw)
-//            .arg("Time");
-//    for (auto sym : netPosList.keys()) {
-//        if (dataHub->symMktTable.find(sym.toStdString()) != dataHub->symMktTable.end()) {
-//            auto pos = netPosList[sym];
-//            msg += QString("%1%2%3%4%5%6%7\n")
-//                    .arg(sym, fw)
-//                    .arg(dataHub->symMktTable.at(sym.toStdString()).LastPrice, fw) //todo: to Subscribe if not in MD..
-//                    .arg(pos.netPos, fw)
-//                    .arg(pos.avgCostPrice, fw)
-//                    .arg(pos.positionProfit, fw)
-//                    .arg(pos.netPnl, fw)
-//                    .arg(getTimeMsec(time, millisec));
-//        }
-//    }
-    emit sendToPosMonitor();
-}
-
-void Portfolio::printAcc()
-{
-//    QString msg;
-//    int fw = -12; // field width left-aligned
-//    msg = QString("%1%2%3%4%5%6%7\n")
-//            .arg("Balance", fw)
-//            .arg("Grs.PnL", fw)
-//            .arg("R.PnL", fw)
-//            .arg("Unr.PnL", fw)
-//            .arg("Margin", fw)
-//            .arg("Comm", fw)
-//            .arg("Time");
-//    msg += QString("%1%2%3%4%5%6%7\n")
-//            .arg(pfValue.balance, fw, 'f', 0)
-//            .arg(pfValue.netPnl, fw)
-//            .arg(pfValue.closeProfit, fw)
-//            .arg(pfValue.positionProfit, fw)
-//            .arg(pfValue.margin, fw)
-//            .arg(pfValue.commission, fw)
-//            .arg(getTimeMsec(time, millisec));
-    emit sendToAccMonitor();
 }
 
 AggPosList Portfolio::constructAggPosList(PosList pList)
@@ -358,6 +241,7 @@ void Portfolio::evalAccount(PortfolioValue &pfValue, AggPosList &aplist, SymMktT
     //acc.balance = acc.cashBalance + acc.netPnl;
     pfValue.balance = pfValue.cashBalance + pfValue.grossPnl - pfValue.commission;
     pfValue.available = pfValue.balance - pfValue.margin; //TODO: add frozen margin etc.
+    pfValue.lastUpdateTime = getTimeMsec(time, millisec).toStdString();
 //    mu.unlock();
 }
 
@@ -414,4 +298,56 @@ PortfolioValue::PortfolioValue(CThostFtdcTradingAccountField *af)
     cashBalance = preBalance - withdraw + deposit;
     grossPnl = closeProfit + positionProfit;
     netPnl = grossPnl - commission;  // balance = cashBalance + netPnl
+}
+
+
+void Portfolio::printNetPos()
+{
+//    QString msg;
+//    int fw = -12; // field width left-aligned
+//    msg = QString("%1%2%3%4%5%6%7\n")
+//            .arg("Symbol", fw)
+//            .arg("LastPx", fw)
+//            .arg("NetPos", fw)
+//            .arg("AvgCost", fw)
+//            .arg("PosPnL", fw)
+//            .arg("NetPnL", fw)
+//            .arg("Time");
+//    for (auto sym : netPosList.keys()) {
+//        if (dataHub->symMktTable.find(sym.toStdString()) != dataHub->symMktTable.end()) {
+//            auto pos = netPosList[sym];
+//            msg += QString("%1%2%3%4%5%6%7\n")
+//                    .arg(sym, fw)
+//                    .arg(dataHub->symMktTable.at(sym.toStdString()).LastPrice, fw) //todo: to Subscribe if not in MD..
+//                    .arg(pos.netPos, fw)
+//                    .arg(pos.avgCostPrice, fw)
+//                    .arg(pos.positionProfit, fw)
+//                    .arg(pos.netPnl, fw)
+//                    .arg(getTimeMsec(time, millisec));
+//        }
+//    }
+//    emit sendToPosMonitor();
+}
+
+void Portfolio::printAcc()
+{
+//    QString msg;
+//    int fw = -12; // field width left-aligned
+//    msg = QString("%1%2%3%4%5%6%7\n")
+//            .arg("Balance", fw)
+//            .arg("Grs.PnL", fw)
+//            .arg("R.PnL", fw)
+//            .arg("Unr.PnL", fw)
+//            .arg("Margin", fw)
+//            .arg("Comm", fw)
+//            .arg("Time");
+//    msg += QString("%1%2%3%4%5%6%7\n")
+//            .arg(pfValue.balance, fw, 'f', 0)
+//            .arg(pfValue.netPnl, fw)
+//            .arg(pfValue.closeProfit, fw)
+//            .arg(pfValue.positionProfit, fw)
+//            .arg(pfValue.margin, fw)
+//            .arg(pfValue.commission, fw)
+//            .arg(getTimeMsec(time, millisec));
+//    emit sendToAccMonitor();
 }

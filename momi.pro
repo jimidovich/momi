@@ -30,7 +30,8 @@ SOURCES += src/main.cpp\
     src/strategy.cpp \
     src/trader.cpp \
     src/account.cpp \
-    src/book.cpp
+    src/book.cpp \
+    src/tablemodel.cpp
 
 HEADERS += include/ctpmonitor.h \
     include/datahub.h \
@@ -52,7 +53,8 @@ HEADERS += include/ctpmonitor.h \
     include/ThostFtdcUserApiDataType.h \
     include/ThostFtdcUserApiStruct.h \
     include/account.h \
-    include/book.h
+    include/book.h \
+    include/tablemodel.h
 
 FORMS += ctpmonitor.ui
 
