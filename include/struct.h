@@ -19,7 +19,6 @@ struct Symbol {
 };
 typedef QMap<std::string, Symbol> SymbolList;
 
-
 struct Symbol1 {
     Symbol1() {}
     Symbol1(CThostFtdcDepthMarketDataField mkt, CThostFtdcInstrumentField info)
@@ -28,8 +27,6 @@ struct Symbol1 {
     CThostFtdcInstrumentField info;
 };
 typedef QMap<std::string, Symbol1> SymbolList1;
-
-
 
 struct AccountMtM {
     std::string accountID;
@@ -88,153 +85,153 @@ enum EnumDirectionType
 
 enum EnumContingentConditionType
 {
-    ///����
+    ///立即
     Immediately = THOST_FTDC_CC_Immediately,
-    ///ֹ��
+    ///止损
     Touch = THOST_FTDC_CC_Touch,
-    ///ֹӮ
+    ///止赢
     TouchProfit = THOST_FTDC_CC_TouchProfit,
-    ///Ԥ����
+    ///预埋单
     ParkedOrder = THOST_FTDC_CC_ParkedOrder,
-    ///���¼۴���������
+    ///最新价大于条件价
     LastPriceGreaterThanStopPrice = THOST_FTDC_CC_LastPriceGreaterThanStopPrice,
-    ///���¼۴��ڵ���������
+    ///最新价大于等于条件价
     LastPriceGreaterEqualStopPrice = THOST_FTDC_CC_LastPriceGreaterEqualStopPrice,
-    ///���¼�С��������
+    ///最新价小于条件价
     LastPriceLesserThanStopPrice = THOST_FTDC_CC_LastPriceLesserThanStopPrice,
-    ///���¼�С�ڵ���������
+    ///最新价小于等于条件价
     LastPriceLesserEqualStopPrice = THOST_FTDC_CC_LastPriceLesserEqualStopPrice,
-    ///��һ�۴���������
+    ///卖一价大于条件价
     AskPriceGreaterThanStopPrice = THOST_FTDC_CC_AskPriceGreaterThanStopPrice,
-    ///��һ�۴��ڵ���������
+    ///卖一价大于等于条件价
     AskPriceGreaterEqualStopPrice = THOST_FTDC_CC_AskPriceGreaterEqualStopPrice,
-    ///��һ��С��������
+    ///卖一价小于条件价
     AskPriceLesserThanStopPrice = THOST_FTDC_CC_AskPriceLesserThanStopPrice,
-    ///��һ��С�ڵ���������
+    ///卖一价小于等于条件价
     AskPriceLesserEqualStopPrice = THOST_FTDC_CC_AskPriceLesserEqualStopPrice,
-    ///��һ�۴���������
+    ///买一价大于条件价
     BidPriceGreaterThanStopPrice = THOST_FTDC_CC_BidPriceGreaterThanStopPrice,
-    ///��һ�۴��ڵ���������
+    ///买一价大于等于条件价
     BidPriceGreaterEqualStopPrice = THOST_FTDC_CC_BidPriceGreaterEqualStopPrice,
-    ///��һ��С��������
+    ///买一价小于条件价
     BidPriceLesserThanStopPrice = THOST_FTDC_CC_BidPriceLesserThanStopPrice,
-    ///��һ��С�ڵ���������
+    ///买一价小于等于条件价
     BidPriceLesserEqualStopPrice = THOST_FTDC_CC_BidPriceLesserEqualStopPrice
 };
 
 enum EnumForceCloseReasonType
 {
-    ///��ǿƽ
+    ///自然人临近交割
     NotForceClose = THOST_FTDC_FCC_NotForceClose,
-    ///�ʽ�����
+    ///非强平
     LackDeposit = THOST_FTDC_FCC_LackDeposit,
-    ///�ͻ�����
+    ///资金不足
     ClientOverPositionLimit = THOST_FTDC_FCC_ClientOverPositionLimit,
-    ///��Ա����
+    ///客户超仓
     MemberOverPositionLimit = THOST_FTDC_FCC_MemberOverPositionLimit,
-    ///�ֲַ�������
+    ///会员超仓
     NotMultiple = THOST_FTDC_FCC_NotMultiple,
-    ///Υ��
+    ///持仓非整数倍
     Violation = THOST_FTDC_FCC_Violation,
-    ///����
+    ///违规
     Other = THOST_FTDC_FCC_Other,
-    ///��Ȼ���ٽ�����
+    ///其它
     PersonDeliv = THOST_FTDC_FCC_PersonDeliv
 };
 
 enum EnumOrderPriceTypeType
 {
-    ///������
+    ///任意价
     AnyPrice = THOST_FTDC_OPT_AnyPrice,
-    ///�޼�
+    ///限价
     LimitPrice = THOST_FTDC_OPT_LimitPrice,
-    ///���ż�
+    ///最优价
     BestPrice = THOST_FTDC_OPT_BestPrice,
-    ///���¼�
+    ///最新价
     LastPrice = THOST_FTDC_OPT_LastPrice,
-    ///���¼۸����ϸ�1��ticks
+    ///最新价浮动上浮1个ticks
     LastPricePlusOneTicks = THOST_FTDC_OPT_LastPricePlusOneTicks,
-    ///���¼۸����ϸ�2��ticks
+    ///最新价浮动上浮2个ticks
     LastPricePlusTwoTicks = THOST_FTDC_OPT_LastPricePlusTwoTicks,
-    ///���¼۸����ϸ�3��ticks
+    ///最新价浮动上浮3个ticks
     LastPricePlusThreeTicks = THOST_FTDC_OPT_LastPricePlusThreeTicks,
-    ///��һ��
+    ///卖一价
     AskPrice1 = THOST_FTDC_OPT_AskPrice1,
-    ///��һ�۸����ϸ�1��ticks
+    ///卖一价浮动上浮1个ticks
     AskPrice1PlusOneTicks = THOST_FTDC_OPT_AskPrice1PlusOneTicks,
-    ///��һ�۸����ϸ�2��ticks
+    ///卖一价浮动上浮2个ticks
     AskPrice1PlusTwoTicks = THOST_FTDC_OPT_AskPrice1PlusTwoTicks,
-    ///��һ�۸����ϸ�3��ticks
+    ///卖一价浮动上浮3个ticks
     AskPrice1PlusThreeTicks = THOST_FTDC_OPT_AskPrice1PlusThreeTicks,
-    ///��һ��
+    ///买一价
     BidPrice1 = THOST_FTDC_OPT_BidPrice1,
-    ///��һ�۸����ϸ�1��ticks
+    ///买一价浮动上浮1个ticks
     BidPrice1PlusOneTicks = THOST_FTDC_OPT_BidPrice1PlusOneTicks,
-    ///��һ�۸����ϸ�2��ticks
+    ///买一价浮动上浮2个ticks
     BidPrice1PlusTwoTicks = THOST_FTDC_OPT_BidPrice1PlusTwoTicks,
-    ///��һ�۸����ϸ�3��ticks
+    ///买一价浮动上浮3个ticks
     BidPrice1PlusThreeTicks = THOST_FTDC_OPT_BidPrice1PlusThreeTicks,
-    ///�嵵��
+    ///五档价
     FiveLevelPrice = THOST_FTDC_OPT_FiveLevelPrice
 };
 
 enum EnumTimeConditionType
 {
-    ///�������ɣ���������
+    ///立即完成，否则撤销
     IOC = THOST_FTDC_TC_IOC,
-    ///������Ч
+    ///本节有效
     GFS = THOST_FTDC_TC_GFS,
-    ///������Ч
+    ///当日有效
     GFD = THOST_FTDC_TC_GFD,
-    ///ָ������ǰ��Ч
+    ///指定日期前有效
     GTD = THOST_FTDC_TC_GTD,
-    ///����ǰ��Ч
+    ///撤销前有效
     GTC = THOST_FTDC_TC_GTC,
-    ///���Ͼ�����Ч
+    ///集合竞价有效
     GFA = THOST_FTDC_TC_GFA
 };
 
 enum EnumVolumeConditionType
 {
-    ///�κ�����
+    ///任何数量
     AV = THOST_FTDC_VC_AV,
-    ///��С����
+    ///最小数量
     MV = THOST_FTDC_VC_MV,
-    ///ȫ������
+    ///全部数量
     CV = THOST_FTDC_VC_CV
 };
 
 enum EnumHedgeFlagType
 {
-    ///Ͷ��
+    ///投机
     Speculation = THOST_FTDC_HF_Speculation,
-    ///����
+    ///套利
     Arbitrage = THOST_FTDC_HF_Arbitrage,
-    ///�ױ�
+    ///套保
     Hedge = THOST_FTDC_HF_Hedge,
-    ///������
+    ///做市商
     MarketMaker = THOST_FTDC_HF_MarketMaker
 };
 
 enum EnumOrderStatusType
 {
-    ///ȫ���ɽ�
+    ///全部成交
     AllTraded = THOST_FTDC_OST_AllTraded,
-    ///���ֳɽ����ڶ�����
+    ///部分成交还在队列中
     PartTradedQueueing = THOST_FTDC_OST_PartTradedQueueing,
-    ///���ֳɽ����ڶ�����
+    ///部分成交不在队列中
     PartTradedNotQueueing = THOST_FTDC_OST_PartTradedNotQueueing,
-    ///δ�ɽ����ڶ�����
+    ///未成交还在队列中
     NoTradeQueueing = THOST_FTDC_OST_NoTradeQueueing,
-    ///δ�ɽ����ڶ�����
+    ///未成交不在队列中
     NoTradeNotQueueing = THOST_FTDC_OST_NoTradeNotQueueing,
-    ///����
+    ///撤单
     Canceled = THOST_FTDC_OST_Canceled,
-    ///δ֪
+    ///未知
     Unknown = THOST_FTDC_OST_Unknown,
-    ///��δ����
+    ///尚未触发
     NotTouched = THOST_FTDC_OST_NotTouched,
-    ///�Ѵ���
+    ///已触发
     Touched = THOST_FTDC_OST_Touched
 
 };

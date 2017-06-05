@@ -2,18 +2,10 @@
 #define PORTFOLIO_H
 
 #include <QObject>
-#include <QAbstractTableModel>
-#include <QTableView>
 
 #include "position.h"
 #include "datahub.h"
-
-class position;
-class RM;
-class OMS;
-class Trader;
-class Dispatcher;
-class Kalman;
+#include "dispatcher.h"
 
 struct CtpEvent;
 
@@ -42,7 +34,7 @@ public:
 	double netPnl{ 0 };
 };
 
-class Portfolio : public QObject
+class Portfolio : public QObject , public EventSubscriber
 {
 	Q_OBJECT
 
@@ -86,7 +78,6 @@ private:
 
 
 	int lastRowCount{ 0 };  // for tableview
-	QTableView *postableview;
 
 	//CThostFtdcTradingAccountField accInfo;
 	bool beginUpdate{ true };

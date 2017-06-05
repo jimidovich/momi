@@ -1,19 +1,7 @@
-#include <QCoreApplication>
-#include <QDebug>
-#include <QVector>
-#include <QMap>
-#include <QTimer>
-#include <QThread>
-
 //#include "include/ThostFtdcUserApiDataType.h"
 #include "include/ThostFtdcUserApiStruct.h"
 
-#include "include/kalman.h"
 #include "include/portfolio.h"
-#include "include/struct.h"
-#include "include/rm.h"
-#include "include/oms.h"
-#include "include/trader.h"
 
 using namespace std;
 

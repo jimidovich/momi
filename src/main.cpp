@@ -18,18 +18,6 @@
 // include kdbconnector.h in last order for k.h polute reason
 #include "include/kdbconnector.h"
 
-//#pragma comment(lib,"thostmduserapi.lib")
-//#pragma comment(lib,"thosttraderapi.lib")
-//#pragma comment(lib, "c.lib")
-
-#include <iostream>
-#include <thread>
-#include <mutex>
-#include <condition_variable>
-#include <queue>
-#include <chrono>
-#include <functional>
-
 using namespace std;
 
 int main(int argc, char *argv[])
@@ -59,41 +47,48 @@ int main(int argc, char *argv[])
 
     // Begin making real shit
     Trader trader("tcp://180.168.146.187:10000", "9999", "063669", "1qaz2wsx");
-    //Trader trader("tcp://222.66.235.70:21205", "66666", "00008218", "183488");
     MdSpi mdspi("tcp://180.168.146.187:10010", "9999", "063669", "1qaz2wsx");
-    //MdSpi mdspi("tcp://222.66.235.70:21214", "66666", "00008218", "183488");
+//    Trader trader("tcp://180.168.146.187:10030", "9999", "063669", "1qaz2wsx");
+//    MdSpi mdspi("tcp://180.168.146.187:10031", "9999", "063669", "1qaz2wsx");
+//    Trader trader("tcp://222.66.235.70:21205", "66666", "00008218", "183488");
+//    MdSpi mdspi("tcp://222.66.235.70:21214", "66666", "00008218", "183488");
 
     Portfolio pf;
-    OMS oms;
+    OMS oms(&trader, &pf);
     KdbConnector kdbConnector("kdbconn");
     Kalman kf;
-
     kf.setOMS(&oms);
-    oms.setTrader(&trader);
-    oms.setPortfolio(&pf);
 
     DataHub dataHub;
     mdspi.dataHub = &dataHub;
     trader.dataHub = &dataHub;
     pf.dataHub = &dataHub;
     kf.dataHub = &dataHub;
-    Dispatcher1 d1("d1");
-    d1.dataHub = &dataHub;
+    Dispatcher dispatcher;
+    dispatcher.dataHub = &dataHub;
 
-    using namespace std::placeholders;
-    d1.subscribers.push_back(std::bind(&DataHub::onCtpEvent, &dataHub, _1));
-    d1.subscribers.push_back(std::bind(&Portfolio::onCtpEvent, &pf, _1));
-    d1.subscribers.push_back(std::bind(&OMS::onCtpEvent, &oms, _1));
-    d1.subscribers.push_back(std::bind(&Kalman::onCtpEvent, &kf, _1));
-    d1.subscribers.push_back(std::bind(&KdbConnector::onCtpEvent, &kdbConnector, _1));
+    dispatcher.subs.push_back(&kdbConnector);
+    dispatcher.subs.push_back(&dataHub);
+    dispatcher.subs.push_back(&pf);
+    dispatcher.subs.push_back(&oms);
+    dispatcher.subs.push_back(&kf);
 
-    Strategy strategy;
-    strategy.trader = &trader;
-    strategy.pf = &pf;
-    strategy.oms = &oms;
+    //functional way to register
+//    using namespace std::placeholders;
+//    d1.subscribers.push_back(std::bind(&DataHub::onCtpEvent, &dataHub, _1));
+//    d1.subscribers.push_back(std::bind(&Portfolio::onCtpEvent, &pf, _1));
+//    d1.subscribers.push_back(std::bind(&OMS::onCtpEvent, &oms, _1));
+//    d1.subscribers.push_back(std::bind(&Kalman::onCtpEvent, &kf, _1));
+//    d1.subscribers.push_back(std::bind(&KdbConnector::onCtpEvent, &kdbConnector, _1));
+    dispatcher.runThread();
+
+    //if later wrap all shit to strategy
+//    Strategy strategy;
+//    strategy.trader = &trader;
+//    strategy.pf = &pf;
+//    strategy.oms = &oms;
 //    strategy.rm = &rm;
 
-    d1.runThread();
 
 //    TickSubscriber tickSub("kdbsub");
     //tickSub.moveToThread(&thread1);

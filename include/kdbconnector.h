@@ -10,13 +10,14 @@
 #include "ThostFtdcUserApiStruct.h"
 
 #include "myevent.h"
+#include "dispatcher.h"
 
 #define KXVER 3
 #include "k.h"
 
 class PortfolioValue;
 
-class KdbConnector
+class KdbConnector : public EventSubscriber
 {
 public:
     KdbConnector();

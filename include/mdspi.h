@@ -30,7 +30,7 @@ public:
     void showApiReturn(int ret, QString outputIfSuccess = "", QString outputIfError = "MdApi sent Error.");
     bool isErrorRspInfo(CThostFtdcRspInfoField *pRspInfo, const char *msg = "");
 
-    // overridden CThostFtdcMdSpi callback functions
+    // override CThostFtdcMdSpi callback functions
     void OnFrontConnected();
     void OnFrontDisconnected(int nReason);
 

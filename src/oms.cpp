@@ -9,17 +9,24 @@
 
 OMS::OMS(QObject * parent) : QObject(parent)
 {
-    console = spdlog::get("console");
+    setLogger();
 }
 
-//OMS::OMS(Trader * trader, Portfolio * pf)
-//{
-//	this->trader = trader;
-//	this->pf = pf;
-//}
+OMS::OMS(Trader * trader, Portfolio * pf)
+{
+    this->trader = trader;
+    this->pf = pf;
+    setLogger();
+}
 
 OMS::~OMS()
 {
+}
+
+void OMS::setLogger()
+{
+    console = spdlog::stdout_color_mt(" oms  ");
+    console->set_pattern("[%H:%M:%S.%f] [%L] [%n] %v");
 }
 
 void OMS::onCtpEvent(CtpEvent ev)

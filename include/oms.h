@@ -3,18 +3,14 @@
 
 #include <QObject>
 #include <QColor>
-//#include <QMap>
+#include <QMap>
 
 #include "spdlog/spdlog.h"
 #include "ThostFtdcUserApiStruct.h"
 
 #include "struct.h"
 #include "myevent.h"
-
-//class QObject;
-
-template <class Key, class T>
-class QMap;
+#include "dispatcher.h"
 
 class Portfolio;
 class Trader;
@@ -75,11 +71,11 @@ struct PairPosTarget {
     PosTarget xTarget;
 };
 
-class OMS : public QObject {
+class OMS : public QObject, public EventSubscriber {
     Q_OBJECT
 public:
     OMS(QObject *parent = Q_NULLPTR);
-    //OMS(Trader* trader, Portfolio* pf);
+    OMS(Trader* trader, Portfolio* pf);
     ~OMS();
 
     void onCtpEvent(CtpEvent ev);
@@ -113,6 +109,8 @@ private:
     void orderInsertWithOffsetFlag(std::string &sym, EnumOpenClose o_c, EnumDirectionType direction, double price, int volume);
     void cancelWorkingOrder(std::string &sym, EnumDirectionType direction, int volume);
     void handleWorkingOrder(Order &od);
+
+    void setLogger();
 
     Trader *trader{ nullptr };
     Portfolio *pf{ nullptr };

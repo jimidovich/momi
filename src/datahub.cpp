@@ -40,7 +40,7 @@ void DataHub::onCtpEvent(CtpEvent ev)
     default:
         break;
     }
-    auto end = std::chrono::steady_clock::now();
-    std::cout << "dat " << std::chrono::duration_cast<std::chrono::microseconds>(end - ev.ts).count() << std::endl;
+//    auto end = std::chrono::steady_clock::now();
+//    std::cout << "dat " << std::chrono::duration_cast<std::chrono::microseconds>(end - ev.ts).count() << std::endl;
 
 }

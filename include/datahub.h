@@ -7,6 +7,7 @@
 
 #include "myevent.h"
 #include "struct.h"
+#include "dispatcher.h"
 
 template <typename T>
 class DataQueue
@@ -20,7 +21,6 @@ public:
             std::unique_lock<std::mutex> locker(mu);
             q.push(data);
             count++;
-//            locker.unlock();
         }
         newDataPosted.notify_one();
     }
@@ -31,7 +31,6 @@ public:
             newDataPosted.wait(locker);
         auto data = q.front();
         q.pop();
-//        locker.unlock();
         return data;
     }
 
@@ -41,13 +40,12 @@ public:
     int count = 0;
 };
 
-class DataHub
+class DataHub : public EventSubscriber
 {
 public:
-    DataQueue<double> feedQueue;
+//    DataQueue<double> feedQueue;  // for testing
     DataQueue<CtpEvent> eventQueue;
 
-//    SymbolList1 symList1;
     SymInfoTable symInfoTable;
     SymMktTable symMktTable;
 

@@ -1,5 +1,6 @@
 #include <iostream>
 #include "include/dispatcher.h"
+#include "include/datahub.h"
 
 using namespace std;
 
@@ -21,12 +22,11 @@ private:
     unique_lock<mutex> locker;
 };
 
-void Dispatcher1::waitForTick() {
+void Dispatcher::waitForTick() {
     while(1) {
 //        auto data = dataHub->feedQueue.fetch();
         auto ev = dataHub->eventQueue.fetch();
 
-//        auto us1 = chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count()%1000000;
         //dispatching
 //        auto t1 = thread(&Reader::onTick, r1, data, "");
 //        auto t2 = thread(&Reader::onEvent, r2, ev);
@@ -46,19 +46,20 @@ void Dispatcher1::waitForTick() {
 //        pf->onCtpEvent(ev);
 //        dataHub->onCtpEvent(ev);
 
-        for (auto sub : subscribers) {
-            sub(ev);
-//            auto t = thread(sub, ev);
-//            t.detach();
+//        for (auto sub : subscribers) {
+//            sub(ev);
+////            auto t = thread(sub, ev);
+////            t.detach();
+//        }
+        for (auto sub : subs) {
+            sub->onCtpEvent(ev);
         }
-//        auto us2 = chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count()%1000000;
-//        cout << "o " << us1 << " elapsed " << us2-us1 << endl;
 
 
         //onTick(data);
     }
 }
 
-void Dispatcher1::runThread() {
-    myThread = thread(&Dispatcher1::waitForTick, this);
+void Dispatcher::runThread() {
+    myThread = thread(&Dispatcher::waitForTick, this);
 }

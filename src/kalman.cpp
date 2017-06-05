@@ -2,6 +2,8 @@
 #include <iostream>
 #include <QDebug>
 
+#include "fmt/format.h"
+
 #include "include/kalman.h"
 #include "include/struct.h"
 #include "include/portfolio.h"
@@ -60,22 +62,27 @@ void Kalman::onCtpEvent(CtpEvent ev)
             && (dataHub->symMktTable.find(pair.xname) != dataHub->symMktTable.end())) {
                 // time freq filter:
                 if (string(dataHub->symMktTable.at(sym).UpdateTime).substr(3, 2) != lastTime.substr(3, 2)) {
-//                    string(dataHub->symMktTable.at(pair.xname).UpdateTime).substr(3, 2) != lastTime.substr(3, 2)) {
-
                     updateLastTime(ev.mkt.UpdateTime);
                     updateXY(dataHub->symMktTable.at(pair.yname).LastPrice, dataHub->symMktTable.at(pair.xname).LastPrice);
-                    progress();
-
-                    //oms->setPosTarget(pair.yname.c_str(), pair.targetYpos, pair.targetYprice);
-                    //oms->setPosTarget(pair.xname.c_str(), pair.targetXpos, pair.targetXprice);
-
-                    oms->setPosTarget(pair.yname.c_str(), 0, y_t);
-                    oms->setPosTarget(pair.xname.c_str(), 0, x_t);
+                    progressFilter();
                 }
+
+                updateXY(dataHub->symMktTable.at(pair.yname).LastPrice, dataHub->symMktTable.at(pair.xname).LastPrice);
+                e = y_t - yhat;
+                updatePos();
+                string msg = fmt::format("y_t={}, y_hat={}, e={}, ez_thresh={}", y_t, yhat, e, ez_thresh);
+                logger(spdlog::level::info, msg.c_str());
+                oms->setPosTarget(pair.yname.c_str(), pair.targetYpos, pair.targetYprice);
+                oms->setPosTarget(pair.xname.c_str(), pair.targetXpos, pair.targetXprice);
+                oms->handleTargets();
+
+//                oms->setPosTarget(pair.yname.c_str(), 0, y_t);
+//                oms->setPosTarget(pair.xname.c_str(), 0, x_t);
+
         }
     }
-    auto end = std::chrono::steady_clock::now();
-    std::cout << "kal " << std::chrono::duration_cast<std::chrono::microseconds>(end - ev.ts).count() << std::endl;
+//    auto end = std::chrono::steady_clock::now();
+//    std::cout << "kal " << std::chrono::duration_cast<std::chrono::microseconds>(end - ev.ts).count() << std::endl;
 }
 
 void Kalman::updateXY(double y, double x)
@@ -89,7 +96,7 @@ void Kalman::updateLastTime(char *newTime)
     lastTime = std::string(newTime);
 }
 
-void Kalman::progress()
+void Kalman::progressFilter()
 {
     F << x_t, 1.0;
     if (t > 0) R = C + Wt;
@@ -99,13 +106,12 @@ void Kalman::progress()
     A = R * F.transpose() / Q;
     C = R - A * F * R;
     theta += A * e;
-    ez_thresh = (ez_thresh*std::min(t, 600) + abs(e)) / (std::min(t, 600) + 1);
+    if (t > 3)
+        ez_thresh = (ez_thresh*std::min(t, 600) + abs(e)) / (std::min(t, 600) + 1);
 
-    QString msg = QString("<%1> ").arg(lastTime.c_str());
-    msg += QString("kalman progress t=%1, y=%2, yhat=%3, x=%4, beta=%5, thresh=%6, e=%7").
-        arg(t).arg(y_t).arg(yhat).arg(x_t).arg(theta(0, 0)).arg(ez_thresh).arg(e);
-    //qDebug() << msg.toStdString().c_str();
-    logger(spdlog::level::info, msg.toStdString().c_str());
+    string msg = fmt::format("<{}> kalman progress t={}, y={}, yhat={}, x={}, beta={}, thresh={}, e={}",
+                             lastTime, t, y_t, yhat, x_t, theta(0, 0), ez_thresh, e);
+    logger(spdlog::level::info, msg.c_str());
 
     updatePos();
     ++t;

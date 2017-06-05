@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui webenginewidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -72,5 +72,5 @@ else:unix: LIBS += -L$$PWD/v6.3.6_20160606_api_tradeapi_linux64/ -lthosttraderap
 INCLUDEPATH += $$PWD/v6.3.6_20160606_api_tradeapi_linux64
 DEPENDPATH += $$PWD/v6.3.6_20160606_api_tradeapi_linux64
 
-QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
+QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter -Wno-int-in-bool-context
 QMAKE_CXXFLAGS += -Wno-deprecated

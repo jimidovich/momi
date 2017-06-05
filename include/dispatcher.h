@@ -2,7 +2,7 @@
 #define DISPATCHER_H
 
 #include "myevent.h"
-#include "datahub.h"
+//#include "datahub.h"
 #include <thread>
 #include <mutex>
 #include <condition_variable>
@@ -12,21 +12,30 @@
 
 //typedef void(msgHandlerClass::*MyEventHandler)(QEvent*);
 
+class DataHub;
 
-class Dispatcher1
+class EventSubscriber
 {
 public:
-    Dispatcher1(){}
-    Dispatcher1(std::string name):name(name){}
-    ~Dispatcher1() {myThread.join();}
+    EventSubscriber(){}
+    ~EventSubscriber(){}
+
+    virtual void onCtpEvent(CtpEvent) = 0;
+};
+
+class Dispatcher
+{
+public:
+    Dispatcher(){}
+    ~Dispatcher() {myThread.join();}
     void waitForTick();
     void runThread();
 
     DataHub *dataHub;
     std::vector<std::function<void(CtpEvent)>> subscribers;
+    std::vector<EventSubscriber*> subs;
 
 private:
-    std::string name;
     std::thread myThread;
 };
 

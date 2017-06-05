@@ -18,6 +18,7 @@
 #include "include/myevent.h"
 #include "include/position.h"
 #include "include/struct.h"
+#include "include/datahub.h"
 
 using namespace std;
 using namespace spdlog::level;

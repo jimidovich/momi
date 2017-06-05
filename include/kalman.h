@@ -23,7 +23,7 @@ struct Pair {
     double targetXprice = 0;
 };
 
-class Kalman {
+class Kalman : public EventSubscriber{
 public:
     Kalman();
     ~Kalman();
@@ -32,7 +32,7 @@ public:
 
     void updateXY(double y, double x);
     void updateLastTime(char *newTime);
-    void progress();
+    void progressFilter();
     void setOMS(OMS *oms);
 
     std::string lastTime{ "nn:nn:nn" };
@@ -51,7 +51,7 @@ private:
 
     int t{ 0 };
     double x_t, y_t, delta, vt, yhat, e, Q;
-    double ez_thresh;
+    double ez_thresh = 0;
     Eigen::Matrix2d Wt, C, R;
     Eigen::RowVector2d F;
     Eigen::Vector2d theta, A;

@@ -2,11 +2,8 @@
 #define CTPMONITOR_H
 
 #include "ui_ctpmonitor.h"
-//#include "portfolio.h"
 #include "datahub.h"
 #include "tablemodel.h"
-
-//class Portfolio;
 
 class CtpMonitor : public QMainWindow {
 	Q_OBJECT

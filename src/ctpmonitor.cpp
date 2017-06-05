@@ -1,5 +1,6 @@
 #include <QTime>
 #include <QSplitter>
+#include <QtWebEngineWidgets>
 
 #include <mutex>
 
@@ -60,9 +61,12 @@ CtpMonitor::CtpMonitor(QWidget *parent)
     splitter2->addWidget(ui.traderOutput);
     splitter2->addWidget(ui.frame_Command);
     splitter2->setOrientation(Qt::Vertical);
-    splitter3->addWidget(ui.mdOutput);
-    splitter3->addWidget(ui.posOutput);
-    splitter3->addWidget(ui.accOutput);
+//    splitter3->addWidget(ui.mdOutput);
+//    splitter3->addWidget(ui.posOutput);
+//    splitter3->addWidget(ui.accOutput);
+//    splitter3->addWidget(ui.webView);
+    QWebEngineView *webView = new QWebEngineView(parent);
+    splitter3->addWidget(webView);
     splitter3->addWidget(ui.accTableView);
     splitter3->addWidget(ui.posTableView);
     splitter3->setOrientation(Qt::Vertical);
@@ -74,6 +78,7 @@ CtpMonitor::CtpMonitor(QWidget *parent)
     auto hLayout = new QHBoxLayout(ui.centralWidget);
     hLayout->addWidget(splitter);
 
+    webView->load(QUrl("file:///home/yiju/tmp/qws/hichart2.html"));
 
     connect(ui.sendButton, &QPushButton::clicked, this, &CtpMonitor::echoToTraderCmdMonitor);
     connect(ui.sendButton, &QPushButton::clicked, this, &CtpMonitor::recCmdLine);

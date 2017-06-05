@@ -8,8 +8,8 @@ PosTableModel::PosTableModel(QObject *parent, Portfolio *pf, DataHub *dataHub)
 
 int PosTableModel::rowCount(const QModelIndex &parent /*= QModelIndex()*/) const
 {
-//    return pf->netPosList.size();
-    return pf->numNetPosRows;
+    return pf->netPosList.size();
+//    return pf->numNetPosRows;
 }
 
 int PosTableModel::columnCount(const QModelIndex &parent /*= QModelIndex()*/) const
@@ -53,11 +53,10 @@ QVariant PosTableModel::data(const QModelIndex &index, int role /*= Qt::DisplayR
                     return QString::number(dataHub->symMktTable.at(curr_sym).LastPrice);
                 else
                     return "";
-                //case 1: return "test";
             case 2: return QString::number((i + row).value().avgCostPrice);
             case 3: return QString::number((i + row).value().netPos);
             case 4: return QString::number((i + row).value().positionProfit);
-            case 5: return QString::number((i + row).value().netPnl, 'f', 2);
+            case 5: return QString::number((i + row).value().netPnl);
             case 6:
                 if (dataHub->symMktTable.find(curr_sym) != dataHub->symMktTable.end())
                     return QString("%1:%2").arg(dataHub->symMktTable.at(curr_sym).UpdateTime)
@@ -126,10 +125,10 @@ QVariant AccTableModel::data(const QModelIndex &index, int role /*= Qt::DisplayR
         switch (col)
         {
         case 0: return QString::number(pf->pfValue.balance, 'f', 2);
-        case 1: return QString::number(pf->pfValue.netPnl, 'f', 2);
-        case 2: return QString::number(pf->pfValue.closeProfit, 'f', 2);
-        case 3: return QString::number(pf->pfValue.positionProfit, 'f', 2);
-        case 4: return QString::number(pf->pfValue.margin, 'f', 2);
+        case 1: return QString::number(pf->pfValue.netPnl);
+        case 2: return QString::number(pf->pfValue.closeProfit);
+        case 3: return QString::number(pf->pfValue.positionProfit);
+        case 4: return QString::number(pf->pfValue.margin);
         case 5: return QString::number(pf->pfValue.commission, 'f', 2);
         case 6: return QString(pf->pfValue.lastUpdateTime.c_str());
         default:
