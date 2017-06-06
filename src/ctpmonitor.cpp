@@ -1,32 +1,14 @@
+#include <mutex>
+
 #include <QTime>
 #include <QSplitter>
 #include <QtWebEngineWidgets>
 
-#include <mutex>
+#include "fmt/format.h"
 
 #include "include/ctpmonitor.h"
 #include "include/portfolio.h"
 
-
-QString getCurrentTimeMsec()
-{
-    QTime t(QTime::currentTime());
-    QString currentTime(t.toString());
-    QString msec(QString::number(t.msec()));
-    switch (msec.length())
-    {
-    case 1:
-        msec = "00" + msec;
-        break;
-    case 2:
-        msec = "0" + msec;
-        break;
-    default:
-        break;
-    }
-    return currentTime + "." + msec;
-//    return getTimeMsec(currentTime.toStdString(), t.msec());
-}
 
 void stringToHtml(QString &str, QColor crl)
 {
@@ -107,18 +89,13 @@ void CtpMonitor::updateAccTable()
 
 void CtpMonitor::echoToTraderCmdMonitor()
 {
-//    QTime t(QTime::currentTime());
-//    QString currentTime(t.toString());
-//    QString msec(QString::number(t.msec()));
     QString cmd(ui.traderCommandLine->text());
-//    ui.traderCommandHist->setPlainText("[" + getCurrentTimeMsec() + "]$" + cmd + "\n");
-    cmd = QString("[" + getCurrentTimeMsec() + "]$") + cmd;
+    cmd = QString("[" + QTime::currentTime().toString("hh:mm:ss.zzz") + "]$") + cmd;
     printToTraderCmdMonitor(cmd, Qt::white);
 }
 
 void CtpMonitor::printToTraderCmdMonitor(QString msg, QColor clr)
 {
-//    msg = QString("[" + getCurrentTimeMsec() + "] ") + msg;
     //QColor clr(255,0,0);
     //auto clr = Qt::yellow;
     stringToHtmlFilter(msg);
@@ -202,7 +179,7 @@ void CtpMonitor::recCmdLine()
 
 void CtpMonitor::printTraderMsg(QString msg, QColor clr)
 {
-    msg = QString("[" + getCurrentTimeMsec() + "] ") + msg;
+    msg = QString("[" + QTime::currentTime().toString("hh:mm:ss.zzz") + "] ") + msg;
 
     //QColor clr(255,0,0);
     //auto clr = Qt::yellow;

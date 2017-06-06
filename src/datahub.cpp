@@ -14,6 +14,9 @@ void DataHub::onCtpEvent(CtpEvent ev)
     }
     case MarketEvent:
     {
+        if (symMktTable.find(ev.mkt.InstrumentID) != symMktTable.end()) {
+            symPrevMktTable[ev.mkt.InstrumentID] = symMktTable.at(ev.mkt.InstrumentID);
+        };
         symMktTable[ev.mkt.InstrumentID] = ev.mkt;
         break;
     }

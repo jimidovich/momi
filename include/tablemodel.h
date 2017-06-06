@@ -2,6 +2,7 @@
 #define TABLEMODEL_H
 
 #include <QAbstractTableModel>
+#include <QTableView>
 #include "portfolio.h"
 
 class PosTableModel : public QAbstractTableModel
@@ -18,7 +19,6 @@ public:
 
     Portfolio *pf;
     DataHub *dataHub;
-
 };
 
 class AccTableModel : public QAbstractTableModel
@@ -34,7 +34,6 @@ public:
     void updateAccTable();
 
     Portfolio *pf;
-
 };
 
 #endif // TABLEMODEL_H

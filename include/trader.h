@@ -50,7 +50,7 @@ public:
     int ReqQryTrade(std::string timeStart, std::string timeEnd, std::string InstrumentID, std::string ExchangeID, std::string TradeID);
 
 
-    void showApiReturn(int ret, QString outputIfSuccess = "", QString outputIfError = "TraderApi sent Error.");
+    void showApiReturn(int ret, std::string outputIfSuccess = "", std::string outputIfError = "TraderApi sent Error.");
     std::string getTradingDay();
     void handleDispatch(int tt);
 
@@ -117,14 +117,14 @@ public:
 
     CThostFtdcTraderApi *tdapi;
 
-    int nRequestID{ 0 };
-    int nMaxOrderRef{ 0 };
-    int FrontID{ 0 };
-    int SessionID{ 0 };
+    int nRequestID   = 0;
+    int nMaxOrderRef = 0;
+    int FrontID      = 0;
+    int SessionID    = 0;
     std::string tradingDay;
     std::string strSettlementInfo;
-    bool isNewSettlementInfo{ false };
-    bool isLoginWorkflow{false};
+    bool isNewSettlementInfo = false;
+    bool isLoginWorkflow = false;
 
     //char *FrontAddress{ "tcp://122.224.98.87:27225" };
     //const std::string BROKER_ID{ "3010" };

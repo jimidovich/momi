@@ -33,35 +33,35 @@ public:
 
     QString orderID;
     std::string sym;
-    bool isWorking{ false };
+    bool isWorking = false;
     EnumOrderStatusType status;
-    char direction{ 0 };
-    char longShortSide{ 0 };
-    int workingVolume{ 0 };
-    int lastVolumeTraded{ 0 };
+    char direction          = 0;
+    char longShortSide      = 0;
+    int workingVolume       = 0;
+    int lastVolumeTraded    = 0;
     CThostFtdcOrderField orderInfo;
 };
 typedef QMap<QString, Order> OrderList;
 
 struct PosTarget {
     std::string sym{ "" };
-    double targetPrice{ 0 };
-    int targetPos{ 0 };
-    int currNetPos{ 0 };
+    double targetPrice  = 0;
+    int targetPos       = 0;
+    int currNetPos      = 0;
 
-    int currLong{ 0 };
-    int currShort{ 0 };
-    int targetLong{ 0 };
-    int targetShort{ 0 };
-    int workingLong{ 0 };
-    int workingShort{ 0 };
-    int gapLong{ 0 };
-    int gapShort{ 0 };
-    int residualLong{ 0 };
-    int residualShort{ 0 };
+    int currLong        = 0;
+    int currShort       = 0;
+    int targetLong      = 0;
+    int targetShort     = 0;
+    int workingLong     = 0;
+    int workingShort    = 0;
+    int gapLong         = 0;
+    int gapShort        = 0;
+    int residualLong    = 0;
+    int residualShort   = 0;
 
-    int residualPos{ 0 };
-    int workingPos{ 0 };
+    int residualPos     = 0;
+    int workingPos      = 0;
     //QVector<Order> workingOrders;
 };
 typedef QMap<QString, PosTarget> TargetList;
@@ -112,10 +112,10 @@ private:
 
     void setLogger();
 
-    Trader *trader{ nullptr };
-    Portfolio *pf{ nullptr };
+    Trader *trader = nullptr;
+    Portfolio *pf = nullptr;
     PairPosTarget ppt;
-    bool isWorking{ false };
+    bool isWorking = false;
 
     std::shared_ptr<spdlog::logger> console;
 };

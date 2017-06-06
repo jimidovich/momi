@@ -39,9 +39,9 @@ QVariant PosTableModel::headerData(int section, Qt::Orientation orientation, int
 
 QVariant PosTableModel::data(const QModelIndex &index, int role /*= Qt::DisplayRole*/) const
 {
+    int row = index.row();
+    int col = index.column();
     if (role == Qt::DisplayRole) {
-        int row = index.row();
-        int col = index.column();
         if (row < pf->netPosList.size()) {
             auto i = pf->netPosList.begin();
             auto curr_sym = (i + row).value().sym;
@@ -69,7 +69,22 @@ QVariant PosTableModel::data(const QModelIndex &index, int role /*= Qt::DisplayR
         }
         else
             return "test";
+    } else if (role == Qt::BackgroundRole) {
+        if (col == 1 || col == 5) {
+            auto i = pf->netPosList.begin();
+            auto curr_sym = (i + row).value().sym;
+            if (dataHub->symMktTable.find(curr_sym) != dataHub->symMktTable.end()
+                    && dataHub->symPrevMktTable.find(curr_sym) != dataHub->symPrevMktTable.end()) {
+                if (dataHub->symMktTable.at(curr_sym).LastPrice > dataHub->symPrevMktTable.at(curr_sym).LastPrice)
+                    return QColor(Qt::red);  // need to explicitly create QColor obj for QVariant
+                else if (dataHub->symMktTable.at(curr_sym).LastPrice < dataHub->symPrevMktTable.at(curr_sym).LastPrice)
+                    return QColor(Qt::darkGreen);  // need to explicitly create QColor obj for QVariant
+                else
+                    return QVariant();
+            }
+        }
     }
+
     return QVariant();
 }
 
@@ -120,8 +135,8 @@ QVariant AccTableModel::headerData(int section, Qt::Orientation orientation, int
 
 QVariant AccTableModel::data(const QModelIndex &index, int role /*= Qt::DisplayRole*/) const
 {
+    int col = index.column();
     if (role == Qt::DisplayRole) {
-        int col = index.column();
         switch (col)
         {
         case 0: return QString::number(pf->pfValue.balance, 'f', 2);
@@ -134,7 +149,17 @@ QVariant AccTableModel::data(const QModelIndex &index, int role /*= Qt::DisplayR
         default:
             break;
         }
+    } else if (role == Qt::BackgroundRole) {
+        if (col == 0) {
+            if (pf->pfValue.balance > pf->pfValue.prevBalance)
+                return QColor(Qt::red);
+            else if (pf->pfValue.balance < pf->pfValue.prevBalance)
+                return QColor(Qt::darkGreen);
+            else
+                return QVariant();
+        }
     }
+
     return QVariant();
 }
 

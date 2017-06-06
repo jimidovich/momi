@@ -27,7 +27,7 @@ public:
     void reqConnect();
 //    void setDispatcher(Dispatcher *ee);
     void subscribeMd(std::string instruments);
-    void showApiReturn(int ret, QString outputIfSuccess = "", QString outputIfError = "MdApi sent Error.");
+    void showApiReturn(int ret, std::string outputIfSuccess = "", std::string outputIfError = "MdApi sent Error.");
     bool isErrorRspInfo(CThostFtdcRspInfoField *pRspInfo, const char *msg = "");
 
     // override CThostFtdcMdSpi callback functions
@@ -62,7 +62,7 @@ private:
         g_logger->log(lvl, fmt, args...);
     }
 
-    CThostFtdcMdApi *mdapi{ nullptr };
+    CThostFtdcMdApi *mdapi = nullptr;
 //    Dispatcher *dispatcher{ nullptr };
     /*char *FrontAddress{ "tcp://122.224.98.87:27225" };
     const string BROKER_ID{ "3010" };
@@ -78,7 +78,7 @@ private:
     const std::string BROKER_ID;
     const std::string USER_ID;
     const std::string PASSWORD;
-    long countTick{ 0 };
+    long countTick = 0;
 
     std::shared_ptr<spdlog::logger> console;
     std::shared_ptr<spdlog::logger> g_logger;

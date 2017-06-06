@@ -18,20 +18,22 @@ public:
 	std::string accountID;
 	std::string tradingDay;
     std::string lastUpdateTime;
-	double preDeposit{ 0 };
-	double preBalance{ 0 };
-	double preMargin{ 0 };
-	double balance{ 0 };
-	double available{ 0 };
-	double deposit{ 0 };
-	double withdraw{ 0 };
-	double margin{ 0 };
-	double commission{ 0 };
-	double cashBalance{ 0 };
-	double closeProfit{ 0 };
-	double positionProfit{ 0 };
-	double grossPnl{ 0 };
-	double netPnl{ 0 };
+    double preDeposit     = 0;
+    double preBalance     = 0;
+    double preMargin      = 0;
+    double balance        = 0;
+    double available      = 0;
+    double deposit        = 0;
+    double withdraw       = 0;
+    double margin         = 0;
+    double commission     = 0;
+    double cashBalance    = 0;
+    double closeProfit    = 0;
+    double positionProfit = 0;
+    double grossPnl       = 0;
+    double netPnl         = 0;
+
+    double prevBalance    = 0;
 };
 
 class Portfolio : public QObject , public EventSubscriber
@@ -53,7 +55,7 @@ public:
 
     std::string tradingDay;
     std::string time;
-    int millisec{ 0 };
+    int millisec      = 0;
     int numNetPosRows = 0;
 
 
@@ -77,11 +79,11 @@ private:
     QTime updateTime();
 
 
-	int lastRowCount{ 0 };  // for tableview
+    int lastRowCount = 0;  // for tableview
 
 	//CThostFtdcTradingAccountField accInfo;
-	bool beginUpdate{ true };
-    bool isInPosStream{ false };
+    bool beginUpdate = true;
+    bool isInPosStream = false;
 
 	//RM rm;
 

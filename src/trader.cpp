@@ -1,7 +1,6 @@
 ﻿#include <chrono>
 #include <set>
 #include <thread>
-//#include <stdio.h>
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -13,6 +12,7 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include "spdlog/spdlog.h"
+//#include "fmt/format.h"
 
 #include "include/trader.h"
 #include "include/myevent.h"
@@ -104,7 +104,7 @@ void Trader::OnFrontConnected()
 
 void Trader::OnFrontDisconnected(int nReason)
 {
-    QString msg = "Front Disconnected. Reason: ";
+    string msg = "Front Disconnected. Reason: ";
     switch (nReason)
     {
     case 0x1001:
@@ -126,8 +126,8 @@ void Trader::OnFrontDisconnected(int nReason)
         break;
     }
 //    logger(err, msg.toLocal8Bit());
-    logger(err, msg.toStdString().c_str());
-    emit sendToTraderMonitor(msg, Qt::red);
+    logger(err, msg.c_str());
+    emit sendToTraderMonitor(msg.c_str(), Qt::red);
 }
 
 void Trader::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
@@ -140,23 +140,23 @@ void Trader::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFt
         SessionID = pRspUserLogin->SessionID;
         tradingDay = pRspUserLogin->TradingDay;
 
-        QString msg;
-        QString preSpaces = "\n" + QString(" ").repeated(31);
-        msg.append("Trader Login Successful.");
-        msg.append(preSpaces).append("TradingDay = ").append(pRspUserLogin->TradingDay);
-        msg.append(preSpaces).append("LoginTime  = ").append(pRspUserLogin->LoginTime);
-        msg.append(preSpaces).append("SystemName = ").append(pRspUserLogin->SystemName);
-        msg.append(preSpaces).append("UserID     = ").append(pRspUserLogin->UserID);
-        msg.append(preSpaces).append("BrokerID   = ").append(pRspUserLogin->BrokerID);
-        msg.append(preSpaces).append("SessionID  = ").append(QString::number(pRspUserLogin->SessionID));
-        msg.append(preSpaces).append("FrontID    = ").append(QString::number(pRspUserLogin->FrontID));
-        msg.append(preSpaces).append("INETime    = ").append(pRspUserLogin->INETime);
-        msg.append(preSpaces).append("SHFE Time  = ").append(pRspUserLogin->SHFETime);
-        msg.append(preSpaces).append("DCE  Time  = ").append(pRspUserLogin->DCETime);
-        msg.append(preSpaces).append("CZCE Time  = ").append(pRspUserLogin->CZCETime);
-        msg.append(preSpaces).append("FFEX Time  = ").append(pRspUserLogin->FFEXTime);
-        emit sendToTraderMonitor(msg, Qt::green);
-        logger(info, msg.toStdString().c_str());
+//        string preSpaces = "\n" + string(" ").repeated(31);
+        string preSpaces = fmt::format("\n{:>31}", ' ');
+        string msg = "Trader Login Successful.";
+        msg += preSpaces + "TradingDay = " + pRspUserLogin->TradingDay;
+        msg += preSpaces + "LoginTime  = " + pRspUserLogin->LoginTime;
+        msg += preSpaces + "SystemName = " + pRspUserLogin->SystemName;
+        msg += preSpaces + "UserID     = " + pRspUserLogin->UserID;
+        msg += preSpaces + "BrokerID   = " + pRspUserLogin->BrokerID;
+        msg += preSpaces + "SessionID  = " + to_string(pRspUserLogin->SessionID);
+        msg += preSpaces + "FrontID    = " + to_string(pRspUserLogin->FrontID);
+        msg += preSpaces + "INETime    = " + pRspUserLogin->INETime;
+        msg += preSpaces + "SHFE Time  = " + pRspUserLogin->SHFETime;
+        msg += preSpaces + "DCE  Time  = " + pRspUserLogin->DCETime;
+        msg += preSpaces + "CZCE Time  = " + pRspUserLogin->CZCETime;
+        msg += preSpaces + "FFEX Time  = " + pRspUserLogin->FFEXTime;
+        emit sendToTraderMonitor(msg.c_str(), Qt::green);
+        logger(info, msg.c_str());
 
         // login workflow #1
         isLoginWorkflow = true;
@@ -176,10 +176,9 @@ void Trader::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcR
 void Trader::OnRspSettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField *pSettlementInfoConfirm, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
     if (!isErrorRspInfo(pRspInfo, "RspSettlementInfoConfirm: ")) {
-        QString msg;
-        msg += QString("Settlement Info Confirmed. ConfirmDate=%1 ConfirmTime=%2").arg(pSettlementInfoConfirm->ConfirmDate, pSettlementInfoConfirm->ConfirmTime);
-        logger(info, msg.toStdString().c_str());
-        emit sendToTraderMonitor(msg);
+        string msg = fmt::format("Settlement Info Confirmed. ConfirmDate={} ConfirmTime={}", pSettlementInfoConfirm->ConfirmDate, pSettlementInfoConfirm->ConfirmTime);
+        logger(info, msg.c_str());
+        emit sendToTraderMonitor(msg.c_str());
     }
 }
 
@@ -195,12 +194,12 @@ void Trader::OnRspQrySettlementInfo(CThostFtdcSettlementInfoField *pSettlementIn
         if (bIsLast) {
             isNewSettlementInfo = true;
             if (strSettlementInfo == "") {
-                emit sendToTraderMonitor(QString("No Settlement Info Retrieved."));
                 logger(critical, "No Settlement Info Retrieved.");
+                emit sendToTraderMonitor("No Settlement Info Retrieved.");
             }
             else {
-                emit sendToTraderMonitor(QString("Settlement Info Retrieved."));
                 logger(info, "Settlement Info Retrieved.");
+                emit sendToTraderMonitor("Settlement Info Retrieved.");
             }
 
             // login workflow #2
@@ -215,10 +214,9 @@ void Trader::OnRspQrySettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField 
     //ReqSettlementInfoConfirm();
     if (!isErrorRspInfo(pRspInfo, "RspQrySettlementInfoConfirm: ")) {
 		if (pSettlementInfoConfirm != nullptr) {
-			QString msg;
-			msg += QString("RspQrySettlementInfoConfirm: ConfirmDate=%1 ConfirmTime=%2").arg(pSettlementInfoConfirm->ConfirmDate, pSettlementInfoConfirm->ConfirmTime);
-			logger(info, msg.toStdString().c_str());
-			emit sendToTraderMonitor(msg);
+            string msg = fmt::format("RspQrySettlementInfoConfirm: ConfirmDate={} ConfirmTime={}", pSettlementInfoConfirm->ConfirmDate, pSettlementInfoConfirm->ConfirmTime);
+            logger(info, msg.c_str());
+            emit sendToTraderMonitor(msg.c_str());
 //			if (std::string(pSettlementInfoConfirm->ConfirmDate) != tradingDay) {
         }
         else {
@@ -246,33 +244,25 @@ void Trader::OnRspQryOrder(CThostFtdcOrderField *pOrder, CThostFtdcRspInfoField 
 {
     if (!isErrorRspInfo(pRspInfo, "RspQryOrder: ")) {
         if (pOrder != nullptr) {
-            QString msg;
-            msg.append("OrderRef=").append(pOrder->OrderRef);
-            msg.append(" sessID=").append(QString::number(pOrder->SessionID));
-            msg.append(" frtID=").append(QString::number(pOrder->FrontID));
-            msg.append(" exch=").append(pOrder->ExchangeID);
-            msg.append(" sysID=").append(pOrder->OrderSysID);
-            msg.append(" ").append(pOrder->InstrumentID);
-            msg.append(" S=").append(mymap::orderStatus_string.at(pOrder->OrderStatus).c_str());
-            msg.append(" O=").append(mymap::offsetFlag_string.at(pOrder->CombOffsetFlag[0]).c_str());
-            msg.append(" D=").append(mymap::direction_char.at(pOrder->Direction));
-            //msg.append(" PriceType=").append(pOrder->OrderPriceType);
-            msg.append(" LmtPx=").append(QString::number(pOrder->LimitPrice));
-            msg.append(" Total=").append(QString::number(pOrder->VolumeTotal));
-            msg.append(" Orig=").append(QString::number(pOrder->VolumeTotalOriginal));
-            msg.append(" ").append(QString::fromLocal8Bit(pOrder->StatusMsg));
+            string msg = fmt::format("OrdRef={}, {:<6}, St={}, Of={}, Dir={}, LmtPx={}, Ttl={}, Org={}, {}, exch={}, sysID={}, sessID={}, frntID={}",
+                                     pOrder->OrderRef,
+                                     pOrder->InstrumentID,
+                                     mymap::orderStatus_string.at(pOrder->OrderStatus),
+                                     mymap::offsetFlag_string.at(pOrder->CombOffsetFlag[0]),
+                                     mymap::direction_char.at(pOrder->Direction),
+                                     pOrder->LimitPrice,
+                                     pOrder->VolumeTotal,
+                                     pOrder->VolumeTotalOriginal,
+                                     QString::fromLocal8Bit(pOrder->StatusMsg).toStdString(),
+                                     pOrder->ExchangeID,
+                                     pOrder->OrderSysID,
+                                     pOrder->SessionID,
+                                     pOrder->FrontID);
+            emit sendToTraderMonitor(msg.c_str());
 
-            //msg.append(" SessionID=").append(QString::number(pOrder->SessionID));
-            //msg.append(" OrderSysID=").append(pOrder->OrderSysID);
-            //msg.append(" TraderID=").append(pOrder->TraderID);
-            //msg.append(" OrderLocalID=").append(pOrder->OrderLocalID);
-            //msg.append(" ActiveTime=").append(pOrder->ActiveTime);
-            emit sendToTraderMonitor(msg);
-
-            dataHub->eventQueue.post(CtpEvent(pOrder));
+            dataHub->eventQueue.post(CtpEvent(pOrder));  //???
         }
-        if (bIsLast)
-        {
+        if (bIsLast) {
             logger(info, "Qry Order Finished.");
             emit sendToTraderMonitor("Query Order Finished.");
         }
@@ -283,15 +273,15 @@ void Trader::OnRspQryTrade(CThostFtdcTradeField *pTrade, CThostFtdcRspInfoField 
 {
     if (!isErrorRspInfo(pRspInfo, "RspQryTrade: ")) {
         if (pTrade != nullptr) {
-            QString msg;
-            msg.append(pTrade->InstrumentID);
-            msg.append(" TradeID=").append(pTrade->TradeID);
-            msg.append(" Dir=").append(mymap::direction_char.at(pTrade->Direction));
-            msg.append(" Offset=").append(mymap::offsetFlag_string.at(pTrade->OffsetFlag).c_str());
-            msg.append(" Price=").append(QString::number(pTrade->Price));
-            msg.append(" Volume=").append(QString::number(pTrade->Volume));
-            msg.append(" T=").append(pTrade->TradeTime);
-            emit sendToTraderMonitor(msg);
+            string msg = fmt::format("{:<6} TradeID={}, Dir={}, Offset={}, Px={}, Vol={}, Time={}",
+                                     pTrade->InstrumentID,
+                                     pTrade->TradeID,
+                                     mymap::direction_char.at(pTrade->Direction),
+                                     mymap::offsetFlag_string.at(pTrade->OffsetFlag),
+                                     pTrade->Price,
+                                     pTrade->Volume,
+                                     pTrade->TradeTime);
+            emit sendToTraderMonitor(msg.c_str());
         }
         if (bIsLast) {
             logger(info, "Qry Trade Finished.");
@@ -304,14 +294,14 @@ void Trader::OnRspQryInvestorPosition(CThostFtdcInvestorPositionField *pInvestor
 {
     if (!isErrorRspInfo(pRspInfo, "RspQryPosition: ")) {
         if (pInvestorPosition != nullptr) {
-            QString msg;
-            msg.append(pInvestorPosition->InstrumentID);
-            msg.append(" Direction=").append(pInvestorPosition->PosiDirection);
-            msg.append(" Position=").append(QString::number(pInvestorPosition->Position));
-            msg.append(" PL=").append(QString::number(pInvestorPosition->PositionProfit));
-            msg.append(" ClsAmount=").append(QString::number(pInvestorPosition->CloseAmount));
-            msg.append(" Margin=").append(QString::number(pInvestorPosition->UseMargin));
-            emit sendToTraderMonitor(msg);
+            string msg = fmt::format("{:<6} Dir={}, Pos={}, PnL={}, CloseAmt={}, Margin={}",
+                                     pInvestorPosition->InstrumentID,
+                                     mymap::direction_char.at(pInvestorPosition->PosiDirection),
+                                     pInvestorPosition->Position,
+                                     pInvestorPosition->PositionProfit,
+                                     pInvestorPosition->CloseAmount,
+                                     pInvestorPosition->UseMargin);
+            emit sendToTraderMonitor(msg.c_str());
 
             CtpEvent ev(pInvestorPosition);
             ev.isLast = bIsLast;
@@ -328,14 +318,14 @@ void Trader::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDetailFiel
 {
     if (!isErrorRspInfo(pRspInfo, "RspQryPositionDetail: ")) {
         if (pInvestorPositionDetail != nullptr) {
-            QString msg;
-            msg.append(pInvestorPositionDetail->InstrumentID);
-            msg.append(" Direction=").append(pInvestorPositionDetail->Direction);
-            msg.append(" Position=").append(QString::number(pInvestorPositionDetail->Volume));
-            msg.append(" PL=").append(QString::number(pInvestorPositionDetail->CloseProfitByDate));
-            msg.append(" ClsVolume=").append(QString::number(pInvestorPositionDetail->CloseVolume));
-            msg.append(" Margin=").append(QString::number(pInvestorPositionDetail->Margin));
-            emit sendToTraderMonitor(msg);
+            string msg = fmt::format("{:<6} Dir={}, Pos={}, PnL={}, CloseAmt={}, Margin={}",
+                                     pInvestorPositionDetail->InstrumentID,
+                                     mymap::direction_char.at(pInvestorPositionDetail->Direction),
+                                     pInvestorPositionDetail->Volume,
+                                     pInvestorPositionDetail->PositionProfitByDate,
+                                     pInvestorPositionDetail->CloseVolume,
+                                     pInvestorPositionDetail->Margin);
+            emit sendToTraderMonitor(msg.c_str());
 
             CtpEvent ev(pInvestorPositionDetail);
             ev.isLast = bIsLast;
@@ -352,14 +342,14 @@ void Trader::OnRspQryTradingAccount(CThostFtdcTradingAccountField *pTradingAccou
 {
     if (!isErrorRspInfo(pRspInfo, "RspQryTradingAccount: ")) {
         if (bIsLast) {
-            QString msg = "Trading Account";
-            QString preSpaces = "\n" + QString(" ").repeated(31);
-            msg.append(preSpaces).append("Available  = ").append(QString::number(pTradingAccount->Available));
-            msg.append(preSpaces).append("Balance    = ").append(QString::number(pTradingAccount->Balance, 'f', 0));
-            msg.append(preSpaces).append("CurrMargin = ").append(QString::number(pTradingAccount->CurrMargin));
-            msg.append(preSpaces).append("Reserve    = ").append(QString::number(pTradingAccount->Reserve));
-            logger(info, msg.toStdString().c_str());
-            emit sendToTraderMonitor(msg);
+            string msg("Trading Account");
+            string preSpaces = fmt::format("\n{:>31}", ' ');
+            msg += preSpaces + "Balance    = " + to_string(pTradingAccount->Balance);
+            msg += preSpaces + "Available  = " + to_string(pTradingAccount->Available);
+            msg += preSpaces + "CurrMargin = " + to_string(pTradingAccount->CurrMargin);
+            msg += preSpaces + "Reserve    = " + to_string(pTradingAccount->Reserve);
+            logger(info, msg.c_str());
+            emit sendToTraderMonitor(msg.c_str());
 
             dataHub->eventQueue.post(CtpEvent(pTradingAccount));
 
@@ -376,11 +366,6 @@ void Trader::OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument, CThostFt
 {
     if (!isErrorRspInfo(pRspInfo, "RspQryInstrument: ")) {
         if (pInstrument != nullptr) {
-            //QString msg;
-            //msg.append(pInstrument->InstrumentID);
-            //msg.append(" ").append(pInstrument->ExchangeID);
-            //msg.append(" ").append(pInstrument->ExpireDate);
-            //emit sendToTraderMonitor(msg);
             dataHub->eventQueue.post(CtpEvent(pInstrument));
 
             if (bIsLast) {
@@ -407,55 +392,57 @@ void Trader::OnRspQryDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarke
 void Trader::OnRtnOrder(CThostFtdcOrderField *pOrder)
 {
     if (pOrder != nullptr) {
-        QString msg;
-        msg += QString("OnRtnOrder: OrderRef=%1, %2, StatusMsg=%3").arg(pOrder->OrderRef, pOrder->InstrumentID, QString::fromLocal8Bit(pOrder->StatusMsg));
-        emit sendToTraderMonitor(msg);
-
-        //logger(info, "OnRtnOrder: OrderRef={}, Status={}, Status Msg={}", pOrder->OrderRef, pOrder->OrderStatus, pOrder->StatusMsg);
-        logger(info, msg.toStdString().c_str());
+        string msg = fmt::format("OnRtnOrder: OrdRef={}, {:<6}, St={}, Of={}, Dir={}, LmtPx={}, Ttl={}, Org={}, {}, exch={}, sysID={}, sessID={}, frntID={}",
+                                 pOrder->OrderRef,
+                                 pOrder->InstrumentID,
+                                 mymap::orderStatus_string.at(pOrder->OrderStatus),
+                                 mymap::offsetFlag_string.at(pOrder->CombOffsetFlag[0]),
+                                 mymap::direction_char.at(pOrder->Direction),
+                                 pOrder->LimitPrice,
+                                 pOrder->VolumeTotal,
+                                 pOrder->VolumeTotalOriginal,
+                                 QString::fromLocal8Bit(pOrder->StatusMsg).toStdString(),
+                                 pOrder->ExchangeID,
+                                 pOrder->OrderSysID,
+                                 pOrder->SessionID,
+                                 pOrder->FrontID);
+        logger(info, msg.c_str());
+        emit sendToTraderMonitor(msg.c_str());
 
         dataHub->eventQueue.post(CtpEvent(pOrder));
-    }
-    else
+    } else
         logger(err, "OnRtnOrder nullptr or null data");
 }
 
 void Trader::OnRtnTrade(CThostFtdcTradeField *pTrade)
 {
     if (pTrade != nullptr) {
-        QString msg;
-        msg += QString("OnRtnTrade: OrderRef=%1, %2").arg(pTrade->OrderRef, pTrade->InstrumentID);
-//        msg.append("\nExchangeID=").append(pTrade->ExchangeID);
-//        msg.append(" TraderID=").append(pTrade->TraderID);
-//        msg.append(" OrderSysID=").append(pTrade->OrderSysID);
-//        msg.append(" OrderRef=").append(pTrade->OrderRef);
-//        msg.append("\n").append(pTrade->InstrumentID);
-
-        msg.append(" Dir=").append(mymap::direction_char.at(pTrade->Direction));
-        msg.append(" Offset=").append(mymap::offsetFlag_string.at(pTrade->OffsetFlag).c_str());
-        msg.append(" Price=").append(QString::number(pTrade->Price));
-        msg.append(" Volume=").append(QString::number(pTrade->Volume));
-        msg.append(" T=").append(pTrade->TradeTime);
-        logger(info, msg.toStdString().c_str());
-        emit sendToTraderMonitor(msg);
+        string msg = fmt::format("{:<6} TradeID={}, Dir={}, Offset={}, Px={}, Vol={}, Time={}",
+                                 pTrade->InstrumentID,
+                                 pTrade->TradeID,
+                                 mymap::direction_char.at(pTrade->Direction),
+                                 mymap::offsetFlag_string.at(pTrade->OffsetFlag),
+                                 pTrade->Price,
+                                 pTrade->Volume,
+                                 pTrade->TradeTime);
+        logger(info, msg.c_str());
+        emit sendToTraderMonitor(msg.c_str());
 
         dataHub->eventQueue.post(CtpEvent(pTrade));
-
-    }
-    else
+    } else
         logger(err, "OnRtnTrade nullptr or null data");
 }
 
 void Trader::OnErrRtnOrderInsert(CThostFtdcInputOrderField *pInputOrder, CThostFtdcRspInfoField *pRspInfo)
 {
-    QString msg = QString("ErrRtnOrderInsert: OrderRef=%1 ").arg(pInputOrder->OrderRef);
-    isErrorRspInfo(pRspInfo, msg.toStdString().c_str());
+    string msg = fmt::format("ErrRtnOrderInsert: OrderRef={} ", pInputOrder->OrderRef);
+    isErrorRspInfo(pRspInfo, msg.c_str());
 }
 
 void Trader::OnErrRtnOrderAction(CThostFtdcOrderActionField * pOrderAction, CThostFtdcRspInfoField * pRspInfo)
 {
-    QString msg = QString("ErrRtnOrderAction: OrderRef=%1 ").arg(pOrderAction->OrderRef);
-    isErrorRspInfo(pRspInfo, msg.toStdString().c_str());
+    string msg = fmt::format("ErrRtnOrderAction: OrderRef={} ", pOrderAction->OrderRef);
+    isErrorRspInfo(pRspInfo, msg.c_str());
 }
 
 int Trader::ReqSettlementInfoConfirm()
@@ -786,45 +773,44 @@ bool Trader::isErrorRspInfo(CThostFtdcRspInfoField *pRspInfo, const char *msg)
 {
     bool isError = (pRspInfo) && (pRspInfo->ErrorID != 0);
     if (isError) {
-        QString errMsg = QString(msg).append("ErrorID=").append(QString::number(pRspInfo->ErrorID)).append(", ErrorMsg=").append(QString::fromLocal8Bit(pRspInfo->ErrorMsg));
-//        logger(err, "{}ErrorID={}, ErrorMsg={}", msg, pRspInfo->ErrorID, pRspInfo->ErrorMsg);
-        logger(err, errMsg.toStdString().c_str());
-        emit sendToTraderMonitor(errMsg, Qt::red);
+        string errMsg = fmt::format("ErrorID={}, ErrorMsg={}", pRspInfo->ErrorID, QString::fromLocal8Bit(pRspInfo->ErrorMsg).toStdString());
+        logger(err, errMsg.c_str());
+        emit sendToTraderMonitor(errMsg.c_str(), Qt::red);
     }
     return isError;
 }
 
 
-void Trader::showApiReturn(int ret, QString outputIfSuccess, QString outputIfError)
+void Trader::showApiReturn(int ret, string outputIfSuccess, string outputIfError)
 {
-    const QString green      = "\033[32m";
-    const QString reset      = "\033[00m";
+    const string green = "\033[32m";
+    const string reset = "\033[00m";
 
     if (outputIfSuccess != "" || outputIfError != "") {
-        QString msg;
-        QString msg_t;
+        string msg;
+        string msg_t;
         switch (ret) {
         case 0:
             //msg = outputIfSuccess.append("0: Sent successfully ").append(QString("ReqID=%1").arg(QString::number(nRequestID)));
-            msg = outputIfSuccess.append(QString(" <Sent successfully. ReqID=%1>").arg(nRequestID));
+            msg = outputIfSuccess + fmt::format(" <Sent successfully. ReqID={}>", nRequestID);
             msg_t = green + msg + reset;
-            logger(info, msg_t.toStdString().c_str());
-            emit sendToTraderMonitor(msg, Qt::darkGreen);
+            logger(info, msg_t.c_str());
+            emit sendToTraderMonitor(msg.c_str(), Qt::darkGreen);
             break;
         case -1:
-            msg = outputIfSuccess.append(QString(" <Failed, network problem. ReqID=%1>").arg(nRequestID));
-            logger(err, msg.toStdString().c_str());
-            emit sendToTraderMonitor(msg, Qt::red);
+            msg = outputIfSuccess + fmt::format(" <Failed, network problem. ReqID={}>", nRequestID);
+            logger(err, msg.c_str());
+            emit sendToTraderMonitor(msg.c_str(), Qt::red);
             break;
         case -2:
-            msg = outputIfSuccess.append(QString(" <Failed, number of unhandled request queues passes limit. ReqID=%1>").arg(nRequestID));
-            logger(err, msg.toStdString().c_str());
-            emit sendToTraderMonitor(msg, Qt::red);
+            msg = outputIfSuccess + fmt::format(" <Failed, number of unhandled request queues passes limit. ReqID={}>", nRequestID);
+            logger(err, msg.c_str());
+            emit sendToTraderMonitor(msg.c_str(), Qt::red);
             break;
         case -3:
-            msg = outputIfSuccess.append(QString(" <Failed, requests per sec pass limit.  ReqID=%1>").arg(nRequestID));
-            logger(err, msg.toStdString().c_str());
-            emit sendToTraderMonitor(msg, Qt::red);
+            msg = outputIfSuccess + fmt::format(" <Failed, requests per sec pass limit. ReqID={}>", nRequestID);
+            logger(err, msg.c_str());
+            emit sendToTraderMonitor(msg.c_str(), Qt::red);
             break;
         default:
             break;
@@ -837,7 +823,6 @@ void Trader::showApiReturn(int ret, QString outputIfSuccess, QString outputIfErr
 
 void Trader::execCmdLine(QString cmdLine)
 {
-    //qDebug() << "Trader thread" << QObject::thread();
     QStringList argv(cmdLine.split(" "));
     int n = argv.count();
     if (n > 0) {

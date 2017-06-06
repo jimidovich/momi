@@ -206,6 +206,7 @@ void Portfolio::evalAccount(PortfolioValue &pfValue, AggPosList &aplist, SymMktT
 {
 //    std::mutex mu;
 //    mu.lock();
+    pfValue.prevBalance = pfValue.balance;
     pfValue.positionProfit = 0;
     pfValue.closeProfit = 0;
     pfValue.grossPnl = 0;

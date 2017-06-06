@@ -13,12 +13,12 @@ class Portfolio;
 
 struct Pair {
     std::string yname, xname;
-    int ymulti = 1;
-    int xmulti = 1;
-    int currYpos = 0;
-    int currXpos = 0;
-    int targetYpos = 0;
-    int targetXpos = 0;
+    int ymulti          = 1;
+    int xmulti          = 1;
+    int currYpos        = 0;
+    int currXpos        = 0;
+    int targetYpos      = 0;
+    int targetXpos      = 0;
     double targetYprice = 0;
     double targetXprice = 0;
 };
@@ -35,7 +35,7 @@ public:
     void progressFilter();
     void setOMS(OMS *oms);
 
-    std::string lastTime{ "nn:nn:nn" };
+    std::string lastTime = "nn:nn:nn";
     Pair pair;
     DataHub *dataHub;
 
@@ -49,8 +49,14 @@ private:
         g_logger->log(lvl, fmt, args...);
     }
 
-    int t{ 0 };
-    double x_t, y_t, delta, vt, yhat, e, Q;
+    int t            = 0;
+    double x_t       = 0;
+    double y_t       = 0;
+    double delta     = 0;
+    double vt        = 0;
+    double yhat      = 0;
+    double e         = 0;
+    double Q         = 0;
     double ez_thresh = 0;
     Eigen::Matrix2d Wt, C, R;
     Eigen::RowVector2d F;

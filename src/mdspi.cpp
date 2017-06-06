@@ -72,7 +72,7 @@ void MdSpi::OnFrontConnected()
 
 void MdSpi::OnFrontDisconnected(int nReason)
 {
-    QString msg = "Front Disconnected. Reason: ";
+    string msg = "Front Disconnected. Reason: ";
     switch (nReason)
     {
     case 0x1001:
@@ -93,18 +93,16 @@ void MdSpi::OnFrontDisconnected(int nReason)
     default:
         break;
     }
-    logger(err, msg.toStdString().c_str());
-    emit sendToTraderMonitor(msg, Qt::red);
+    logger(err, msg.c_str());
+    emit sendToTraderMonitor(msg.c_str(), Qt::red);
 }
 
 void MdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
     if (!isErrorRspInfo(pRspInfo, "Md RspUserLogin: Failed. ")) {
-        QString msg = QString("Md Login Successful. TradingDay=%1").arg(pRspUserLogin->TradingDay);
-//        logger(info, "Md Login Successful. TradingDay={}", mdapi->GetTradingDay());
-        logger(info, msg.toStdString().c_str());
-        emit sendToTraderMonitor(msg, Qt::green);
-//        logger(info, "Subscribe market data:");
+        string msg = fmt::format("Md Login Successful. TradingDay={}", pRspUserLogin->TradingDay);
+        logger(info, msg.c_str());
+        emit sendToTraderMonitor(msg.c_str(), Qt::green);
 
         // wait for trader req all contracts info, then can initialize symList
 //        QThread::sleep(5);
@@ -127,7 +125,6 @@ void MdSpi::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcRs
 void MdSpi::OnRspSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
     if (!isErrorRspInfo(pRspInfo, "Md RspSubMarketData: ")) {
-        //logger(info, "\n....MarketData Subscirbe InstrumentID=", pSpecificInstrument->InstrumentID);
         if (bIsLast)
             logger(info, "MarketData Subscribe Finished.");
     }
@@ -136,7 +133,6 @@ void MdSpi::OnRspSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificInstr
 void MdSpi::OnRspUnSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
     if (!isErrorRspInfo(pRspInfo, "Md RspUnSubMarketData: "))
-        //logger(info, "\n....MarketData UnSubscirbe InstrumentID=", pSpecificInstrument->InstrumentID);
         if (bIsLast)
             logger(info, "MarketData UnSubscribe Finished.");
 }
@@ -182,31 +178,31 @@ void MdSpi::subscribeMd(std::string instruments)
     }
 }
 
-void MdSpi::showApiReturn(int ret, QString outputIfSuccess, QString outputIfError)
+void MdSpi::showApiReturn(int ret, string outputIfSuccess, string outputIfError)
 {
     if (outputIfSuccess != "" || outputIfError != "") {
-        QString msg;
+        string msg;
         switch (ret) {
         case 0:
             //msg = outputIfSuccess.append("0: Sent successfully ").append(QString("ReqID=%1").arg(QString::number(nRequestID)));
-            msg = outputIfSuccess.append(QString(" <Sent successfully>"));
-            logger(info, msg.toStdString().c_str());
-            emit sendToTraderMonitor(msg, Qt::darkGreen);
+            msg = outputIfSuccess + " <Sent successfully>";
+            logger(info, msg.c_str());
+            emit sendToTraderMonitor(msg.c_str(), Qt::darkGreen);
             break;
         case -1:
-            msg = outputIfSuccess.append(QString(" <Failed, network problem>"));
-            logger(err, msg.toStdString().c_str());
-            emit sendToTraderMonitor(msg, Qt::red);
+            msg = outputIfSuccess + " <Failed, network problem>";
+            logger(err, msg.c_str());
+            emit sendToTraderMonitor(msg.c_str(), Qt::red);
             break;
         case -2:
-            msg = outputIfSuccess.append(QString(" <Failed, number of unhandled request queues passes limit>"));
-            logger(err, msg.toStdString().c_str());
-            emit sendToTraderMonitor(msg, Qt::red);
+            msg = outputIfSuccess + " <Failed, number of unhandled request queues passes limit>";
+            logger(err, msg.c_str());
+            emit sendToTraderMonitor(msg.c_str(), Qt::red);
             break;
         case -3:
-            msg = outputIfSuccess.append(QString(" <Failed, requests per sec pass limit>"));
-            logger(err, msg.toStdString().c_str());
-            emit sendToTraderMonitor(msg, Qt::red);
+            msg = outputIfSuccess + " <Failed, requests per sec pass limit>";
+            logger(err, msg.c_str());
+            emit sendToTraderMonitor(msg.c_str(), Qt::red);
             break;
         default:
             break;
@@ -218,9 +214,9 @@ bool MdSpi::isErrorRspInfo(CThostFtdcRspInfoField *pRspInfo, const char *msg)
 {
     bool isError = (pRspInfo) && (pRspInfo->ErrorID != 0);
     if (isError) {
-        QString errMsg = QString(msg).append("ErrorID=").append(QString::number(pRspInfo->ErrorID)).append(" ErrorMsg=").append(QString::fromLocal8Bit(pRspInfo->ErrorMsg));
-        logger(err, "{}ErrorID={}, ErrorMsg={}", msg, pRspInfo->ErrorID, pRspInfo->ErrorMsg);
-        emit sendToTraderMonitor(errMsg, Qt::red);
+        string errMsg = fmt::format("ErrorID={}, ErrorMsg={}", pRspInfo->ErrorID, QString::fromLocal8Bit(pRspInfo->ErrorMsg).toStdString());
+        logger(err, errMsg.c_str());
+        emit sendToTraderMonitor(errMsg.c_str(), Qt::red);
     }
     return isError;
 }

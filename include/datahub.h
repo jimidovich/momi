@@ -48,6 +48,7 @@ public:
 
     SymInfoTable symInfoTable;
     SymMktTable symMktTable;
+    SymMktTable symPrevMktTable;
 
     void onCtpEvent(CtpEvent ev);
 };
