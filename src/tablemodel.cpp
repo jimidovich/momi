@@ -1,3 +1,4 @@
+#include "fmt/format.h"
 #include "include/tablemodel.h"
 
 PosTableModel::PosTableModel(QObject *parent, Portfolio *pf, DataHub *dataHub)
@@ -43,26 +44,29 @@ QVariant PosTableModel::data(const QModelIndex &index, int role /*= Qt::DisplayR
     int col = index.column();
     if (role == Qt::DisplayRole) {
         if (row < pf->netPosList.size()) {
-            auto i = pf->netPosList.begin();
-            auto curr_sym = (i + row).value().sym;
+            auto idxPos = pf->netPosList.begin() + row;
+//            auto idxSym = idxPos.value().sym;
+            auto idxSym = idxPos.key().toStdString();
             switch (col)
             {
-            case 0: return QString(curr_sym.c_str());
+            case 0: return QString(idxSym.c_str());
             case 1:
-                if (dataHub->symMktTable.find(curr_sym) != dataHub->symMktTable.end())
-                    return QString::number(dataHub->symMktTable.at(curr_sym).LastPrice);
-                else
-                    return "";
-            case 2: return QString::number((i + row).value().avgCostPrice);
-            case 3: return QString::number((i + row).value().netPos);
-            case 4: return QString::number((i + row).value().positionProfit);
-            case 5: return QString::number((i + row).value().netPnl);
+//                if (dataHub->dictHasMkt.at(idxSym))
+                    return QString::number(dataHub->symMktTable.at(idxSym).LastPrice);
+//                else
+//                    return "";
+            case 2: return QString::number(idxPos.value().avgCostPrice);
+            case 3: return QString::number(idxPos.value().netPos);
+            case 4: return QString::number(idxPos.value().positionProfit);
+            case 5: return QString::number(idxPos.value().netPnl);
             case 6:
-                if (dataHub->symMktTable.find(curr_sym) != dataHub->symMktTable.end())
-                    return QString("%1:%2").arg(dataHub->symMktTable.at(curr_sym).UpdateTime)
-                            .arg(QString::number(dataHub->symMktTable.at(curr_sym).UpdateMillisec).rightJustified(3, '0'));
-                else
-                    return "";
+//                if (dataHub->symMktTable.find(idxSym) != dataHub->symMktTable.end())
+//                if (dataHub->dictHasMkt.at(idxSym))
+//                    return QString("%1.%2").arg(dataHub->symMktTable.at(idxSym).UpdateTime)
+//                            .arg(QString::number(dataHub->symMktTable.at(idxSym).UpdateMillisec).rightJustified(3, '0'));
+                    return fmt::format("{}.{:0>3}", dataHub->symMktTable.at(idxSym).UpdateTime, dataHub->symMktTable.at(idxSym).UpdateMillisec).c_str();
+//                else
+//                    return "";
             default:
                 break;
             }
@@ -71,17 +75,18 @@ QVariant PosTableModel::data(const QModelIndex &index, int role /*= Qt::DisplayR
             return "test";
     } else if (role == Qt::BackgroundRole) {
         if (col == 1 || col == 5) {
-            auto i = pf->netPosList.begin();
-            auto curr_sym = (i + row).value().sym;
-            if (dataHub->symMktTable.find(curr_sym) != dataHub->symMktTable.end()
-                    && dataHub->symPrevMktTable.find(curr_sym) != dataHub->symPrevMktTable.end()) {
-                if (dataHub->symMktTable.at(curr_sym).LastPrice > dataHub->symPrevMktTable.at(curr_sym).LastPrice)
-                    return QColor(Qt::red);  // need to explicitly create QColor obj for QVariant
-                else if (dataHub->symMktTable.at(curr_sym).LastPrice < dataHub->symPrevMktTable.at(curr_sym).LastPrice)
-                    return QColor(Qt::darkGreen);  // need to explicitly create QColor obj for QVariant
-                else
-                    return QVariant();
-            }
+            auto idxPos = pf->netPosList.begin() + row;
+//            auto idxSym = idxPos.value().sym;
+            auto idxSym = idxPos.key().toStdString();
+//            if (dataHub->symMktTable.find(curr_sym) != dataHub->symMktTable.end()
+//                    && dataHub->symPrevMktTable.find(curr_sym) != dataHub->symPrevMktTable.end()) {
+//            if (dataHub->dictHasMkt.at(idxSym)) {
+            if (dataHub->symMktTable.at(idxSym).LastPrice > dataHub->symPrevMktTable.at(idxSym).LastPrice)
+                return QColor(Qt::red);  // need to explicitly create QColor obj for QVariant
+            else if (dataHub->symMktTable.at(idxSym).LastPrice < dataHub->symPrevMktTable.at(idxSym).LastPrice)
+                return QColor(Qt::darkGreen);  // need to explicitly create QColor obj for QVariant
+            else
+                return QVariant();
         }
     }
 

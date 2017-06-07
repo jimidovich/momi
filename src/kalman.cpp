@@ -57,9 +57,9 @@ void Kalman::onCtpEvent(CtpEvent ev)
 
     if (ev.type == MarketEvent) {
         string sym = ev.mkt.InstrumentID;
-        if (((sym == pair.yname) || (sym == pair.xname))
-            && (dataHub->symMktTable.find(pair.yname) != dataHub->symMktTable.end())
-            && (dataHub->symMktTable.find(pair.xname) != dataHub->symMktTable.end())) {
+        if (sym == pair.yname || sym == pair.xname) {
+//            && (dataHub->symMktTable.find(pair.yname) != dataHub->symMktTable.end())
+//            && (dataHub->symMktTable.find(pair.xname) != dataHub->symMktTable.end())) {
                 // time freq filter:
                 if (string(dataHub->symMktTable.at(sym).UpdateTime).substr(3, 2) != lastTime.substr(3, 2)) {
                     updateLastTime(ev.mkt.UpdateTime);

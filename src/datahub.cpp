@@ -10,14 +10,19 @@ void DataHub::onCtpEvent(CtpEvent ev)
     case ContractInfoEvent:
     {
         symInfoTable[ev.contractInfo.InstrumentID] = ev.contractInfo;
+//        dictHasMkt[ev.contractInfo.InstrumentID] = symMktTable.find(ev.contractInfo.InstrumentID) != symMktTable.end();
         break;
     }
     case MarketEvent:
     {
-        if (symMktTable.find(ev.mkt.InstrumentID) != symMktTable.end()) {
-            symPrevMktTable[ev.mkt.InstrumentID] = symMktTable.at(ev.mkt.InstrumentID);
-        };
+//        if (dictHasMkt.at(ev.mkt.InstrumentID))
+//            symPrevMktTable[ev.mkt.InstrumentID] = symMktTable.at(ev.mkt.InstrumentID);
+//        else
+//            symPrevMktTable[ev.mkt.InstrumentID] = ev.mkt;  // set 1st prevMkt == mkt
+
+        symPrevMktTable[ev.mkt.InstrumentID] = symMktTable.at(ev.mkt.InstrumentID);
         symMktTable[ev.mkt.InstrumentID] = ev.mkt;
+//        dictHasMkt[ev.mkt.InstrumentID] = true;
         break;
     }
     case PositionEvent:

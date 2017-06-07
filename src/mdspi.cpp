@@ -172,6 +172,10 @@ void MdSpi::subscribeMd(std::string instruments)
         for (int i = 0; i < n; ++i) {
             namelist[i] = new char[7];
             strcpy(namelist[i], argv.at(i).toStdString().c_str());
+
+            // make placeholder in dataHub
+            dataHub->symMktTable[namelist[i]] = CThostFtdcDepthMarketDataField();
+            dataHub->symPrevMktTable[namelist[i]] = CThostFtdcDepthMarketDataField();
         }
         int ret = mdapi->SubscribeMarketData(namelist, n);
         showApiReturn(ret, ("--> Md Subscribe: " + instruments).c_str(), "SubscribeMarketData Failed");

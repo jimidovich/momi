@@ -4,8 +4,6 @@
 #include <QSplitter>
 #include <QtWebEngineWidgets>
 
-#include "fmt/format.h"
-
 #include "include/ctpmonitor.h"
 #include "include/portfolio.h"
 

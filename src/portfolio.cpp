@@ -1,26 +1,11 @@
 //#include "include/ThostFtdcUserApiDataType.h"
+#include "fmt/format.h"
+
 #include "include/ThostFtdcUserApiStruct.h"
 
 #include "include/portfolio.h"
 
 using namespace std;
-
-QString getTimeMsec(std::string time, int ms)
-{
-    QString msec(QString::number(ms));
-    switch (msec.length())
-    {
-    case 1:
-        msec = "00" + msec;
-        break;
-    case 2:
-        msec = "0" + msec;
-        break;
-    default:
-        break;
-    }
-    return QString(time.c_str()) + "." + msec;
-}
 
 Portfolio::Portfolio()
 {
@@ -230,7 +215,8 @@ void Portfolio::evalAccount(PortfolioValue &pfValue, AggPosList &aplist, SymMktT
     //acc.balance = acc.cashBalance + acc.netPnl;
     pfValue.balance = pfValue.cashBalance + pfValue.grossPnl - pfValue.commission;
     pfValue.available = pfValue.balance - pfValue.margin; //TODO: add frozen margin etc.
-    pfValue.lastUpdateTime = getTimeMsec(time, millisec).toStdString();
+//    pfValue.lastUpdateTime = getTimeMsec(time, millisec).toStdString();
+    pfValue.lastUpdateTime = fmt::format("{}.{:0>3}", time, millisec);
 //    mu.unlock();
 }
 

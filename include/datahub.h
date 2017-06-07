@@ -49,6 +49,7 @@ public:
     SymInfoTable symInfoTable;
     SymMktTable symMktTable;
     SymMktTable symPrevMktTable;
+    std::map<std::string, bool> dictHasMkt;
 
     void onCtpEvent(CtpEvent ev);
 };
