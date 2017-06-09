@@ -37,9 +37,18 @@ void OMS::onCtpEvent(CtpEvent ev)
     {
         Trade td(&(ev.trade));
         tradeList.insert(td.tradeID, td);
+        emit updateTradeTable();
+
         // updating targetPos, now after portfolio::onEvent position updated
-        if (targetList.contains(td.tradeInfo->InstrumentID))
-            updatePosTarget(targetList[td.tradeInfo->InstrumentID]);
+        if (targetList.contains(td.tradeInfo.InstrumentID))
+            updatePosTarget(targetList[td.tradeInfo.InstrumentID]);
+        break;
+    }
+    case QryTradeEvent:
+    {
+        Trade td(&(ev.trade));
+        tradeList.insert(td.tradeID, td);
+        emit updateTradeTable();
         break;
     }
     case OrderEvent:
@@ -79,6 +88,7 @@ void OMS::onCtpEvent(CtpEvent ev)
         if (!isOrderWithTrade)
             updatePosTarget(targetList[od.sym.c_str()]);
 
+        emit updateOrderTable();
         break;
     }
     default:
@@ -276,15 +286,17 @@ void OMS::orderInsertWithOffsetFlag(std::string &sym, EnumOpenClose o_c, EnumDir
                   close today     ==> OffsetFlagType = CloseToday
         for others:               ==> OffsetFlagType = Close
         */
-        if (pos_H > 0 && pos_H <= volume) {
-            trader->ReqOrderInsert(sym, EnumOffsetFlagType::Close, direction, price, pos_H);
-            if (volume > pos_H)
-                trader->ReqOrderInsert(sym, EnumOffsetFlagType::CloseToday, direction, price, volume - pos_H);
-        }
-        else if (pos_H > volume)  // pos_H > volume, close H volume
-            trader->ReqOrderInsert(sym, EnumOffsetFlagType::Close, direction, price, volume);
-        else  // pos_H = 0
+        if (pos_H > 0) {
+            if (pos_H <= volume) {
+                trader->ReqOrderInsert(sym, EnumOffsetFlagType::Close, direction, price, pos_H);
+                if (volume > pos_H)
+                    trader->ReqOrderInsert(sym, EnumOffsetFlagType::CloseToday, direction, price, volume - pos_H);
+            } else {  // pos_H > volume
+                trader->ReqOrderInsert(sym, EnumOffsetFlagType::Close, direction, price, volume);
+            }
+        } else {  // pos_H = 0
             trader->ReqOrderInsert(sym, EnumOffsetFlagType::CloseToday, direction, price, volume);
+        }
     }
     break;
     default:
@@ -439,7 +451,7 @@ Trade::Trade()
 Trade::Trade(CThostFtdcTradeField *tf)
 {
     tradeID = QString("%1+%2").arg(tf->ExchangeID).arg(tf->OrderSysID);
-    tradeInfo = tf;
+    tradeInfo = *tf;
 }
 
 Order::Order()
@@ -467,8 +479,8 @@ Order::Order(CThostFtdcOrderField *of)
             workingVolume *= -1;
         lastVolumeTraded = of->VolumeTraded;
     }
-    //orderID = QString("%1-%2").arg(of->ExchangeID).arg(of->OrderSysID);
+    orderID = QString("%1-%2").arg(of->ExchangeID).arg(of->OrderSysID);
     //orderID = QString("%1-%2").arg(of->BrokerID).arg(of->BrokerOrderSeq);
-    orderID = QString("%1-%2-%3").arg(of->FrontID).arg(of->SessionID).arg(of->OrderRef);
+//    orderID = QString("%1-%2-%3").arg(of->FrontID).arg(of->SessionID).arg(of->OrderRef);
     orderInfo = *of;
 }

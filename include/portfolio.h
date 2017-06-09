@@ -1,6 +1,7 @@
 #ifndef PORTFOLIO_H
 #define PORTFOLIO_H
 
+#include <mutex>
 #include <QObject>
 
 #include "position.h"
@@ -51,6 +52,8 @@ public:
 	NetPosList netPosList;
     PortfolioValue pfValue;
 
+    NetPosList netPosListCopy;
+
     DataHub *dataHub;
 
     std::string tradingDay;
@@ -58,6 +61,7 @@ public:
     int millisec      = 0;
     int numNetPosRows = 0;
 
+    std::mutex mu;
 
 signals:
     void updatePosTable();

@@ -22,7 +22,7 @@ public:
     Trade(CThostFtdcTradeField *tf);
 
     QString tradeID;
-    CThostFtdcTradeField *tradeInfo;
+    CThostFtdcTradeField tradeInfo;
 };
 typedef QMap<QString, Trade> TradeList;
 
@@ -100,8 +100,11 @@ public:
 public slots:
     void execCmdLine(QString cmdLine);
 
+
 signals:
     void sendToTraderMonitor(QString msg, QColor clr = Qt::white);
+    void updateOrderTable();
+    void updateTradeTable();
 
 private:
     void calcLongShortTarget(PosTarget &pt);

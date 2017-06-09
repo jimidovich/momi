@@ -46,10 +46,6 @@ public:
     int ReqOrderAction(std::string InstrumentID, std::string OrderRef = "");
     int ReqOrderAction(std::string InstrumentID, int FrontID = 0, int SessionID = 0, std::string OrderRef = "", std::string ExchangeID = "", std::string OrderSysID = "");
 
-    int ReqQryOrder(std::string InstrumentID = "", std::string ExchangeID = "", std::string timeStart = "", std::string timeEnd = "", std::string OrderSysID = "");
-    int ReqQryTrade(std::string timeStart, std::string timeEnd, std::string InstrumentID, std::string ExchangeID, std::string TradeID);
-
-
     void showApiReturn(int ret, std::string outputIfSuccess = "", std::string outputIfError = "TraderApi sent Error.");
     std::string getTradingDay();
     void handleDispatch(int tt);
@@ -62,6 +58,10 @@ public slots:
     int ReqQryInstrument();
     int ReqQryTradingAccount();
     int ReqQryInvestorPositionDetail(std::string InstrumentID = "");
+
+    int ReqQryOrder(std::string InstrumentID = "", std::string ExchangeID = "", std::string timeStart = "", std::string timeEnd = "", std::string OrderSysID = "");
+    int ReqQryTrade(std::string timeStart = "", std::string timeEnd = "", std::string InstrumentID = "", std::string ExchangeID = "", std::string TradeID = "");
+
     void execCmdLine(QString cmdLine);
 
 signals:

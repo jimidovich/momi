@@ -18,6 +18,7 @@ enum EnumMyEventType
 	PositionDetailEvent,
 	OrderEvent,
 	TradeEvent,
+    QryTradeEvent,
 	AccountUpdateEvent
 };
 
@@ -44,8 +45,9 @@ struct CtpEvent {
     CtpEvent(CThostFtdcInstrumentField *p) {type = ContractInfoEvent; contractInfo = *p;}
     CtpEvent(CThostFtdcInvestorPositionField *p) {type = PositionEvent; pos = *p;}
     CtpEvent(CThostFtdcInvestorPositionDetailField *p) {type = PositionDetailEvent; posDetail = *p;}
-    CtpEvent(CThostFtdcTradeField *p) {type = TradeEvent; trade = *p;}
     CtpEvent(CThostFtdcOrderField *p) {type = OrderEvent; order = *p;}
+    CtpEvent(CThostFtdcTradeField *p) {type = TradeEvent; trade = *p;}
+    CtpEvent(CThostFtdcTradeField *p, char qflag) {type = QryTradeEvent; trade = *p;}
 };
 
 #endif // MYEVENT_H

@@ -265,6 +265,12 @@ void Trader::OnRspQryOrder(CThostFtdcOrderField *pOrder, CThostFtdcRspInfoField 
         if (bIsLast) {
             logger(info, "Qry Order Finished.");
             emit sendToTraderMonitor("Query Order Finished.");
+
+            // login workflow #7
+            if (isLoginWorkflow) {
+                QtConcurrent::run(timerReq, this, SLOT(ReqQryTrade()));
+                isLoginWorkflow = false;
+            }
         }
     }
 }
@@ -282,6 +288,8 @@ void Trader::OnRspQryTrade(CThostFtdcTradeField *pTrade, CThostFtdcRspInfoField 
                                      pTrade->Volume,
                                      pTrade->TradeTime);
             emit sendToTraderMonitor(msg.c_str());
+
+            dataHub->eventQueue.post(CtpEvent(pTrade, 'q')); //post QryTradeEvent, let oms not update
         }
         if (bIsLast) {
             logger(info, "Qry Trade Finished.");
@@ -294,9 +302,9 @@ void Trader::OnRspQryInvestorPosition(CThostFtdcInvestorPositionField *pInvestor
 {
     if (!isErrorRspInfo(pRspInfo, "RspQryPosition: ")) {
         if (pInvestorPosition != nullptr) {
-            string msg = fmt::format("{:<6} Dir={}, Pos={}, PnL={}, CloseAmt={}, Margin={}",
+            string msg = fmt::format("{:<6} AggDir={}, Pos={}, PnL={}, CloseAmt={}, Margin={}",
                                      pInvestorPosition->InstrumentID,
-                                     mymap::direction_char.at(pInvestorPosition->PosiDirection),
+                                     pInvestorPosition->PosiDirection,
                                      pInvestorPosition->Position,
                                      pInvestorPosition->PositionProfit,
                                      pInvestorPosition->CloseAmount,
@@ -334,6 +342,11 @@ void Trader::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDetailFiel
         if (bIsLast) {
             logger(info, "Qry InvestorPositionDetail Finished");
             emit sendToTraderMonitor("Qry InvestorPositionDetail Finished.");
+
+            // login workflow #6
+            if (isLoginWorkflow) {
+                QtConcurrent::run(timerReq, this, SLOT(ReqQryOrder()));
+            }
         }
     }
 }
@@ -356,7 +369,7 @@ void Trader::OnRspQryTradingAccount(CThostFtdcTradingAccountField *pTradingAccou
             // login workflow #5
             if (isLoginWorkflow) {
                 QtConcurrent::run(timerReq, this, SLOT(ReqQryInvestorPositionDetail()));
-                isLoginWorkflow = false;
+//                isLoginWorkflow = false;
             }
         }
     }
@@ -483,6 +496,14 @@ int Trader::ReqOrderInsert(CThostFtdcInputOrderField *pInputOrder)
     return ret;
 }
 
+/*Reminder:
+for SHFE:   'Close' = 'CloseYesterday' !!!
+                wtf, for example, if only have today pos, 'Close' will error
+for others: 'CloseToday' and 'CloseYesterday' = 'Close'
+                'CloseToday' will close ydpos first if ydpos and tdpos both exist
+                'CloseYesterday' can close tdpos if there is no ydpos
+*/
+
 // Limit Order
 int Trader::ReqOrderInsert(string InstrumentID, EnumOffsetFlagType OffsetFlag, EnumDirectionType Direction, double Price, int Volume)
 {
@@ -509,6 +530,9 @@ int Trader::ReqOrderInsert(string InstrumentID, EnumOffsetFlagType OffsetFlag, E
 
     int ret = tdapi->ReqOrderInsert(order, ++nRequestID);
     showApiReturn(ret, "--> LimitOrderInsert", "--x LimitOrderInsert Sent Error");
+    string msg = fmt::format("LMT Insert: {} {} {} Px={} Vol={}", order->InstrumentID, mymap::offsetFlag_string.at(OffsetFlag), mymap::direction_char.at(Direction), Price, Volume);
+    logger(info, msg.c_str());
+    emit sendToTraderMonitor(msg.c_str());
     return ret;
 }
 
@@ -649,7 +673,7 @@ int Trader::ReqQryOrder(string InstrumentID, string ExchangeID, string timeStart
     return ret;
 }
 
-int Trader::ReqQryTrade(string timeStart = "", string timeEnd = "", string InstrumentID = "", string ExchangeID = "", string TradeID = "")
+int Trader::ReqQryTrade(string timeStart, string timeEnd, string InstrumentID, string ExchangeID, string TradeID)
 {
     auto trade = new CThostFtdcQryTradeField();
     strcpy(trade->BrokerID, BROKER_ID.c_str());
@@ -702,6 +726,7 @@ int Trader::ReqQryInvestorPositionDetail(string InstrumentID)
     strcpy(pos->InstrumentID, InstrumentID.c_str());
     int ret = tdapi->ReqQryInvestorPositionDetail(pos, ++nRequestID);
     showApiReturn(ret, "--> ReqQryInvestorPositionDetail", "--x ReqQryInvestorPositionDetail Failed");
+
     return ret;
 }
 

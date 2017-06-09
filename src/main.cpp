@@ -97,14 +97,26 @@ int main(int argc, char *argv[])
     if (argc == 1) {
         auto w = new CtpMonitor;
         w->dataHub = &dataHub;
-        auto posTV = new PosTableModel(w, &pf, &dataHub);
-        auto accTV = new AccTableModel(w, &pf);
-        w->posTableModel = posTV;
-        w->accTableModel = accTV;
+
+        auto posTM = new PosTableModel(w, &pf, &dataHub);
+        auto accTM = new AccTableModel(w, &pf);
+        auto orderTM = new OrderTableModel(w, &oms);
+        auto tradeTM = new TradeTableModel(w, &oms);
+        w->posTableModel = posTM;
+        w->accTableModel = accTM;
+        w->orderTableModel = orderTM;
+        w->tradeTableModel = tradeTM;
         w->getui().posTableView->setModel(w->posTableModel);
         w->getui().accTableView->setModel(w->accTableModel);
+        w->getui().orderTableView->setModel(w->orderTableModel);
+        w->getui().tradeTableView->setModel(w->tradeTableModel);
+
         w->getui().posTableView->setColumnWidth(6, 120);
         w->getui().accTableView->setColumnWidth(6, 120);
+        w->getui().orderTableView->setColumnWidth(1, 120);
+        w->getui().orderTableView->setColumnWidth(11, 120);
+        w->getui().tradeTableView->setColumnWidth(1, 120);
+        w->getui().tradeTableView->setColumnWidth(9, 120);
 
         QObject::connect(&trader, &Trader::sendToTraderMonitor, w, &CtpMonitor::printTraderMsg);
         QObject::connect(&trader, &Trader::sendToTraderCmdMonitor, w, &CtpMonitor::printToTraderCmdMonitor);
@@ -116,6 +128,8 @@ int main(int argc, char *argv[])
         QObject::connect(w, &CtpMonitor::sendCmdLineToOms, &oms, &OMS::execCmdLine);
         QObject::connect(&pf, &Portfolio::updatePosTable, w, &CtpMonitor::updatePosTable);
         QObject::connect(&pf, &Portfolio::updateAccTable, w, &CtpMonitor::updateAccTable);
+        QObject::connect(&oms, &OMS::updateOrderTable, w, &CtpMonitor::updateOrderTable);
+        QObject::connect(&oms, &OMS::updateTradeTable, w, &CtpMonitor::updateTradeTable);
 
         //mythread.kdbConnector.setTradingDay(trader.getTradingDay().c_str());
 

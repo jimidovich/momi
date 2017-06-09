@@ -61,14 +61,15 @@ void Kalman::onCtpEvent(CtpEvent ev)
 //            && (dataHub->symMktTable.find(pair.yname) != dataHub->symMktTable.end())
 //            && (dataHub->symMktTable.find(pair.xname) != dataHub->symMktTable.end())) {
                 // time freq filter:
-                if (string(dataHub->symMktTable.at(sym).UpdateTime).substr(3, 2) != lastTime.substr(3, 2)) {
-                    updateLastTime(ev.mkt.UpdateTime);
-                    updateXY(dataHub->symMktTable.at(pair.yname).LastPrice, dataHub->symMktTable.at(pair.xname).LastPrice);
-                    progressFilter();
-                }
-
+            if (string(dataHub->symMktTable.at(sym).UpdateTime).substr(3, 2) != lastTime.substr(3, 2)) {
+                updateLastTime(ev.mkt.UpdateTime);
                 updateXY(dataHub->symMktTable.at(pair.yname).LastPrice, dataHub->symMktTable.at(pair.xname).LastPrice);
-                e = y_t - yhat;
+                progressFilter();
+            }
+
+            updateXY(dataHub->symMktTable.at(pair.yname).LastPrice, dataHub->symMktTable.at(pair.xname).LastPrice);
+            e = y_t - yhat;
+            if ((t > 3) && (abs(e) > ez_thresh)) {
                 updatePos();
                 string msg = fmt::format("y_t={}, y_hat={}, e={}, ez_thresh={}", y_t, yhat, e, ez_thresh);
                 logger(spdlog::level::info, msg.c_str());
@@ -76,9 +77,9 @@ void Kalman::onCtpEvent(CtpEvent ev)
                 oms->setPosTarget(pair.xname.c_str(), pair.targetXpos, pair.targetXprice);
                 oms->handleTargets();
 
-//                oms->setPosTarget(pair.yname.c_str(), 0, y_t);
-//                oms->setPosTarget(pair.xname.c_str(), 0, x_t);
-
+                oms->setPosTarget(pair.yname.c_str(), 0, y_t);
+                oms->setPosTarget(pair.xname.c_str(), 0, x_t);
+            }
         }
     }
 //    auto end = std::chrono::steady_clock::now();
@@ -126,10 +127,8 @@ int sign(double x) {
 
 void Kalman::updatePos()
 {
-    if ((t > 3) && (abs(e) > ez_thresh)) {
         pair.targetYpos = -sign(e) * std::round(2000 / (double)pair.ymulti);
         pair.targetXpos = sign(e) * std::round(2000 * theta(0, 0) / (double)pair.xmulti);
         pair.targetYprice = y_t;
         pair.targetXprice = x_t;
-    }
 }

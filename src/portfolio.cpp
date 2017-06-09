@@ -41,6 +41,10 @@ void Portfolio::onCtpEvent(CtpEvent ev)
 //            isInPosStream = false;
             beginUpdate = true;
             numNetPosRows = netPosList.size();  // just for posTableView behavior use
+
+            mu.lock();
+            netPosListCopy = netPosList;
+            mu.unlock();
             emit updatePosTable();
         }
         break;
@@ -67,6 +71,9 @@ void Portfolio::onCtpEvent(CtpEvent ev)
 //                auto accEvent = new MyEvent(AccountUpdateEvent, &acc);
 //                QCoreApplication::postEvent(dispatcher, accEvent);
 
+                mu.lock();
+                netPosListCopy = netPosList;
+                mu.unlock();
                 emit updateAccTable();
                 emit updatePosTable();
             }
@@ -190,7 +197,6 @@ void Portfolio::updatePosOnTrade(AggPosList &al, PosList &pl, CThostFtdcTradeFie
 void Portfolio::evalAccount(PortfolioValue &pfValue, AggPosList &aplist, SymMktTable &smkt)
 {
 //    std::mutex mu;
-//    mu.lock();
     pfValue.prevBalance = pfValue.balance;
     pfValue.positionProfit = 0;
     pfValue.closeProfit = 0;
@@ -217,7 +223,6 @@ void Portfolio::evalAccount(PortfolioValue &pfValue, AggPosList &aplist, SymMktT
     pfValue.available = pfValue.balance - pfValue.margin; //TODO: add frozen margin etc.
 //    pfValue.lastUpdateTime = getTimeMsec(time, millisec).toStdString();
     pfValue.lastUpdateTime = fmt::format("{}.{:0>3}", time, millisec);
-//    mu.unlock();
 }
 
 void Portfolio::evalOnTick(PortfolioValue &acc, AggPosList &aplist, CThostFtdcDepthMarketDataField &mkt)

@@ -49,14 +49,19 @@ CtpMonitor::CtpMonitor(QWidget *parent)
     splitter3->addWidget(webView);
     splitter3->addWidget(ui.accTableView);
     splitter3->addWidget(ui.posTableView);
+    splitter3->addWidget(ui.orderTableView);
+    splitter3->addWidget(ui.tradeTableView);
     splitter3->setOrientation(Qt::Vertical);
     splitter->addWidget(splitter2);
     splitter->addWidget(splitter3);
-    this->resize(1500, 800);
-    splitter3->resize(300, 0);
-    ui.traderOutput->resize(0, 300);
     auto hLayout = new QHBoxLayout(ui.centralWidget);
     hLayout->addWidget(splitter);
+
+//    this->resize(1500, 800);
+//    splitter3->resize(300, 0);
+//    ui.traderOutput->resize(0, 300);
+//    ui.accTableView->resize(20, 0);
+
 
     webView->load(QUrl("file:///home/yiju/tmp/qws/hichart2.html"));
 
@@ -77,12 +82,22 @@ Ui::CtpMonitorClass CtpMonitor::getui()
 
 void CtpMonitor::updatePosTable()
 {
-    posTableModel->updatePosTable();
+    posTableModel->updateTable();
 }
 
 void CtpMonitor::updateAccTable()
 {
-    accTableModel->updateAccTable();
+    accTableModel->updateTable();
+}
+
+void CtpMonitor::updateOrderTable()
+{
+    orderTableModel->updateTable();
+}
+
+void CtpMonitor::updateTradeTable()
+{
+    tradeTableModel->updateTable();
 }
 
 void CtpMonitor::echoToTraderCmdMonitor()

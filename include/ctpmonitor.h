@@ -18,6 +18,8 @@ public:
 
     PosTableModel *posTableModel;
     AccTableModel *accTableModel;
+    OrderTableModel *orderTableModel;
+    TradeTableModel *tradeTableModel;
 
 
 signals:
@@ -33,6 +35,8 @@ public slots:
 
     void updatePosTable();
     void updateAccTable();
+    void updateOrderTable();
+    void updateTradeTable();
 
 
 private slots:
