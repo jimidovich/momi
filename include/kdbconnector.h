@@ -3,14 +3,11 @@
 
 #include <string>
 
-#include <QMutex>
-
 #include "spdlog/spdlog.h"
 #include "ThostFtdcUserApiDataType.h"
 #include "ThostFtdcUserApiStruct.h"
 
 #include "myevent.h"
-#include "dispatcher.h"
 
 #define KXVER 3
 #include "k.h"
@@ -63,7 +60,6 @@ protected:
     bool tableExist         = false;
     const char *tradingDay  = nullptr;
     int countTick           = 0;
-    QMutex mutex;
 
     std::shared_ptr<spdlog::logger> console;
     std::shared_ptr<spdlog::logger> g_logger;

@@ -5,6 +5,7 @@
 
 #include <QAbstractTableModel>
 #include <QTableView>
+
 #include "portfolio.h"
 #include "oms.h"
 

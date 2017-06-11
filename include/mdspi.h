@@ -8,7 +8,6 @@
 #include "ThostFtdcMdApi.h"
 
 #include "datahub.h"
-#include "dispatcher.h"
 #include "ctpmonitor.h"
 
 
@@ -17,18 +16,14 @@ class MdSpi : public QObject, public CThostFtdcMdSpi {
 
 public:
     MdSpi(QObject *parent = Q_NULLPTR);
-    MdSpi(const std::string &frontAddress,
-          const std::string &brokerID,
-          const std::string &userID,
-          const std::string &password);
+    MdSpi(const std::string &frontAddress, const std::string &brokerID, const std::string &userID, const std::string &password);
     ~MdSpi();
 
     void init();
     void reqConnect();
-//    void setDispatcher(Dispatcher *ee);
     void subscribeMd(std::string instruments);
     void showApiReturn(int ret, std::string outputIfSuccess = "", std::string outputIfError = "MdApi sent Error.");
-    bool isErrorRspInfo(CThostFtdcRspInfoField *pRspInfo, const char *msg = "");
+    bool isErrorRspInfo(CThostFtdcRspInfoField *pRspInfo, std::string msg = "");
 
     // override CThostFtdcMdSpi callback functions
     void OnFrontConnected();
@@ -41,8 +36,7 @@ public:
     void OnRspUnSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
     void OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData);
 
-//    Dispatcher *getDispatcher();
-
+    std::string subInstruments;
     DataHub* dataHub;
 
     public slots:
@@ -62,23 +56,13 @@ private:
         g_logger->log(lvl, fmt, args...);
     }
 
-    CThostFtdcMdApi *mdapi = nullptr;
-//    Dispatcher *dispatcher{ nullptr };
-    /*char *FrontAddress{ "tcp://122.224.98.87:27225" };
-    const string BROKER_ID{ "3010" };
-    const string USER_ID{ "10101847" };
-    const string PASSWORD{ "0" };*/
-
-    //char *FrontAddress{ "tcp://180.168.146.187:10031" };
-    //const std::string BROKER_ID{ "9999" };
-    //const std::string USER_ID{ "063669" };
-    //const std::string PASSWORD{ "1qaz2wsx" };
-
     const std::string FrontAddress;
     const std::string BROKER_ID;
     const std::string USER_ID;
     const std::string PASSWORD;
-    long countTick = 0;
+    CThostFtdcMdApi *mdapi = nullptr;
+
+    int nRequestID = 0;
 
     std::shared_ptr<spdlog::logger> console;
     std::shared_ptr<spdlog::logger> g_logger;

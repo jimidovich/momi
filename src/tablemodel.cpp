@@ -1,4 +1,5 @@
 #include "fmt/format.h"
+
 #include "include/tablemodel.h"
 
 PosTableModel::PosTableModel(QObject *parent, Portfolio *pf, DataHub *dataHub)
@@ -193,7 +194,7 @@ int OrderTableModel::rowCount(const QModelIndex &parent /*= QModelIndex()*/) con
 
 int OrderTableModel::columnCount(const QModelIndex &parent /*= QModelIndex()*/) const
 {
-    return 12;
+    return 18;
 }
 
 QVariant OrderTableModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -213,8 +214,14 @@ QVariant OrderTableModel::headerData(int section, Qt::Orientation orientation, i
             case 7: return QString("TradedVol");
             case 8: return QString("OrigVol");
             case 9: return QString("InsertTime");
-            case 10: return QString("Exch");
-            case 11: return QString("OrderSysID");
+            case 10: return QString("InsertDate");
+            case 11: return QString("Exch");
+            case 12: return QString("OrderSysID");
+            case 13: return QString("FrontID");
+            case 14: return QString("SessionID");
+            case 15: return QString("OrderRef");
+            case 16: return QString("OrderLocalID");
+            case 17: return QString("TradingDay");
             }
         }
     }
@@ -240,8 +247,14 @@ QVariant OrderTableModel::data(const QModelIndex &index, int role /*= Qt::Displa
             case 7: return iOrder.orderInfo.VolumeTraded;
             case 8: return iOrder.orderInfo.VolumeTotalOriginal;
             case 9: return QString(iOrder.orderInfo.InsertTime);
-            case 10: return QString(iOrder.orderInfo.ExchangeID);
-            case 11: return QString(iOrder.orderInfo.OrderSysID);
+            case 10: return QString(iOrder.orderInfo.InsertDate);
+            case 11: return QString(iOrder.orderInfo.ExchangeID);
+            case 12: return QString(iOrder.orderInfo.OrderSysID);
+            case 13: return QString::number(iOrder.orderInfo.FrontID);
+            case 14: return QString::number(iOrder.orderInfo.SessionID);
+            case 15: return QString(iOrder.orderInfo.OrderRef);
+            case 16: return QString(iOrder.orderInfo.OrderLocalID);
+            case 17: return QString(iOrder.orderInfo.TradingDay);
             default:
                 break;
             }
@@ -260,6 +273,17 @@ QVariant OrderTableModel::data(const QModelIndex &index, int role /*= Qt::Displa
             case Unknown: return QColor(Qt::darkGray);
             case NotTouched: return QColor(Qt::darkGray);
             case Touched: return QColor(Qt::darkGray);
+            default:
+                break;
+            }
+        }
+    } else if (role == Qt::ForegroundRole) {
+        if (col == 3) {
+            auto iOrder = (oms->orderList.begin() + oms->orderList.size() - 1 - row).value();
+            switch (iOrder.direction)
+            {
+            case 'L': return QColor(Qt::green);
+            case 'S': return QColor(Qt::red);
             default:
                 break;
             }
@@ -289,13 +313,12 @@ int TradeTableModel::rowCount(const QModelIndex &parent /*= QModelIndex()*/) con
 
 int TradeTableModel::columnCount(const QModelIndex &parent /*= QModelIndex()*/) const
 {
-    return 11;
+    return 13;
 }
 
 QVariant TradeTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (role == Qt::DisplayRole)
-    {
+    if (role == Qt::DisplayRole) {
         if (orientation == Qt::Horizontal) {
             switch (section)
             {
@@ -306,10 +329,12 @@ QVariant TradeTableModel::headerData(int section, Qt::Orientation orientation, i
             case 4: return QString("TradeSide");
             case 5: return QString("TradePx");
             case 6: return QString("TradeVol");
-            case 7: return QString("TradeTime");
-            case 8: return QString("Exch");
-            case 9: return QString("OrderSysID");
+            case 7: return QVariant();
+            case 8: return QVariant();
+            case 9: return QString("TradeTime");
             case 10: return QString("TradeDate");
+            case 11: return QString("Exch");
+            case 12: return QString("OrderSysID");
             }
         }
     }
@@ -332,10 +357,12 @@ QVariant TradeTableModel::data(const QModelIndex &index, int role /*= Qt::Displa
             case 4: return QVariant();
             case 5: return iTrade.tradeInfo.Price;
             case 6: return iTrade.tradeInfo.Volume;
-            case 7: return iTrade.tradeInfo.TradeTime;
-            case 8: return iTrade.tradeInfo.ExchangeID;
-            case 9: return iTrade.tradeInfo.OrderSysID;
+            case 7: return QVariant();
+            case 8: return QVariant();
+            case 9: return iTrade.tradeInfo.TradeTime;
             case 10: return iTrade.tradeInfo.TradeDate;
+            case 11: return iTrade.tradeInfo.ExchangeID;
+            case 12: return iTrade.tradeInfo.OrderSysID;
             default:
                 break;
             }
@@ -357,8 +384,18 @@ QVariant TradeTableModel::data(const QModelIndex &index, int role /*= Qt::Displa
 //            default:
 //                break;
 //            }
+    } else if (role == Qt::ForegroundRole) {
+        if (col == 3) {
+            auto iTrade = (oms->tradeList.begin() + oms->tradeList.size() - 1 - row).value();
+            switch (mymap::direction_char.at(iTrade.tradeInfo.Direction))
+            {
+            case 'L': return QColor(Qt::green);
+            case 'S': return QColor(Qt::red);
+            default:
+                break;
+            }
+        }
     }
-
     return QVariant();
 }
 

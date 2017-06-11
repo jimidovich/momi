@@ -2,7 +2,6 @@
 
 Account::Account()
 {
-
 }
 
 Account::Account(CThostFtdcTradingAccountField &af)

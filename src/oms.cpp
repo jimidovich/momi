@@ -1,4 +1,4 @@
-#include <QDebug>
+#include <iostream>
 #include <QList>
 
 #include "include/portfolio.h"
@@ -450,7 +450,8 @@ Trade::Trade()
 
 Trade::Trade(CThostFtdcTradeField *tf)
 {
-    tradeID = QString("%1+%2").arg(tf->ExchangeID).arg(tf->OrderSysID);
+//    tradeID = QString("%1+%2").arg(tf->ExchangeID).arg(tf->OrderSysID);
+    tradeID = QString("%1+%2+%3+%4").arg(tf->TradeDate).arg(tf->TradeTime).arg(tf->ExchangeID).arg(tf->OrderSysID);
     tradeInfo = *tf;
 }
 
@@ -470,7 +471,7 @@ Order::Order(CThostFtdcOrderField *of)
     status = mymap::orderStatus_enum.at(of->OrderStatus);
     if (status == PartTradedQueueing || status == NoTradeQueueing) {
         if (of->VolumeTotal == 0) {
-            qDebug() << "************* Order Status Logic Error *************";
+            std::cout << "************* Order Status Logic Error *************";
             exit(EXIT_FAILURE);
         }
         isWorking = true;
@@ -479,8 +480,9 @@ Order::Order(CThostFtdcOrderField *of)
             workingVolume *= -1;
         lastVolumeTraded = of->VolumeTraded;
     }
-    orderID = QString("%1-%2").arg(of->ExchangeID).arg(of->OrderSysID);
-    //orderID = QString("%1-%2").arg(of->BrokerID).arg(of->BrokerOrderSeq);
+//    orderID = QString("%1-%2").arg(of->ExchangeID).arg(of->OrderSysID);
+//    orderID = QString("%1-%2").arg(of->BrokerID).arg(of->BrokerOrderSeq);
 //    orderID = QString("%1-%2-%3").arg(of->FrontID).arg(of->SessionID).arg(of->OrderRef);
+    orderID = QString("%1-%2-%3-%4").arg(of->InsertDate).arg(of->InsertTime).arg(of->ExchangeID).arg(of->OrderSysID);
     orderInfo = *of;
 }

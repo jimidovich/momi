@@ -1,6 +1,4 @@
 #include <QTextCodec>
-#include <QDebug>
-#include <QThread>
 #include <QDir>
 
 #include "spdlog/spdlog.h"
@@ -13,7 +11,6 @@
 #include "include/mdspi.h"
 #include "include/portfolio.h"
 #include "include/kalman.h"
-#include "include/dispatcher.h"
 #include "include/strategy.h"
 // include kdbconnector.h in last order for k.h polute reason
 #include "include/kdbconnector.h"
@@ -46,12 +43,18 @@ int main(int argc, char *argv[])
     file_logger->info("Enter Program");
 
     // Begin making real shit
-    Trader trader("tcp://180.168.146.187:10000", "9999", "063669", "1qaz2wsx");
-    MdSpi mdspi("tcp://180.168.146.187:10010", "9999", "063669", "1qaz2wsx");
-//    Trader trader("tcp://180.168.146.187:10030", "9999", "063669", "1qaz2wsx");
-//    MdSpi mdspi("tcp://180.168.146.187:10031", "9999", "063669", "1qaz2wsx");
+//    Trader trader("tcp://180.168.146.187:10000", "9999", "063669", "1qaz2wsx");
+//    MdSpi mdspi("tcp://180.168.146.187:10010", "9999", "063669", "1qaz2wsx");
+    Trader trader("tcp://180.168.146.187:10030", "9999", "063669", "1qaz2wsx");
+    MdSpi mdspi("tcp://180.168.146.187:10031", "9999", "063669", "1qaz2wsx");
 //    Trader trader("tcp://222.66.235.70:21205", "66666", "00008218", "183488");
 //    MdSpi mdspi("tcp://222.66.235.70:21214", "66666", "00008218", "183488");
+
+    mdspi.subInstruments =
+        "IF1706;IH1706;IC1706;TF1712;T1712;"
+        "rb1710;ru1709;cu1706;zn1706;au1706;ag1706;au1712;ag1712;sn1709;al1706;hc1710;bu1709;pb1706;sn1709;"
+        "i1709;p1709;m1709;y1709;j1709;l1709;c1709;jm1709;cs1709;pp1709;jd1709;a1709;"
+        "SR709;TA709;MA709;CF709;OI709;RM709;ZC709;FG709;SM709";
 
     Portfolio pf;
     OMS oms(&trader, &pf);
@@ -114,9 +117,9 @@ int main(int argc, char *argv[])
         w->getui().posTableView->setColumnWidth(6, 120);
         w->getui().accTableView->setColumnWidth(6, 120);
         w->getui().orderTableView->setColumnWidth(1, 120);
-        w->getui().orderTableView->setColumnWidth(11, 120);
+        w->getui().orderTableView->setColumnWidth(12, 120);
         w->getui().tradeTableView->setColumnWidth(1, 120);
-        w->getui().tradeTableView->setColumnWidth(9, 120);
+        w->getui().tradeTableView->setColumnWidth(12, 120);
 
         QObject::connect(&trader, &Trader::sendToTraderMonitor, w, &CtpMonitor::printTraderMsg);
         QObject::connect(&trader, &Trader::sendToTraderCmdMonitor, w, &CtpMonitor::printToTraderCmdMonitor);

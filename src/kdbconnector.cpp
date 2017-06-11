@@ -1,10 +1,5 @@
 #include <string>
 
-#include <QDebug>
-#include <QThread>
-#include <QElapsedTimer>
-#include <QTimeZone>
-
 #include "include/portfolio.h"
 #include "include/kdbconnector.h"
 #include "include/struct.h"
@@ -258,7 +253,6 @@ void TickSubscriber::subscribe()
         //qDebug() << "Subscribed";
         //logger(warn, "Subscribed");
 
-    K tb, coldata;
     while (1)
     {
         r = k(handle, (S)0);
@@ -266,24 +260,13 @@ void TickSubscriber::subscribe()
         {
             if (r->t == 0)
             {
-                qDebug() << QThread::currentThreadId() << "*****************" << kK(r)[1]->s;
-                tb = kK(r)[2]->k;
+//                K tb = kK(r)[2]->k;
                 // K colname = kK(tb)[0];
-                coldata = kK(tb)[1];
-                qDebug() << kS(kK(coldata)[1])[0] << kF(kK(coldata)[4])[0] << kI(kK(coldata)[3])[0] << "-----" << ++countTick;
+//                K coldata = kK(tb)[1];
+//                std::cout << kS(kK(coldata)[1])[0] << kF(kK(coldata)[4])[0] << kI(kK(coldata)[3])[0] << "-----" << ++countTick;
             }
             r0(r);
         }
     }
     kclose(handle);
 }
-
-class KdbSubscriberThread :public QThread {
-private:
-    void run()
-    {
-        TickSubscriber tickSub;
-        qDebug() << "tickSub thread ID: " << currentThreadId();
-        tickSub.subscribe();
-    }
-};

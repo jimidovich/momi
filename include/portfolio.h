@@ -6,7 +6,6 @@
 
 #include "position.h"
 #include "datahub.h"
-#include "dispatcher.h"
 
 struct CtpEvent;
 

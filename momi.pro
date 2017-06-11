@@ -18,11 +18,9 @@ TEMPLATE = app
 SOURCES += src/main.cpp\
     src/ctpmonitor.cpp \
     src/datahub.cpp \
-    src/dispatcher.cpp \
     src/kalman.cpp \
     src/kdbconnector.cpp \
     src/mdspi.cpp \
-    src/myevent.cpp \
     src/oms.cpp \
     src/portfolio.cpp \
     src/position.cpp \
@@ -35,7 +33,6 @@ SOURCES += src/main.cpp\
 
 HEADERS += include/ctpmonitor.h \
     include/datahub.h \
-    include/dispatcher.h \
     include/k.h \
     include/kalman.h \
     include/kdbconnector.h \

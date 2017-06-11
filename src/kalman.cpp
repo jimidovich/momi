@@ -1,6 +1,5 @@
 #include <chrono>
 #include <iostream>
-#include <QDebug>
 
 #include "fmt/format.h"
 

@@ -3,15 +3,14 @@
 
 #include <memory>
 
-//#include <QCoreApplication>
 #include <QColor>
 #include <QObject>
 
 #include "spdlog/spdlog.h"
 #include "ThostFtdcTraderApi.h"
 
+#include "datahub.h"
 #include "struct.h"
-#include "dispatcher.h"
 
 class QString;
 
@@ -47,8 +46,6 @@ public:
     int ReqOrderAction(std::string InstrumentID, int FrontID = 0, int SessionID = 0, std::string OrderRef = "", std::string ExchangeID = "", std::string OrderSysID = "");
 
     void showApiReturn(int ret, std::string outputIfSuccess = "", std::string outputIfError = "TraderApi sent Error.");
-    std::string getTradingDay();
-    void handleDispatch(int tt);
 
     DataHub *dataHub;
 
@@ -99,12 +96,9 @@ public:
     void OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDetailField *pInvestorPositionDetail, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
 
-    bool isErrorRspInfo(CThostFtdcRspInfoField *pRspInfo, const char *msg = "");
+    bool isErrorRspInfo(CThostFtdcRspInfoField *pRspInfo, std::string msg);
 
     static void timerReq(Trader *trader, const char *req);
-
-    //template <typename... Args>
-    //void logger(const char* fmt, const Args&... args);
 
     void setLogger();
 
@@ -115,31 +109,20 @@ public:
         g_logger->log(lvl, fmt, args...);
     }
 
-    CThostFtdcTraderApi *tdapi;
+    const std::string FrontAddress;
+    const std::string BROKER_ID;
+    const std::string USER_ID;
+    const std::string PASSWORD;
+    CThostFtdcTraderApi *tdapi = nullptr;
 
     int nRequestID   = 0;
     int nMaxOrderRef = 0;
     int FrontID      = 0;
     int SessionID    = 0;
-    std::string tradingDay;
+
     std::string strSettlementInfo;
     bool isNewSettlementInfo = false;
     bool isLoginWorkflow = false;
-
-    //char *FrontAddress{ "tcp://122.224.98.87:27225" };
-    //const std::string BROKER_ID{ "3010" };
-    //const std::string USER_ID{ "10101847" };
-    //const std::string PASSWORD{ "0" };
-
-    //char *FrontAddress{ "tcp://180.168.146.187:10000" };
-    //const std::string BROKER_ID{ "9999" };
-    //const std::string USER_ID{ "063669" };
-    //const std::string PASSWORD{ "1qaz2wsx" };
-
-    const std::string FrontAddress;
-    const std::string BROKER_ID;
-    const std::string USER_ID;
-    const std::string PASSWORD;
 
     std::shared_ptr<spdlog::logger> console;
     std::shared_ptr<spdlog::logger> g_logger;

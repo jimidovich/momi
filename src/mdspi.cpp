@@ -1,9 +1,6 @@
-﻿#include <QDebug>
-#include <QCoreApplication>
-#include <QThread>
-
-#include <iostream>
+﻿#include <iostream>
 #include <chrono>
+
 #include "include/ThostFtdcMdApi.h"
 
 #include "include/mdspi.h"
@@ -48,8 +45,6 @@ void MdSpi::reqConnect()
     mdapi = CThostFtdcMdApi::CreateFtdcMdApi();
     mdapi->RegisterSpi(this);
 
-    //char *front = new char[30];
-    //strcpy(front, FrontAddress.c_str());
     char *front = new char[FrontAddress.length() + 1];
     strcpy(front, FrontAddress.c_str());
     mdapi->RegisterFront(front);
@@ -62,11 +57,11 @@ void MdSpi::OnFrontConnected()
     logger(info, "Md Front Connected.");
     emit sendToTraderMonitor("Md Front Connected.", Qt::darkGreen);
 
-    auto loginField = new CThostFtdcReqUserLoginField();
-    strcpy(loginField->BrokerID, BROKER_ID.c_str());
-    strcpy(loginField->UserID, USER_ID.c_str());
-    strcpy(loginField->Password, PASSWORD.c_str());
-    int ret = mdapi->ReqUserLogin(loginField, 2);
+    CThostFtdcReqUserLoginField loginField = {};
+    strcpy(loginField.BrokerID, BROKER_ID.c_str());
+    strcpy(loginField.UserID, USER_ID.c_str());
+    strcpy(loginField.Password, PASSWORD.c_str());
+    int ret = mdapi->ReqUserLogin(&loginField, ++nRequestID);
     showApiReturn(ret, "--> Md ReqLogin", "Md ReqLogin Failed");
 }
 
@@ -105,14 +100,8 @@ void MdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtd
         emit sendToTraderMonitor(msg.c_str(), Qt::green);
 
         // wait for trader req all contracts info, then can initialize symList
-//        QThread::sleep(5);
-        std::string instruments = {
-            "IF1706;IH1706;IC1706;TF1712;T1712;"
-            "rb1710;ru1709;cu1706;zn1706;au1706;ag1706;au1712;ag1712;sn1709;al1706;hc1710;bu1709;pb1706;sn1709;"
-            "i1709;p1709;m1709;y1709;j1709;l1709;c1709;jm1709;cs1709;pp1709;jd1709;a1709;"
-            "SR709;TA709;MA709;CF709;OI709;RM709;ZC709;FG709;SM709"
-        };
-        subscribeMd(instruments);
+        if (subInstruments.size() != 0)
+            subscribeMd(subInstruments);
     }
 }
 
@@ -166,9 +155,9 @@ void MdSpi::subscribeMd(std::string instruments)
 {
     QStringList argv(QString(instruments.c_str()).split(";"));
     int n = argv.count();
-    if (n > 1)
+    if (n > 0)
     {
-        auto namelist = new char*[n];
+        char* namelist[n];
         for (int i = 0; i < n; ++i) {
             namelist[i] = new char[7];
             strcpy(namelist[i], argv.at(i).toStdString().c_str());
@@ -178,6 +167,9 @@ void MdSpi::subscribeMd(std::string instruments)
             dataHub->symPrevMktTable[namelist[i]] = CThostFtdcDepthMarketDataField();
         }
         int ret = mdapi->SubscribeMarketData(namelist, n);
+        for (int i = 0; i < n; ++i) {
+            delete namelist[i];
+        }
         showApiReturn(ret, ("--> Md Subscribe: " + instruments).c_str(), "SubscribeMarketData Failed");
     }
 }
@@ -214,11 +206,11 @@ void MdSpi::showApiReturn(int ret, string outputIfSuccess, string outputIfError)
     }
 }
 
-bool MdSpi::isErrorRspInfo(CThostFtdcRspInfoField *pRspInfo, const char *msg)
+bool MdSpi::isErrorRspInfo(CThostFtdcRspInfoField *pRspInfo, string msg)
 {
     bool isError = (pRspInfo) && (pRspInfo->ErrorID != 0);
     if (isError) {
-        string errMsg = fmt::format("ErrorID={}, ErrorMsg={}", pRspInfo->ErrorID, QString::fromLocal8Bit(pRspInfo->ErrorMsg).toStdString());
+        string errMsg = fmt::format("{}: ErrorID={}, ErrorMsg={}", msg, pRspInfo->ErrorID, QString::fromLocal8Bit(pRspInfo->ErrorMsg).toStdString());
         logger(err, errMsg.c_str());
         emit sendToTraderMonitor(errMsg.c_str(), Qt::red);
     }
@@ -241,20 +233,23 @@ void MdSpi::execCmdLine(QString cmdLine)
 {
     QStringList argv(cmdLine.split(" "));
     int n = argv.count();
-    if (n > 1)
-    {
-        if (argv.at(1) == "sub" || argv.at(1) == "unsub")
-        {
+    if (n > 1) {
+        if (argv.at(1) == "sub" || argv.at(1) == "unsub") {
             int num = n - 2;
-            auto namelist = new char*[num];
-            for (int i = 2; i < n; ++i) {
-                namelist[i - 2] = new char[7];
-                strcpy(namelist[i - 2], argv.at(i).toStdString().c_str());
+            if (num > 0) {
+                char* namelist[num];
+                for (int i = 2; i < n; ++i) {
+                    namelist[i - 2] = new char[7];
+                    strcpy(namelist[i - 2], argv.at(i).toStdString().c_str());
+                }
+                if (argv.at(1) == "sub")
+                    mdapi->SubscribeMarketData(namelist, num);
+                else
+                    mdapi->UnSubscribeMarketData(namelist, num);
+                for (int i = 2; i < n; ++i) {
+                    delete namelist[i - 2];
+                }
             }
-            if (argv.at(1) == "sub")
-                mdapi->SubscribeMarketData(namelist, num);
-            else
-                mdapi->UnSubscribeMarketData(namelist, num);
         }
         else if (argv.at(1) == "-help" || argv.at(1) == "-h") {
             QString msg = "usage: md {sub, unsub} instrumentID";

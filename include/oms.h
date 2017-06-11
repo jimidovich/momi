@@ -10,7 +10,7 @@
 
 #include "struct.h"
 #include "myevent.h"
-#include "dispatcher.h"
+#include "datahub.h"
 
 class Portfolio;
 class Trader;

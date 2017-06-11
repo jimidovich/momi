@@ -2,13 +2,8 @@
 #include <set>
 #include <thread>
 
-#include <QCoreApplication>
-#include <QDebug>
-#include <QThread>
-#include <QDialog>
 #include <QTextEdit>
 #include <QTimer>
-//#include <QColor>
 #include <QtConcurrent/QtConcurrent>
 
 #include "spdlog/spdlog.h"
@@ -70,25 +65,21 @@ void Trader::reqConnect()
 
 int Trader::login()
 {
-//    logger(info, "--> Trader ReqLogin...");
-//    emit sendToTraderMonitor("--> Trader Req Login...");
-    auto loginField = new CThostFtdcReqUserLoginField();
-    strcpy(loginField->BrokerID, BROKER_ID.c_str());
-    strcpy(loginField->UserID, USER_ID.c_str());
-    strcpy(loginField->Password, PASSWORD.c_str());
-    int ret = tdapi->ReqUserLogin(loginField, ++nRequestID);
+    CThostFtdcReqUserLoginField loginField;
+    strcpy(loginField.BrokerID, BROKER_ID.c_str());
+    strcpy(loginField.UserID, USER_ID.c_str());
+    strcpy(loginField.Password, PASSWORD.c_str());
+    int ret = tdapi->ReqUserLogin(&loginField, ++nRequestID);
     showApiReturn(ret, "--> Trader ReqLogin", "Trader ReqLogin Failed: ");
     return ret;
 }
 
 int Trader::logout()
 {
-//    logger(info, "Trader Req Logout...");
-//    emit sendToTraderMonitor("--> Trader Req Logout...");
-    auto logoutField = new CThostFtdcUserLogoutField();
-    strcpy(logoutField->BrokerID, BROKER_ID.c_str());
-    strcpy(logoutField->UserID, USER_ID.c_str());
-    int ret = tdapi->ReqUserLogout(logoutField, ++nRequestID);
+    CThostFtdcUserLogoutField logoutField = {};
+    strcpy(logoutField.BrokerID, BROKER_ID.c_str());
+    strcpy(logoutField.UserID, USER_ID.c_str());
+    int ret = tdapi->ReqUserLogout(&logoutField, ++nRequestID);
     showApiReturn(ret, "--> Trader ReqLogout:", "Trader ReqLogout Failed: ");
     return ret;
 }
@@ -138,7 +129,6 @@ void Trader::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFt
         nMaxOrderRef = atoi(pRspUserLogin->MaxOrderRef);
         FrontID = pRspUserLogin->FrontID;
         SessionID = pRspUserLogin->SessionID;
-        tradingDay = pRspUserLogin->TradingDay;
 
 //        string preSpaces = "\n" + string(" ").repeated(31);
         string preSpaces = fmt::format("\n{:>31}", ' ');
@@ -357,10 +347,10 @@ void Trader::OnRspQryTradingAccount(CThostFtdcTradingAccountField *pTradingAccou
         if (bIsLast) {
             string msg("Trading Account");
             string preSpaces = fmt::format("\n{:>31}", ' ');
-            msg += preSpaces + "Balance    = " + to_string(pTradingAccount->Balance);
-            msg += preSpaces + "Available  = " + to_string(pTradingAccount->Available);
-            msg += preSpaces + "CurrMargin = " + to_string(pTradingAccount->CurrMargin);
-            msg += preSpaces + "Reserve    = " + to_string(pTradingAccount->Reserve);
+            msg += preSpaces + fmt::format("Balance    = {:.2f}", pTradingAccount->Balance);
+            msg += preSpaces + fmt::format("Available  = {:.2f}", pTradingAccount->Available);
+            msg += preSpaces + fmt::format("CurrMargin = {:.2f}", pTradingAccount->CurrMargin);
+            msg += preSpaces + fmt::format("Reserve    = {:.2f}", pTradingAccount->Reserve);
             logger(info, msg.c_str());
             emit sendToTraderMonitor(msg.c_str());
 
@@ -460,31 +450,31 @@ void Trader::OnErrRtnOrderAction(CThostFtdcOrderActionField * pOrderAction, CTho
 
 int Trader::ReqSettlementInfoConfirm()
 {
-    auto info = new CThostFtdcSettlementInfoConfirmField();
-    strcpy(info->BrokerID, BROKER_ID.c_str());
-    strcpy(info->InvestorID, USER_ID.c_str());
-    int ret = tdapi->ReqSettlementInfoConfirm(info, ++nRequestID);
+    CThostFtdcSettlementInfoConfirmField info = {};
+    strcpy(info.BrokerID, BROKER_ID.c_str());
+    strcpy(info.InvestorID, USER_ID.c_str());
+    int ret = tdapi->ReqSettlementInfoConfirm(&info, ++nRequestID);
     showApiReturn(ret, "--> ReqSettlementInfoConfirm", "--x ReqSettlementInfoConfirm Failed");
     return ret;
 }
 
 int Trader::ReqQrySettlementInfoConfirm()
 {
-    auto info = new CThostFtdcQrySettlementInfoConfirmField();
-    strcpy(info->BrokerID, BROKER_ID.c_str());
-    strcpy(info->InvestorID, USER_ID.c_str());
-    int ret = tdapi->ReqQrySettlementInfoConfirm(info, ++nRequestID);
+    CThostFtdcQrySettlementInfoConfirmField info = {};
+    strcpy(info.BrokerID, BROKER_ID.c_str());
+    strcpy(info.InvestorID, USER_ID.c_str());
+    int ret = tdapi->ReqQrySettlementInfoConfirm(&info, ++nRequestID);
     showApiReturn(ret, "--> ReqQrySettlementInfoConfirm", "--x ReqQrySettlementInfoConfirm Failed");
     return ret;
 }
 
 int Trader::ReqQrySettlementInfo(string TradingDay)
 {
-    auto info = new CThostFtdcQrySettlementInfoField();
-    strcpy(info->BrokerID, BROKER_ID.c_str());
-    strcpy(info->InvestorID, USER_ID.c_str());
-    strcpy(info->TradingDay, TradingDay.c_str());
-    int ret = tdapi->ReqQrySettlementInfo(info, ++nRequestID);
+    CThostFtdcQrySettlementInfoField info = {};
+    strcpy(info.BrokerID, BROKER_ID.c_str());
+    strcpy(info.InvestorID, USER_ID.c_str());
+    strcpy(info.TradingDay, TradingDay.c_str());
+    int ret = tdapi->ReqQrySettlementInfo(&info, ++nRequestID);
     showApiReturn(ret, "--> ReqQrySettlementInfo", "--x ReqQrySettlementInfo Failed");
     return ret;
 }
@@ -507,30 +497,30 @@ for others: 'CloseToday' and 'CloseYesterday' = 'Close'
 // Limit Order
 int Trader::ReqOrderInsert(string InstrumentID, EnumOffsetFlagType OffsetFlag, EnumDirectionType Direction, double Price, int Volume)
 {
-    auto order = new CThostFtdcInputOrderField();
-    strcpy(order->BrokerID, BROKER_ID.c_str());
-    strcpy(order->UserID, USER_ID.c_str());
-    strcpy(order->InvestorID, USER_ID.c_str());
-    strcpy(order->OrderRef, QString::number(++nMaxOrderRef).toStdString().c_str());
-    order->ContingentCondition = Immediately;
-    order->ForceCloseReason = NotForceClose;
-    order->IsAutoSuspend = false;
-    order->MinVolume = 1;
-    order->OrderPriceType = LimitPrice;
-    order->TimeCondition = GFD;
-    order->UserForceClose = false;
-    order->VolumeCondition = AV;
-    order->CombHedgeFlag[0] = Speculation;
+    CThostFtdcInputOrderField order = {};
+    strcpy(order.BrokerID, BROKER_ID.c_str());
+    strcpy(order.UserID, USER_ID.c_str());
+    strcpy(order.InvestorID, USER_ID.c_str());
+    strcpy(order.OrderRef, QString::number(++nMaxOrderRef).toStdString().c_str());
+    order.ContingentCondition = Immediately;
+    order.ForceCloseReason = NotForceClose;
+    order.IsAutoSuspend = false;
+    order.MinVolume = 1;
+    order.OrderPriceType = LimitPrice;
+    order.TimeCondition = GFD;
+    order.UserForceClose = false;
+    order.VolumeCondition = AV;
+    order.CombHedgeFlag[0] = Speculation;
 
-    strcpy(order->InstrumentID, InstrumentID.c_str());
-    order->CombOffsetFlag[0] = OffsetFlag;
-    order->Direction = Direction;
-    order->LimitPrice = Price;
-    order->VolumeTotalOriginal = Volume;
+    strcpy(order.InstrumentID, InstrumentID.c_str());
+    order.CombOffsetFlag[0] = OffsetFlag;
+    order.Direction = Direction;
+    order.LimitPrice = Price;
+    order.VolumeTotalOriginal = Volume;
 
-    int ret = tdapi->ReqOrderInsert(order, ++nRequestID);
+    int ret = tdapi->ReqOrderInsert(&order, ++nRequestID);
     showApiReturn(ret, "--> LimitOrderInsert", "--x LimitOrderInsert Sent Error");
-    string msg = fmt::format("LMT Insert: {} {} {} Px={} Vol={}", order->InstrumentID, mymap::offsetFlag_string.at(OffsetFlag), mymap::direction_char.at(Direction), Price, Volume);
+    string msg = fmt::format("LMT Insert: {} {} {} Px={} Vol={}", order.InstrumentID, mymap::offsetFlag_string.at(OffsetFlag), mymap::direction_char.at(Direction), Price, Volume);
     logger(info, msg.c_str());
     emit sendToTraderMonitor(msg.c_str());
     return ret;
@@ -539,28 +529,28 @@ int Trader::ReqOrderInsert(string InstrumentID, EnumOffsetFlagType OffsetFlag, E
 // Market Order
 int Trader::ReqOrderInsert(string InstrumentID, EnumOffsetFlagType OffsetFlag, EnumDirectionType Direction, int Volume)
 {
-    auto order = new CThostFtdcInputOrderField();
-    strcpy(order->BrokerID, BROKER_ID.c_str());
-    strcpy(order->UserID, USER_ID.c_str());
-    strcpy(order->InvestorID, USER_ID.c_str());
+    CThostFtdcInputOrderField order = {};
+    strcpy(order.BrokerID, BROKER_ID.c_str());
+    strcpy(order.UserID, USER_ID.c_str());
+    strcpy(order.InvestorID, USER_ID.c_str());
     //strcpy(order->OrderRef, QString::number(++nMaxOrderRef).toStdString().c_str());
-    order->ContingentCondition = Immediately;
-    order->ForceCloseReason = NotForceClose;
-    order->IsAutoSuspend = false;
-    order->MinVolume = 1;
-    order->OrderPriceType = AnyPrice;
-    order->TimeCondition = IOC; //立即完成，否则撤销
-    order->UserForceClose = false;
-    order->VolumeCondition = AV;
-    order->CombHedgeFlag[0] = Speculation;
+    order.ContingentCondition = Immediately;
+    order.ForceCloseReason = NotForceClose;
+    order.IsAutoSuspend = false;
+    order.MinVolume = 1;
+    order.OrderPriceType = AnyPrice;
+    order.TimeCondition = IOC; //立即完成，否则撤销
+    order.UserForceClose = false;
+    order.VolumeCondition = AV;
+    order.CombHedgeFlag[0] = Speculation;
 
-    strcpy(order->InstrumentID, InstrumentID.c_str());
-    order->CombOffsetFlag[0] = OffsetFlag;
-    order->Direction = Direction;
-    order->LimitPrice = 0;
-    order->VolumeTotalOriginal = Volume;
+    strcpy(order.InstrumentID, InstrumentID.c_str());
+    order.CombOffsetFlag[0] = OffsetFlag;
+    order.Direction = Direction;
+    order.LimitPrice = 0;
+    order.VolumeTotalOriginal = Volume;
 
-    int ret = tdapi->ReqOrderInsert(order, ++nRequestID);
+    int ret = tdapi->ReqOrderInsert(&order, ++nRequestID);
     showApiReturn(ret, "--> MarketOrderInsert", "--x MarketOrderInsert Sent Error");
     return ret;
 }
@@ -569,30 +559,30 @@ int Trader::ReqOrderInsert(string InstrumentID, EnumOffsetFlagType OffsetFlag, E
 int Trader::ReqOrderInsert(string InstrumentID, EnumContingentConditionType ConditionType, double conditionPrice,
     EnumOffsetFlagType OffsetFlag, EnumDirectionType Direction, EnumOrderPriceTypeType PriceType, double Price, int Volume)
 {
-    auto order = new CThostFtdcInputOrderField();
-    strcpy(order->BrokerID, BROKER_ID.c_str());
-    strcpy(order->UserID, USER_ID.c_str());
-    strcpy(order->InvestorID, USER_ID.c_str());
+    CThostFtdcInputOrderField order = {};
+    strcpy(order.BrokerID, BROKER_ID.c_str());
+    strcpy(order.UserID, USER_ID.c_str());
+    strcpy(order.InvestorID, USER_ID.c_str());
     //strcpy(order->OrderRef, QString::number(++nMaxOrderRef).toStdString().c_str());
-    order->ForceCloseReason = NotForceClose;
-    order->IsAutoSuspend = false;
-    order->MinVolume = 1;
-    order->OrderPriceType = AnyPrice;
-    order->TimeCondition = IOC; //立即完成，否则撤销
-    order->UserForceClose = false;
-    order->VolumeCondition = AV;
-    order->CombHedgeFlag[0] = Speculation;
+    order.ForceCloseReason = NotForceClose;
+    order.IsAutoSuspend = false;
+    order.MinVolume = 1;
+    order.OrderPriceType = AnyPrice;
+    order.TimeCondition = IOC; //立即完成，否则撤销
+    order.UserForceClose = false;
+    order.VolumeCondition = AV;
+    order.CombHedgeFlag[0] = Speculation;
 
-    strcpy(order->InstrumentID, InstrumentID.c_str());
-    order->ContingentCondition = ConditionType;
-    order->StopPrice = conditionPrice;
-    order->CombOffsetFlag[0] = OffsetFlag;
-    order->Direction = Direction;
-    order->OrderPriceType = PriceType;
-    order->LimitPrice = Price;  // Effective only if PriceType == LimitPrice
-    order->VolumeTotalOriginal = Volume;
+    strcpy(order.InstrumentID, InstrumentID.c_str());
+    order.ContingentCondition = ConditionType;
+    order.StopPrice = conditionPrice;
+    order.CombOffsetFlag[0] = OffsetFlag;
+    order.Direction = Direction;
+    order.OrderPriceType = PriceType;
+    order.LimitPrice = Price;  // Effective only if PriceType == LimitPrice
+    order.VolumeTotalOriginal = Volume;
 
-    int ret = tdapi->ReqOrderInsert(order, ++nRequestID);
+    int ret = tdapi->ReqOrderInsert(&order, ++nRequestID);
     showApiReturn(ret, "--> MarketOrderInsert", "--x MarketOrderInsert Sent Error");
     return ret;
 }
@@ -606,13 +596,13 @@ int Trader::ReqOrderAction(CThostFtdcInputOrderActionField *pInputOrderAction)
 
 int Trader::ReqOrderAction(string InstrumentID, string OrderRef)
 {
-    auto action = new CThostFtdcInputOrderActionField();
-    action->ActionFlag = THOST_FTDC_AF_Delete;
-    strcpy(action->BrokerID, BROKER_ID.c_str());
-    strcpy(action->InvestorID, USER_ID.c_str());
-    action->FrontID = FrontID;
-    action->SessionID = SessionID;
-    strcpy(action->InstrumentID, InstrumentID.c_str());
+    CThostFtdcInputOrderActionField action = {};
+    action.ActionFlag = THOST_FTDC_AF_Delete;
+    strcpy(action.BrokerID, BROKER_ID.c_str());
+    strcpy(action.InvestorID, USER_ID.c_str());
+    action.FrontID = FrontID;
+    action.SessionID = SessionID;
+    strcpy(action.InstrumentID, InstrumentID.c_str());
     //strcpy(action->OrderRef, OrderRef.c_str());
     // TODO: check self set orderRef's format!
     if (OrderRef != "")
@@ -621,110 +611,110 @@ int Trader::ReqOrderAction(string InstrumentID, string OrderRef)
         // Shit this turns to  "xxx         " char[12]
         if (OrderRef.length() > 12) return -100;
 //        strcpy(action->OrderRef, QString::fromStdString(OrderRef).rightJustified(12, ' ').toStdString().c_str());
-        strcpy(action->OrderRef, OrderRef.c_str());
+        strcpy(action.OrderRef, OrderRef.c_str());
     }
-    return ReqOrderAction(action);
+    return ReqOrderAction(&action);
 }
 
 int Trader::ReqOrderAction(string InstrumentID, int FrontID, int SessionID, string OrderRef, string ExchangeID, string OrderSysID)
 {
-    auto action = new CThostFtdcInputOrderActionField();
-    action->ActionFlag = THOST_FTDC_AF_Delete;
-    strcpy(action->BrokerID, BROKER_ID.c_str());
-    strcpy(action->InstrumentID, InstrumentID.c_str());
-    strcpy(action->InvestorID, USER_ID.c_str());
+    CThostFtdcInputOrderActionField action = {};
+    action.ActionFlag = THOST_FTDC_AF_Delete;
+    strcpy(action.BrokerID, BROKER_ID.c_str());
+    strcpy(action.InstrumentID, InstrumentID.c_str());
+    strcpy(action.InvestorID, USER_ID.c_str());
 
     if (FrontID != 0)
-        action->FrontID = FrontID;
+        action.FrontID = FrontID;
     if (SessionID != 0)
-        action->SessionID = SessionID;
+        action.SessionID = SessionID;
     if (OrderRef != "")
     {
         // OrderRef has format "       xxxxx", length set 12 here.
         // Shit this turns to  "xxx         " char[12]
         if (OrderRef.length() > 12) return -100;
 //        strcpy(action->OrderRef, QString::fromStdString(OrderRef).rightJustified(12, ' ').toStdString().c_str());
-        strcpy(action->OrderRef, OrderRef.c_str());
+        strcpy(action.OrderRef, OrderRef.c_str());
     }
     if (ExchangeID != "")
-        strcpy(action->ExchangeID, ExchangeID.c_str());
+        strcpy(action.ExchangeID, ExchangeID.c_str());
     if (OrderSysID != "")
     {
         // OrderSysID has format "     xxxxx", length set 20 here.  //Holy shit, 12 or 20? sample feedback shows "     xxxx" 12 length in char[20]
         if (OrderRef.length() > 20) return -101;
 //        strcpy(action->OrderRef, QString::fromStdString(OrderRef).rightJustified(20, ' ').toStdString().c_str());
-        strcpy(action->OrderSysID, OrderSysID.c_str());
+        strcpy(action.OrderSysID, OrderSysID.c_str());
     }
-    return ReqOrderAction(action);
+    return ReqOrderAction(&action);
 }
 
 int Trader::ReqQryOrder(string InstrumentID, string ExchangeID, string timeStart, string timeEnd, string OrderSysID)
 {
-    auto order = new CThostFtdcQryOrderField();
-    strcpy(order->BrokerID, BROKER_ID.c_str());
-    strcpy(order->InstrumentID, InstrumentID.c_str());
-    strcpy(order->InvestorID, USER_ID.c_str());
-    strcpy(order->ExchangeID, ExchangeID.c_str());
-    strcpy(order->OrderSysID, OrderSysID.c_str());
-    strcpy(order->InsertTimeStart, timeStart.c_str());
-    strcpy(order->InsertTimeEnd, timeEnd.c_str());
-    int ret = tdapi->ReqQryOrder(order, ++nRequestID);
+    CThostFtdcQryOrderField order = {};
+    strcpy(order.BrokerID, BROKER_ID.c_str());
+    strcpy(order.InstrumentID, InstrumentID.c_str());
+    strcpy(order.InvestorID, USER_ID.c_str());
+    strcpy(order.ExchangeID, ExchangeID.c_str());
+    strcpy(order.OrderSysID, OrderSysID.c_str());
+    strcpy(order.InsertTimeStart, timeStart.c_str());
+    strcpy(order.InsertTimeEnd, timeEnd.c_str());
+    int ret = tdapi->ReqQryOrder(&order, ++nRequestID);
     showApiReturn(ret, "--> ReqQryOrder", "--x ReqQryOrder Failed");
     return ret;
 }
 
 int Trader::ReqQryTrade(string timeStart, string timeEnd, string InstrumentID, string ExchangeID, string TradeID)
 {
-    auto trade = new CThostFtdcQryTradeField();
-    strcpy(trade->BrokerID, BROKER_ID.c_str());
-    strcpy(trade->InvestorID, USER_ID.c_str());
-    strcpy(trade->InstrumentID, InstrumentID.c_str());
-    strcpy(trade->ExchangeID, ExchangeID.c_str());
-    strcpy(trade->TradeID, TradeID.c_str());
-    strcpy(trade->TradeTimeStart, timeStart.c_str());
-    strcpy(trade->TradeTimeEnd, timeEnd.c_str());
-    int ret = tdapi->ReqQryTrade(trade, ++nRequestID);
+    CThostFtdcQryTradeField trade = {};
+    strcpy(trade.BrokerID, BROKER_ID.c_str());
+    strcpy(trade.InvestorID, USER_ID.c_str());
+    strcpy(trade.InstrumentID, InstrumentID.c_str());
+    strcpy(trade.ExchangeID, ExchangeID.c_str());
+    strcpy(trade.TradeID, TradeID.c_str());
+    strcpy(trade.TradeTimeStart, timeStart.c_str());
+    strcpy(trade.TradeTimeEnd, timeEnd.c_str());
+    int ret = tdapi->ReqQryTrade(&trade, ++nRequestID);
     showApiReturn(ret, "--> ReqQryTrade", "--x ReqQryTrade Failed");
     return ret;
 }
 
 int Trader::ReqQryDepthMarketData(string InstrumentID)
 {
-    auto f = new CThostFtdcQryDepthMarketDataField();
-    strcpy(f->InstrumentID, InstrumentID.c_str());
-    int ret = tdapi->ReqQryDepthMarketData(f, ++nRequestID);
+    CThostFtdcQryDepthMarketDataField f = {};
+    strcpy(f.InstrumentID, InstrumentID.c_str());
+    int ret = tdapi->ReqQryDepthMarketData(&f, ++nRequestID);
     showApiReturn(ret, "--> ReqQryDepthMarketData", "--x ReqQryDepthMarketData Failed");
     return ret;
 }
 
 int Trader::ReqQryTradingAccount()
 {
-    auto acc = new CThostFtdcQryTradingAccountField();
-    strcpy(acc->BrokerID, BROKER_ID.c_str());
-    strcpy(acc->InvestorID, USER_ID.c_str());
-    int ret = tdapi->ReqQryTradingAccount(acc, ++nRequestID);
+    CThostFtdcQryTradingAccountField acc = {};
+    strcpy(acc.BrokerID, BROKER_ID.c_str());
+    strcpy(acc.InvestorID, USER_ID.c_str());
+    int ret = tdapi->ReqQryTradingAccount(&acc, ++nRequestID);
     showApiReturn(ret, "--> ReqQryTradingAccount", "--x ReqQryTradingAccount Failed");
     return ret;
 }
 
 int Trader::ReqQryInvestorPosition(string InstrumentID)
 {
-    auto pos = new CThostFtdcQryInvestorPositionField();
-    strcpy(pos->BrokerID, BROKER_ID.c_str());
-    strcpy(pos->InvestorID, USER_ID.c_str());
-    strcpy(pos->InstrumentID, InstrumentID.c_str());
-    int ret = tdapi->ReqQryInvestorPosition(pos, ++nRequestID);
+    CThostFtdcQryInvestorPositionField pos = {};
+    strcpy(pos.BrokerID, BROKER_ID.c_str());
+    strcpy(pos.InvestorID, USER_ID.c_str());
+    strcpy(pos.InstrumentID, InstrumentID.c_str());
+    int ret = tdapi->ReqQryInvestorPosition(&pos, ++nRequestID);
     showApiReturn(ret, "--> ReqQryInvestorPosition", "--x ReqQryInvestorPosition Failed");
     return ret;
 }
 
 int Trader::ReqQryInvestorPositionDetail(string InstrumentID)
 {
-    auto pos = new CThostFtdcQryInvestorPositionDetailField();
-    strcpy(pos->BrokerID, BROKER_ID.c_str());
-    strcpy(pos->InvestorID, USER_ID.c_str());
-    strcpy(pos->InstrumentID, InstrumentID.c_str());
-    int ret = tdapi->ReqQryInvestorPositionDetail(pos, ++nRequestID);
+    CThostFtdcQryInvestorPositionDetailField pos = {};
+    strcpy(pos.BrokerID, BROKER_ID.c_str());
+    strcpy(pos.InvestorID, USER_ID.c_str());
+    strcpy(pos.InstrumentID, InstrumentID.c_str());
+    int ret = tdapi->ReqQryInvestorPositionDetail(&pos, ++nRequestID);
     showApiReturn(ret, "--> ReqQryInvestorPositionDetail", "--x ReqQryInvestorPositionDetail Failed");
 
     return ret;
@@ -732,38 +722,33 @@ int Trader::ReqQryInvestorPositionDetail(string InstrumentID)
 
 int Trader::ReqQryInstrument()
 {
-    auto field = new CThostFtdcQryInstrumentField();
-    int ret = tdapi->ReqQryInstrument(field, ++nRequestID);
+    CThostFtdcQryInstrumentField field = {};
+    int ret = tdapi->ReqQryInstrument(&field, ++nRequestID);
     showApiReturn(ret, "--> ReqQryInstrument", "--x ReqQryInstrument Failed");
     return ret;
 }
 
 int Trader::ReqQryInstrumentMarginRate(string InstrumentID, EnumHedgeFlagType hedgeFlag)
 {
-    auto field = new CThostFtdcQryInstrumentMarginRateField();
-    strcpy(field->BrokerID, BROKER_ID.c_str());
-    strcpy(field->InvestorID, USER_ID.c_str());
-    strcpy(field->InstrumentID, InstrumentID.c_str());
-    field->HedgeFlag = hedgeFlag;
-    int ret = tdapi->ReqQryInstrumentMarginRate(field, ++nRequestID);
+    CThostFtdcQryInstrumentMarginRateField field = {};
+    strcpy(field.BrokerID, BROKER_ID.c_str());
+    strcpy(field.InvestorID, USER_ID.c_str());
+    strcpy(field.InstrumentID, InstrumentID.c_str());
+    field.HedgeFlag = hedgeFlag;
+    int ret = tdapi->ReqQryInstrumentMarginRate(&field, ++nRequestID);
     showApiReturn(ret, "--> ReqQryInstrumentMarginRate", "--x ReqQryInstrumentMarginRate Failed");
     return ret;
 }
 
 int Trader::ReqQryInstrumentCommissionRate(string InstrumentID)
 {
-    auto field = new CThostFtdcQryInstrumentCommissionRateField();
-    strcpy(field->BrokerID, BROKER_ID.c_str());
-    strcpy(field->InvestorID, USER_ID.c_str());
-    strcpy(field->InstrumentID, InstrumentID.c_str());
-    int ret = tdapi->ReqQryInstrumentCommissionRate(field, ++nRequestID);
+    CThostFtdcQryInstrumentCommissionRateField field = {};
+    strcpy(field.BrokerID, BROKER_ID.c_str());
+    strcpy(field.InvestorID, USER_ID.c_str());
+    strcpy(field.InstrumentID, InstrumentID.c_str());
+    int ret = tdapi->ReqQryInstrumentCommissionRate(&field, ++nRequestID);
     showApiReturn(ret, "--> ReqQryInstrumentCommisionRate", "--x ReqQryInstrumentCommisionRate Failed");
     return ret;
-}
-
-void Trader::handleDispatch(int tt)
-{
-    qDebug() << "RECEIVED EVENT signal****************";
 }
 
 void Trader::setLogger()
@@ -788,17 +773,12 @@ void Trader::timerReq(Trader *trader, const char *req)
     el.exec();
 }
 
-string Trader::getTradingDay()
-{
-    return tradingDay;
-}
-
 // Note: not restoring and showing corresponding nRequestID. can be implemented if need.
-bool Trader::isErrorRspInfo(CThostFtdcRspInfoField *pRspInfo, const char *msg)
+bool Trader::isErrorRspInfo(CThostFtdcRspInfoField *pRspInfo, string msg)
 {
     bool isError = (pRspInfo) && (pRspInfo->ErrorID != 0);
     if (isError) {
-        string errMsg = fmt::format("ErrorID={}, ErrorMsg={}", pRspInfo->ErrorID, QString::fromLocal8Bit(pRspInfo->ErrorMsg).toStdString());
+        string errMsg = fmt::format("{}: ErrorID={}, ErrorMsg={}", msg, pRspInfo->ErrorID, QString::fromLocal8Bit(pRspInfo->ErrorMsg).toStdString());
         logger(err, errMsg.c_str());
         emit sendToTraderMonitor(errMsg.c_str(), Qt::red);
     }
@@ -816,7 +796,6 @@ void Trader::showApiReturn(int ret, string outputIfSuccess, string outputIfError
         string msg_t;
         switch (ret) {
         case 0:
-            //msg = outputIfSuccess.append("0: Sent successfully ").append(QString("ReqID=%1").arg(QString::number(nRequestID)));
             msg = outputIfSuccess + fmt::format(" <Sent successfully. ReqID={}>", nRequestID);
             msg_t = green + msg + reset;
             logger(info, msg_t.c_str());
@@ -843,9 +822,6 @@ void Trader::showApiReturn(int ret, string outputIfSuccess, string outputIfError
     }
 }
 
-//EnumOffsetFlagType str2OffsetFlagType(string str);
-//EnumDirectionType str2DirectionType(string str);
-
 void Trader::execCmdLine(QString cmdLine)
 {
     QStringList argv(cmdLine.split(" "));
@@ -854,7 +830,6 @@ void Trader::execCmdLine(QString cmdLine)
         if (argv.at(0) == "i" || argv.at(0) == "ins") {
             if (n == 6) {
                 string InstrumentID{ argv.at(1).toStdString() };
-                //EnumOffsetFlagType OffsetFlag{ str2OffsetFlagType(argv.at(2).toStdString()) };
                 std::set<string> ofStrSet = { "open", "o", "close", "c", "ct", "cy" };
                 std::set<string> dirStrSet = { "buy", "b", "sell", "s" };
                 EnumOffsetFlagType OffsetFlag;
@@ -943,42 +918,3 @@ void Trader::execCmdLine(QString cmdLine)
         }
     }
 }
-
-//void Trader::showRspInfo(CThostFtdcRspInfoField *pRspInfo, const char *outputIfSuccess /*= ""*/, const char *outputIfError /*= ""*/)
-//{
-//    if (pRspInfo != nullptr) {
-//        if (pRspInfo->ErrorID == 0 && outputIfSuccess != "") {
-//            //logger(spdlog::level::info, outputIfSuccess.toStdString().c_str());
-//            logger(info, "{} | Thost RspInfo: ErrorID={}, ErrorMsg={}", outputIfSuccess, pRspInfo->ErrorID, pRspInfo->ErrorMsg);
-//            emit sendToTraderMonitor(outputIfSuccess);
-//        }
-//        else {
-//            QString(outputIfError).append("\nErrorID=").append(QString::number(pRspInfo->ErrorID)).append("\tErrorMsg=").append(QString::fromLocal8Bit(pRspInfo->ErrorMsg));
-//            //qDebug() << outputIfError.toStdString().c_str();
-//            logger(warn, "{} | Thost RspInfo: ErrorID={}, ErrorMsg={}", outputIfError, pRspInfo->ErrorID, pRspInfo->ErrorMsg);
-//            emit sendToTraderMonitor(outputIfError);
-//        }
-//    }
-//    else
-//        //qDebug() << "pRspInfo is nullptr";
-//        logger(warn, "pRspInfo is nullptr, {}", outputIfError);
-//}
-
-//EnumOffsetFlagType str2OffsetFlagType(string str)
-//{
-//    if (str == "open" || str == "o") { return Open; }
-//    else if (str == "close" || str == "c") { return Close; }
-//    else if (str == "forceclose") { return ForceClose; }
-//    else if (str == "closetoday") { return CloseToday; }
-//    else if (str == "closeyesterday") { return CloseYesterday; }
-//    else if (str == "forceoff") { return ForceOff; }
-//    else if (str == "localforceclose") { return LocalForceClose; }
-//    else return Open;  // not good
-//}
-
-//EnumDirectionType str2DirectionType(string str)
-//{
-//    if (str == "b" || str == "buy") { return Buy; }
-//    else if (str == "s" || str == "sell") { return Sell; }
-//    else return Buy;  // not good
-//}
